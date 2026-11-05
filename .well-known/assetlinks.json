@@ -3,6 +3,6 @@
       "target": {
         "namespace": "android_app",
         "package_name": "com.southwind.gudangpro",
-        "sha256_cert_fingerprints": ["D8:98:6D:02:37:AB:C4:6C:30:7E:C9:5A:D6:63:B9:81:6F:87:29:9D:F2:E9:5F:59:55:3B:57:EF:D2:CD:F1:D0"]
+        "sha256_cert_fingerprints": ["70:FA:63:C4:B4:E7:40:F9:E0:8A:48:00:A2:C8:6C:15:96:EF:6B:94:67:D1:4C:A9:AC:4B:F1:D2:78:96:B7:33"]
       }
     }]
