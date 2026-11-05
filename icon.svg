@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2563eb" />
+      <stop offset="100%" stop-color="#1e40af" />
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="0" fill="#1c1917" />
+  <rect x="52" y="52" width="408" height="408" rx="100" fill="url(#grad)" />
+  <!-- Isometric box -->
+  <g stroke="#ffffff" stroke-width="16" stroke-linejoin="round" stroke-linecap="round">
+    <!-- Top Face -->
+    <polygon points="256,150 370,215 256,280 142,215" fill="#ffffff" />
+    <!-- Left Face -->
+    <polygon points="142,215 256,280 256,380 142,315" fill="#e2e8f0" />
+    <!-- Right Face -->
+    <polygon points="256,280 370,215 370,315 256,380" fill="#cbd5e1" />
+  </g>
+</svg>
+

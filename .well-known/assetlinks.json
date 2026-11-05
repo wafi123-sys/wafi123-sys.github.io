@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "com.southwind.gudangpro",
+        "sha256_cert_fingerprints": ["D8:98:6D:02:37:AB:C4:6C:30:7E:C9:5A:D6:63:B9:81:6F:87:29:9D:F2:E9:5F:59:55:3B:57:EF:D2:CD:F1:D0"]
+      }
+    }]
