@@ -75,7 +75,7 @@ self.addEventListener('fetch', (event) => {
         const cached = (await cache.match('/index.html')) || (await cache.match('/'));
         const fetchPromise = fetch(event.request)
           .then((networkResponse) => {
-            if (networkResponse && networkResponse.status === 200 && networkResponse.headers.get('x-gudangpro-app') === '1') {
+            if (networkResponse && networkResponse.status === 200 && (networkResponse.headers.get('x-gudangpro-app') === '1' || self.location.hostname.endsWith('.github.io'))) {
               cache.put('/index.html', networkResponse.clone());
               cache.put('/', networkResponse.clone());
               return networkResponse;
