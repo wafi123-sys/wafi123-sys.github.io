@@ -110,9 +110,9 @@ jobs:
                               FileOutputStream fos = new FileOutputStream(out);
                               fos.write(content.getBytes(StandardCharsets.UTF_8));
                               fos.close();
-                              runOnUiThread(() -> Toast.makeText(MainActivity.this, "Tersimpan di Download: " + fileName, Toast.LENGTH_LONG).show());
+                              runOnUiThread(new Runnable() { public void run() { Toast.makeText(MainActivity.this, "Tersimpan di Download: " + fileName, Toast.LENGTH_LONG).show(); } });
                           } catch (Exception e) {
-                              runOnUiThread(() -> Toast.makeText(MainActivity.this, "Gagal simpan: " + e.getMessage(), Toast.LENGTH_LONG).show());
+                              final String msg = e.getMessage(); runOnUiThread(new Runnable() { public void run() { Toast.makeText(MainActivity.this, "Gagal simpan: " + msg, Toast.LENGTH_LONG).show(); } });
                           }
                       }
                   }, "AndroidBridge");
