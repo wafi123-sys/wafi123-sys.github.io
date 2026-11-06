@@ -1,0 +1,171 @@
+name: Build Offline APK
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Compile Native Offline WebView APK with aapt2 + d8 + apksigner
+        run: |
+          set -e
+          BUILD_TOOLS=$(ls -d $ANDROID_HOME/build-tools/* | sort -V | tail -n 1)
+          PLATFORM=$(ls -d $ANDROID_HOME/platforms/android-* | sort -V | tail -n 1)
+          ANDROID_JAR="$PLATFORM/android.jar"
+          echo "Using BUILD_TOOLS=$BUILD_TOOLS"
+          echo "Using ANDROID_JAR=$ANDROID_JAR"
+
+          mkdir -p build/src/com/southwind/gudangpro
+          mkdir -p build/res/drawable
+          mkdir -p build/assets/vendor
+          mkdir -p build/obj
+
+          cp index.html build/assets/index.html
+          cp icon.svg build/assets/icon.svg
+          cp icon-192.png build/assets/icon-192.png
+          cp icon-512.png build/assets/icon-512.png
+          cp manifest.json build/assets/manifest.json
+          cp vendor/chart.umd.js build/assets/vendor/chart.umd.js
+          cp vendor/xlsx.full.min.js build/assets/vendor/xlsx.full.min.js
+          cp icon-192.png build/res/drawable/ic_launcher.png
+
+          cat << 'EOF' > build/AndroidManifest.xml
+          <?xml version="1.0" encoding="utf-8"?>
+          <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+              package="com.southwind.gudangpro"
+              android:versionCode="40"
+              android:versionName="4.0.0">
+              <uses-sdk android:minSdkVersion="24" android:targetSdkVersion="33" />
+              <uses-permission android:name="android.permission.INTERNET" />
+              <application
+                  android:label="GudangPro Offline"
+                  android:icon="@drawable/ic_launcher"
+                  android:usesCleartextTraffic="true"
+                  android:hardwareAccelerated="true"
+                  android:theme="@android:style/Theme.DeviceDefault.NoActionBar">
+                  <activity
+                      android:name=".MainActivity"
+                      android:exported="true"
+                      android:configChanges="orientation|screenSize|keyboardHidden">
+                      <intent-filter>
+                          <action android:name="android.intent.action.MAIN" />
+                          <category android:name="android.intent.category.LAUNCHER" />
+                      </intent-filter>
+                  </activity>
+              </application>
+          </manifest>
+          EOF
+
+          cat << 'EOF' > build/src/com/southwind/gudangpro/MainActivity.java
+          package com.southwind.gudangpro;
+
+          import android.app.Activity;
+          import android.os.Bundle;
+          import android.os.Environment;
+          import android.webkit.JavascriptInterface;
+          import android.webkit.WebChromeClient;
+          import android.webkit.WebSettings;
+          import android.webkit.WebView;
+          import android.webkit.WebViewClient;
+          import android.widget.Toast;
+          import java.io.File;
+          import java.io.FileOutputStream;
+          import java.nio.charset.StandardCharsets;
+
+          public class MainActivity extends Activity {
+              private WebView webView;
+
+              @Override
+              protected void onCreate(Bundle savedInstanceState) {
+                  super.onCreate(savedInstanceState);
+                  webView = new WebView(this);
+                  setContentView(webView);
+
+                  WebSettings s = webView.getSettings();
+                  s.setJavaScriptEnabled(true);
+                  s.setDomStorageEnabled(true);
+                  s.setDatabaseEnabled(true);
+                  s.setAllowFileAccess(true);
+                  s.setAllowContentAccess(true);
+                  s.setAllowFileAccessFromFileURLs(true);
+                  s.setAllowUniversalAccessFromFileURLs(true);
+                  s.setCacheMode(WebSettings.LOAD_DEFAULT);
+
+                  webView.setWebViewClient(new WebViewClient());
+                  webView.setWebChromeClient(new WebChromeClient());
+                  webView.addJavascriptInterface(new Object() {
+                      @JavascriptInterface
+                      public void saveTextFile(final String fileName, final String content) {
+                          try {
+                              File dir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+                              if (!dir.exists()) dir.mkdirs();
+                              File out = new File(dir, fileName);
+                              FileOutputStream fos = new FileOutputStream(out);
+                              fos.write(content.getBytes(StandardCharsets.UTF_8));
+                              fos.close();
+                              runOnUiThread(() -> Toast.makeText(MainActivity.this, "Tersimpan di Download: " + fileName, Toast.LENGTH_LONG).show());
+                          } catch (Exception e) {
+                              runOnUiThread(() -> Toast.makeText(MainActivity.this, "Gagal simpan: " + e.getMessage(), Toast.LENGTH_LONG).show());
+                          }
+                      }
+                  }, "AndroidBridge");
+
+                  webView.loadUrl("file:///android_asset/index.html");
+              }
+
+              @Override
+              public void onBackPressed() {
+                  if (webView != null && webView.canGoBack()) {
+                      webView.goBack();
+                  } else {
+                      super.onBackPressed();
+                  }
+              }
+          }
+          EOF
+
+          $BUILD_TOOLS/aapt2 compile --dir build/res -o build/res.zip
+          $BUILD_TOOLS/aapt2 link -o build/unsigned.apk \
+            -I "$ANDROID_JAR" \
+            --manifest build/AndroidManifest.xml \
+            --java build/src \
+            -A build/assets \
+            build/res.zip
+
+          javac -source 1.8 -target 1.8 -bootclasspath "$ANDROID_JAR" -classpath "$ANDROID_JAR" -d build/obj \
+            build/src/com/southwind/gudangpro/R.java \
+            build/src/com/southwind/gudangpro/MainActivity.java
+
+          $BUILD_TOOLS/d8 --lib "$ANDROID_JAR" --output build/ build/obj/com/southwind/gudangpro/*.class
+
+          cd build
+          zip -uj unsigned.apk classes.dex
+          cd ..
+
+          $BUILD_TOOLS/zipalign -f -p 4 build/unsigned.apk build/aligned.apk
+
+          keytool -genkeypair -v -keystore build/release.keystore -alias gudangpro \
+            -keyalg RSA -keysize 2048 -validity 10000 \
+            -storepass password123 -keypass password123 \
+            -dname "CN=GudangPro ERP, OU=Warehouse, O=Southwind Plantation, L=Jakarta, S=DKI, C=ID"
+
+          $BUILD_TOOLS/apksigner sign \
+            --ks build/release.keystore \
+            --ks-pass pass:password123 \
+            --key-pass pass:password123 \
+            --out GudangPro-Offline.apk \
+            build/aligned.apk
+
+          ls -lh GudangPro-Offline.apk
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: GudangPro-Offline-APK
+          path: GudangPro-Offline.apk

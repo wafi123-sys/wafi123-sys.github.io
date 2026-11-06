@@ -6,9 +6,9 @@
     <title>GudangPro</title>
 
     <!-- PWA & Mobile Meta Tags -->
-    <link rel="manifest" href="/manifest.json">
-    <link rel="icon" type="image/svg+xml" href="/icon.svg">
-    <link rel="apple-touch-icon" href="/icon-192.png">
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/svg+xml" href="icon.svg">
+    <link rel="apple-touch-icon" href="icon-192.png">
     <meta name="theme-color" content="#0b7a8e">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -681,6 +681,10 @@
             <span class="erp-sys-title">Southwind Plantation • Warehouse Control</span>
         </div>
         <div class="erp-header-right">
+            <a href="/GudangPro.apk" download="GudangPro.apk" class="erp-pill" style="cursor:pointer;background:#0ca678;border-color:#63e6be;color:#fff;text-decoration:none;font-weight:700;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                <span>Download GudangPro.apk</span>
+            </a>
             <div class="erp-pill" onclick="openPhoneModal()" style="cursor:pointer;background:rgba(99,230,190,0.2);border-color:rgba(99,230,190,0.45);">
                 <svg viewBox="0 0 24 24" fill="none" stroke="#63e6be" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
                 <span>Install to Phone (HP)</span>
@@ -1240,6 +1244,13 @@
             <span class="tag" style="background:rgba(99,230,190,0.2);color:#63e6be;">Langkah A</span>
         </div>
         <div class="modal-body">
+            <div style="background:#e6fcf5;border:2px solid #0ca678;border-radius:8px;padding:1rem;margin-bottom:1rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;">
+                <div>
+                    <div style="font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#087f5b;margin-bottom:.25rem;">File Instalasi Android (.APK) Siap Kirim via WhatsApp</div>
+                    <div style="font-size:.84rem;color:#0b7285;">Unduh file <b>GudangPro.apk (1.05 MB)</b> ke Desktop/Downloads Anda lalu kirim lewat WhatsApp ke HP.</div>
+                </div>
+                <a href="/GudangPro.apk" download="GudangPro.apk" class="btn btn-primary" style="background:#0ca678;border-color:#0ca678;text-decoration:none;white-space:nowrap;">&#128229; Download GudangPro.apk</a>
+            </div>
             <div id="phone-https-box" style="display:none;background:#e6fcf5;border:1px solid #63e6be;border-radius:8px;padding:1rem;margin-bottom:1rem;">
                 <div style="font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#087f5b;margin-bottom:.35rem;">Link Install Mandiri 100% Offline (Tanpa Perlu Hotspot Lagi)</div>
                 <div style="display:flex;align-items:center;justify-content:space-between;gap:.75rem;flex-wrap:wrap;">
@@ -1284,8 +1295,8 @@
 
 <div class="toast-container"><div class="toast-msg" id="toast"></div></div>
 
-<script src="/vendor/chart.umd.js"></script>
-<script src="/vendor/xlsx.full.min.js"></script>
+<script src="vendor/chart.umd.js"></script>
+<script src="vendor/xlsx.full.min.js"></script>
 <script>
 // ===================================================== helpers
 let currentUser = null, currentRole = null;
@@ -1531,11 +1542,51 @@ function offlineApiFallback(url, opts = {}) {
             }
         };
     }
+    if (p === '/api/sync/inspect' && method === 'POST') {
+        const pkg = b.package || {};
+        const inb = pkg.inbound || [];
+        const outb = pkg.outbound || [];
+        const dates = [...new Set([...inb.map(x => x.tanggal_masuk), ...outb.map(x => x.tanggal_keluar), (pkg.meta && pkg.meta.from) || today()])].filter(Boolean).sort();
+        const availDates = dates.map(d => ({
+            date: d,
+            inCount: inb.filter(x => x.tanggal_masuk === d).length,
+            outCount: outb.filter(x => x.tanggal_keluar === d).length,
+            closed: false
+        }));
+        return {
+            status: 'success',
+            data: {
+                meta: pkg.meta || { exported_by: 'PC', gudang: 'ALL', exported_at: new Date().toISOString(), checksum: 'LOCAL' },
+                checksumValid: true,
+                availableDates: availDates,
+                summary: { newInbound: inb.length, newOutbound: outb.length, updatedBags: 0, newClosing: 0, skipped: 0, masterItems: (pkg.items || []).length },
+                previewRows: []
+            }
+        };
+    }
+    if (p === '/api/sync/import' && method === 'POST') {
+        const pkg = b.package || {};
+        if (Array.isArray(pkg.warehouses) && pkg.warehouses.length) st.warehouses = pkg.warehouses;
+        if (Array.isArray(pkg.items) && pkg.items.length) st.items = pkg.items;
+        st.synced_at = new Date().toISOString();
+        saveOfflineStore(st);
+        return {
+            status: 'success',
+            data: {
+                selectedDates: b.selectedDates || [today()],
+                counts: { newWarehouses: (pkg.warehouses || []).length, newItems: (pkg.items || []).length, newInbound: 0, newOutbound: 0, updatedBags: 0, newClosing: 0, updatedClosing: 0, skippedInbound: 0, skippedOutbound: 0 },
+                operations: []
+            }
+        };
+    }
     if (p === '/api/backups') return { status: 'success', data: { journal_mode: 'OFFLINE-HP', backup_dir: 'Phone LocalStorage', files: [] } };
     return { status: 'success', data: [] };
 }
 
 async function api(url, opts = {}) {
+    if (window.location.protocol === 'file:' || window.location.hostname.endsWith('.github.io') || window.GUDANGPRO_STANDALONE === true) {
+        return offlineApiFallback(url, opts);
+    }
     opts.headers = Object.assign({}, opts.headers || {});
     const tk = localStorage.getItem('auth');
     if (tk) opts.headers['Authorization'] = tk;
@@ -1548,7 +1599,7 @@ async function api(url, opts = {}) {
     if (res.status === 401 && url !== '/api/login') { logout(); throw new Error('Session expired'); }
     let data = {};
     try { data = await res.json(); } catch (e) {}
-    if (data && data.status === 'error' && String(data.message || '').includes('Offline')) {
+    if ((data && data.status === 'error' && String(data.message || '').includes('Offline')) || res.status === 404 || res.status === 405 || res.status >= 500) {
         return offlineApiFallback(url, opts);
     }
     setFieldModeBadge(false);
@@ -2229,7 +2280,13 @@ async function downloadSyncPackage() {
     const rangeTag = m.from === m.to ? m.from : `${m.from}_to_${m.to}`;
     const whTag = m.gudang === 'ALL' ? 'ALL' : m.gudang;
     const fileName = `GudangPro_Sync_${whTag}_${rangeTag}.gpsync.json`;
-    const blob = new Blob([JSON.stringify(LAST_EXPORT_PKG, null, 2)], { type: 'application/json' });
+    const jsonStr = JSON.stringify(LAST_EXPORT_PKG, null, 2);
+    if (window.AndroidBridge && typeof window.AndroidBridge.saveTextFile === 'function') {
+        window.AndroidBridge.saveTextFile(fileName, jsonStr);
+        toast(`Disimpan di folder Download HP: ${fileName}`);
+        return;
+    }
+    const blob = new Blob([jsonStr], { type: 'application/json' });
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
     a.download = fileName;
