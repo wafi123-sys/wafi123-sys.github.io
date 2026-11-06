@@ -1,4 +1,4 @@
-const CACHE_NAME = 'gudangpro-v3.5';
+const CACHE_NAME = 'gudangpro-v4.2';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
@@ -65,6 +65,12 @@ self.addEventListener('fetch', (event) => {
           );
         })
     );
+    return;
+  }
+
+  // On PC localhost, always use network first so updates are immediate
+  if (url.hostname === 'localhost' || url.hostname === '127.0.0.1') {
+    event.respondWith(fetch(event.request).catch(() => caches.match(event.request)));
     return;
   }
 
