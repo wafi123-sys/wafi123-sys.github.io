@@ -748,6 +748,10 @@
             <svg class="nav-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
             <span class="nav-txt">Fertilizer Log</span><span class="nav-chev">›</span>
         </button>
+        <button class="nav-link" data-tab="camcount" onclick="switchTab('camcount')">
+            <svg class="nav-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+            <span class="nav-txt">Camera Counter (AI)</span><span class="nav-chev">›</span>
+        </button>
         <div class="section-label">Control</div>
         <button class="nav-link" data-tab="closing" onclick="switchTab('closing')">
             <svg class="nav-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="M9 16l2 2 4-4"/></svg>
@@ -1252,6 +1256,100 @@
         </div>
     </div>
 
+    <!-- CAMERA COUNTER (AI) -->
+    <div class="page" id="tab-camcount">
+        <style>
+            #cc-stage { position: relative; background: #111; border-radius: 8px; overflow: hidden; touch-action: none; }
+            #cc-stage video { display: block; width: 100%; height: auto; min-height: 220px; background: #111; }
+            #cc-stage canvas { position: absolute; inset: 0; width: 100%; height: 100%; cursor: crosshair; }
+            #cc-stage:fullscreen { display: flex; align-items: center; justify-content: center; }
+            #cc-stage:fullscreen video { max-height: 100vh; object-fit: contain; }
+            #cc-placeholder { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: #adb5bd; text-align: center; padding: 1rem; font-size: .9rem; pointer-events: none; }
+            .cc-float { position: absolute; right: .5rem; bottom: .5rem; display: flex; gap: .4rem; }
+            .cc-float button { min-width: 52px; min-height: 44px; font-size: 1.05rem; font-weight: 700; border-radius: 8px; border: 0; color: #fff; background: rgba(0,0,0,.6); }
+            .cc-big { display: flex; gap: 1rem; flex-wrap: wrap; align-items: stretch; margin: .9rem 0; }
+            .cc-big > div { flex: 1; min-width: 130px; border: 1px solid var(--border, #dee2e6); border-radius: 8px; padding: .6rem .8rem; }
+            .cc-big .n { font-size: 2.4rem; font-weight: 800; line-height: 1.1; }
+            .cc-btns { display: flex; flex-wrap: wrap; gap: .45rem; margin-top: .6rem; }
+            .cc-btns .btn { min-height: 40px; }
+            #cc-thumbs { display: flex; flex-wrap: wrap; gap: .5rem; }
+            .cc-thumb { margin: 0; width: 120px; font-size: .7rem; text-align: center; }
+            .cc-thumb img { width: 120px; border-radius: 4px; display: block; }
+        </style>
+        <div class="panel">
+            <div class="panel-header"><h2>Kamera Hitung Otomatis (AI) - Bongkar &amp; Muat Karung</h2></div>
+            <div class="panel-body">
+                <div class="form-grid-4">
+                    <div class="form-field"><label class="req">Mode Hitung</label>
+                        <select id="cc-mode" onchange="camOnChange()">
+                            <option value="IN">Bongkar Barang / Masuk (Receiving IN)</option>
+                            <option value="OUT">Muat Barang / Keluar (Issuing OUT)</option>
+                        </select></div>
+                    <div class="form-field"><label class="req">Gudang (Warehouse)</label><select id="cc-wh" class="wh-select" onchange="camOnChange()"></select></div>
+                    <div class="form-field" style="grid-column: span 2;"><label class="req">Nama Barang (Pupuk)</label><select id="cc-item" class="item-select" onchange="camOnChange()"></select></div>
+                    <div class="form-field"><label>Karung per 1x Jalan</label><input type="number" id="cc-per" value="1" min="1" step="1" oninput="camOnChange()"></div>
+                    <div class="form-field"><label>Sensitivitas Sensor AI</label>
+                        <select id="cc-sens" onchange="camOnChange()">
+                            <option value="0.35">Tinggi (agak gelap / agak jauh)</option>
+                            <option value="0.45" selected>Normal (disarankan)</option>
+                            <option value="0.6">Ketat (kurangi deteksi palsu)</option>
+                        </select></div>
+                    <div class="form-field"><label>Abaikan orang kecil di kejauhan</label>
+                        <select id="cc-minh" onchange="camOnChange()">
+                            <option value="0">Matikan filter</option>
+                            <option value="15" selected>Lebih kecil dari 15% layar</option>
+                            <option value="25">Lebih kecil dari 25% layar</option>
+                            <option value="35">Lebih kecil dari 35% layar</option>
+                        </select></div>
+                </div>
+
+                <div id="cc-stage" style="margin-top:.8rem;">
+                    <video id="cc-video" playsinline muted autoplay></video>
+                    <canvas id="cc-canvas"></canvas>
+                    <div id="cc-placeholder">Tekan <b>&nbsp;▶ Mulai Kamera&nbsp;</b>. Geser titik kuning untuk mengatur posisi garis sensor sesuai posisi HP.</div>
+                    <div class="cc-float">
+                        <button type="button" onclick="camAdd(-1)">-1</button>
+                        <button type="button" onclick="camAdd(1)" style="background:rgba(12,166,120,.85);">+1</button>
+                        <button type="button" onclick="camFullscreen()" title="Layar Penuh">⛶</button>
+                    </div>
+                </div>
+                <div class="cell-muted" id="cc-status" style="margin-top:.4rem;font-size:.8rem;">Tekan Mulai Kamera.</div>
+
+                <div class="cc-btns">
+                    <button type="button" class="btn btn-primary" id="cc-start" onclick="camStart()">▶ Mulai Kamera</button>
+                    <button type="button" class="btn btn-destructive" id="cc-stop" onclick="camStop()" style="display:none;">■ Berhenti</button>
+                    <button type="button" class="btn btn-outline" onclick="camFlip()">⇄ Balik Arah Panah</button>
+                    <button type="button" class="btn btn-outline" onclick="camPreset('v')">│ Garis Tegak</button>
+                    <button type="button" class="btn btn-outline" onclick="camPreset('h')">─ Garis Mendatar</button>
+                    <button type="button" class="btn btn-outline" onclick="camSwitch()">⟲ Ganti Kamera (Depan/Belakang)</button>
+                    <label class="btn btn-outline" style="cursor:pointer;">🎞 Tes Pakai Rekaman Video<input type="file" accept="video/*" style="display:none;" onchange="camFile(this)"></label>
+                </div>
+
+                <div class="cc-big">
+                    <div><div class="cell-muted">Jumlah Kuli Lewat (Jalan)</div><div class="n" id="cc-count">0</div><span id="cc-fcount" style="display:none;"></span></div>
+                    <div><div class="cell-muted">Total Karung (Jalan × Karung/Jalan)</div><div class="n" id="cc-total">0</div></div>
+                </div>
+                <div class="cc-btns">
+                    <button type="button" class="btn btn-primary" onclick="camApply()">✔ Masukkan Hasil Hitung ke Receiving / Issuing</button>
+                    <button type="button" class="btn btn-outline" onclick="camReset()">Reset Hitungan ke 0</button>
+                </div>
+
+                <div class="banner" style="margin-top:1rem;display:block;font-size:.82rem;line-height:1.5;">
+                    <b>Cara Pakai untuk Checker (Posisi Kamera Bebas / Random):</b>
+                    1) Taruh HP di tempat stabil yang melihat jelas jalur kuli angkut karung (pintu gudang, jembatan/ramp, atau samping truk).
+                    2) Geser <b>titik kuning</b> di layar supaya <b style="color:#e8a600;">garis kuning</b> memotong jalur jalan kuli.
+                    3) Pastikan <b style="color:#2f9e44;">panah hijau (BAWA KARUNG +1)</b> menunjuk ke arah kuli berjalan <b>SAAT MEMIKUL KARUNG</b> (tekan <b>Balik Arah Panah</b> jika terbalik).
+                    Kuli yang jalan balik tanpa karung (arah berlawanan) otomatis <b>diabaikan</b>. Jika ada beberapa kuli lewat bareng, tiap orang dilacak terpisah (kotak biru <b>Kuli #1, #2, #3...</b>).
+                    4) Jika ada koreksi, tekan tombol <b>+1 / -1</b> di layar. 5) Selesai bongkar/muat, klik <b>Masukkan Hasil Hitung</b> lalu klik Save.
+                </div>
+            </div>
+        </div>
+        <div class="panel">
+            <div class="panel-header"><h2>Foto Bukti Otomatis (Setiap Kuli Terhitung +1)</h2></div>
+            <div class="panel-body"><div id="cc-thumbs"></div></div>
+        </div>
+    </div>
+
     <!-- ANDROID MOBILE BOTTOM NAVIGATION BAR -->
     <nav class="mobile-bottom-nav no-print">
         <button type="button" class="mob-nav-btn active" data-tab="dashboard" onclick="switchTab('dashboard')">
@@ -1269,6 +1367,10 @@
         <button type="button" class="mob-nav-btn" data-tab="issuing" onclick="switchTab('issuing')">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
             <span>Issuing</span>
+        </button>
+        <button type="button" class="mob-nav-btn" data-tab="camcount" onclick="switchTab('camcount')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+            <span>Camera</span>
         </button>
         <button type="button" class="mob-nav-btn" onclick="toggleMobileNav(true)">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
@@ -1431,6 +1533,7 @@
 
 <script src="vendor/chart.umd.js"></script>
 <script src="vendor/xlsx.full.min.js"></script>
+<script src="camcount.js"></script>
 <script>
 // ===================================================== helpers
 let currentUser = null, currentRole = null;
@@ -2166,16 +2269,18 @@ function checkAuth() {
 }
 
 // ===================================================== navigation
-const TITLES = { dashboard: 'Dashboard', stock: 'Stock', warehouses: 'Warehouses', receiving: 'Receiving (Inbound)', issuing: 'Issuing (Store Requisition)', fertlog: 'Fertilizer Log', closing: 'Daily Closing', bincard: 'Bin Card (Ledger)', sync: 'Data Sync & Backup' };
+const TITLES = { dashboard: 'Dashboard', stock: 'Stock', warehouses: 'Warehouses', receiving: 'Receiving (Inbound)', issuing: 'Issuing (Store Requisition)', fertlog: 'Fertilizer Log', camcount: 'Camera Counter (AI)', closing: 'Daily Closing', bincard: 'Bin Card (Ledger)', sync: 'Data Sync & Backup' };
 const ALIAS = { master: 'stock', inbound: 'receiving', outbound: 'issuing', opname: 'closing', track: 'bincard' };
 const LOADERS = {
     dashboard: () => fetchStats(), stock: () => renderStock(), warehouses: () => renderWarehouses(),
     receiving: () => loadReceiving(), issuing: () => loadIssuing(), fertlog: () => loadFertLog(),
-    closing: () => initClosing(), bincard: () => initBinCard(), sync: () => initSync()
+    closing: () => initClosing(), bincard: () => initBinCard(), sync: () => initSync(),
+    camcount: () => { if (window.initCamCount) initCamCount(); else toast('Camera module not loaded (camcount.js missing).', true); }
 };
 function switchTab(id) {
     id = ALIAS[id] || id;
     if (!TITLES[id]) return false;
+    if (id !== 'camcount' && window.camStop && window.CC && CC.running) camStop(); // release camera when leaving
     toggleMobileNav(false);
     document.querySelectorAll('.nav-link[data-tab]').forEach(n => n.classList.toggle('active', n.dataset.tab === id));
     document.querySelectorAll('.mob-nav-btn[data-tab]').forEach(n => n.classList.toggle('active', n.dataset.tab === id));

@@ -24,10 +24,11 @@ jobs:
 
           mkdir -p build/src/com/southwind/gudangpro
           mkdir -p build/res/drawable
-          mkdir -p build/assets/vendor
+          mkdir -p build/assets/vendor/coco
           mkdir -p build/obj
 
           cp index.html build/assets/index.html
+          cp camcount.js build/assets/camcount.js
           cp icon.svg build/assets/icon.svg
           cp icon-192.png build/assets/icon-192.png
           cp icon-512.png build/assets/icon-512.png
@@ -36,16 +37,29 @@ jobs:
           cp vendor/xlsx.full.min.js build/assets/vendor/xlsx.full.min.js
           cp icon-192.png build/res/drawable/ic_launcher.png
 
+          # Download TensorFlow.js & COCO-SSD model directly on runner for 100% offline bundling
+          curl -sSL "https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.22.0/dist/tf.min.js" -o build/assets/vendor/tf.min.js
+          curl -sSL "https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd@2.2.3/dist/coco-ssd.min.js" -o build/assets/vendor/coco-ssd.min.js
+          BASE_MODEL="https://storage.googleapis.com/tfjs-models/savedmodel/ssdlite_mobilenet_v2"
+          curl -sSL "$BASE_MODEL/model.json" -o build/assets/vendor/coco/model.json
+          for s in group1-shard1of5 group1-shard2of5 group1-shard3of5 group1-shard4of5 group1-shard5of5; do
+            curl -sSL "$BASE_MODEL/$s" -o "build/assets/vendor/coco/$s"
+          done
+
           cat << 'EOF' > build/AndroidManifest.xml
           <?xml version="1.0" encoding="utf-8"?>
           <manifest xmlns:android="http://schemas.android.com/apk/res/android"
               package="com.southwind.gudangpro"
-              android:versionCode="43"
-              android:versionName="4.3.0">
+              android:versionCode="44"
+              android:versionName="4.4.0">
               <uses-sdk android:minSdkVersion="24" android:targetSdkVersion="33" />
               <uses-permission android:name="android.permission.INTERNET" />
+              <uses-permission android:name="android.permission.CAMERA" />
+              <uses-permission android:name="android.permission.VIBRATE" />
               <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32" />
               <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="29" />
+              <uses-feature android:name="android.hardware.camera" android:required="false" />
+              <uses-feature android:name="android.hardware.camera.autofocus" android:required="false" />
               <application
                   android:label="GudangPro Offline"
                   android:icon="@drawable/ic_launcher"
@@ -69,10 +83,12 @@ jobs:
           cat << 'EOF' > build/src/com/southwind/gudangpro/MainActivity.java
           package com.southwind.gudangpro;
 
+          import android.Manifest;
           import android.app.Activity;
           import android.content.ContentResolver;
           import android.content.ContentValues;
           import android.content.Intent;
+          import android.content.pm.PackageManager;
           import android.net.Uri;
           import android.os.Build;
           import android.os.Bundle;
@@ -80,21 +96,26 @@ jobs:
           import android.provider.MediaStore;
           import android.util.Base64;
           import android.webkit.JavascriptInterface;
+          import android.webkit.PermissionRequest;
           import android.webkit.ValueCallback;
           import android.webkit.WebChromeClient;
           import android.webkit.WebSettings;
           import android.webkit.WebView;
           import android.webkit.WebViewClient;
           import android.widget.Toast;
+          import java.io.ByteArrayOutputStream;
           import java.io.File;
           import java.io.FileOutputStream;
+          import java.io.InputStream;
           import java.io.OutputStream;
           import java.nio.charset.StandardCharsets;
 
           public class MainActivity extends Activity {
               private static final int FILE_CHOOSER_RESULT_CODE = 1001;
+              private static final int CAMERA_PERMISSION_CODE = 1002;
               private WebView webView;
               private ValueCallback<Uri[]> filePathCallback;
+              private PermissionRequest pendingWebPermission;
 
               private void saveBytesToDownloads(final String fileName, final byte[] bytes, final String mimeType) {
                   try {
@@ -156,10 +177,26 @@ jobs:
                   s.setAllowContentAccess(true);
                   s.setAllowFileAccessFromFileURLs(true);
                   s.setAllowUniversalAccessFromFileURLs(true);
+                  s.setMediaPlaybackRequiresUserGesture(false);
                   s.setCacheMode(WebSettings.LOAD_DEFAULT);
 
                   webView.setWebViewClient(new WebViewClient());
                   webView.setWebChromeClient(new WebChromeClient() {
+                      @Override
+                      public void onPermissionRequest(final PermissionRequest request) {
+                          runOnUiThread(new Runnable() {
+                              @Override
+                              public void run() {
+                                  if (Build.VERSION.SDK_INT >= 23 && checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+                                      pendingWebPermission = request;
+                                      requestPermissions(new String[]{ Manifest.permission.CAMERA }, CAMERA_PERMISSION_CODE);
+                                  } else {
+                                      request.grant(request.getResources());
+                                  }
+                              }
+                          });
+                      }
+
                       @Override
                       public boolean onShowFileChooser(WebView wv, ValueCallback<Uri[]> callback, FileChooserParams params) {
                           if (filePathCallback != null) {
@@ -170,7 +207,7 @@ jobs:
                           intent.addCategory(Intent.CATEGORY_OPENABLE);
                           intent.setType("*/*");
                           try {
-                              startActivityForResult(Intent.createChooser(intent, "Pilih File Sync (.gpsync.json) / Foto"), FILE_CHOOSER_RESULT_CODE);
+                              startActivityForResult(Intent.createChooser(intent, "Pilih File Sync (.gpsync.json) / Video / Foto"), FILE_CHOOSER_RESULT_CODE);
                           } catch (Exception e) {
                               filePathCallback = null;
                               return false;
@@ -191,9 +228,42 @@ jobs:
                           byte[] bytes = Base64.decode(base64Data, Base64.DEFAULT);
                           saveBytesToDownloads(fileName, bytes, mimeType != null && !mimeType.isEmpty() ? mimeType : "application/octet-stream");
                       }
+
+                      @JavascriptInterface
+                      public String readAssetBase64(final String assetPath) {
+                          try {
+                              InputStream is = getAssets().open(assetPath);
+                              ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                              byte[] buf = new byte[16384];
+                              int n;
+                              while ((n = is.read(buf)) != -1) {
+                                  baos.write(buf, 0, n);
+                              }
+                              is.close();
+                              return Base64.encodeToString(baos.toByteArray(), Base64.NO_WRAP);
+                          } catch (Exception e) {
+                              return "";
+                          }
+                      }
                   }, "AndroidBridge");
 
                   webView.loadUrl("file:///android_asset/index.html");
+              }
+
+              @Override
+              public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+                  if (requestCode == CAMERA_PERMISSION_CODE) {
+                      if (pendingWebPermission != null) {
+                          if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                              pendingWebPermission.grant(pendingWebPermission.getResources());
+                          } else {
+                              pendingWebPermission.deny();
+                          }
+                          pendingWebPermission = null;
+                      }
+                  } else {
+                      super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+                  }
               }
 
               @Override
@@ -231,6 +301,7 @@ jobs:
             --manifest build/AndroidManifest.xml \
             --java build/src \
             -A build/assets \
+            -0 "" \
             build/res.zip
 
           javac -source 1.8 -target 1.8 -bootclasspath "$ANDROID_JAR" -classpath "$ANDROID_JAR" -d build/obj \

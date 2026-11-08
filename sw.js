@@ -1,4 +1,4 @@
-const CACHE_NAME = 'gudangpro-v4.2';
+const CACHE_NAME = 'gudangpro-v4.3';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
@@ -7,7 +7,17 @@ const ASSETS_TO_CACHE = [
   '/icon-512.png',
   '/icon.svg',
   '/vendor/chart.umd.js',
-  '/vendor/xlsx.full.min.js'
+  '/vendor/xlsx.full.min.js',
+  '/camcount.js',
+  // Camera Counter AI engine + model (so counting works offline in the field)
+  '/vendor/tf.min.js',
+  '/vendor/coco-ssd.min.js',
+  '/vendor/coco/model.json',
+  '/vendor/coco/group1-shard1of5',
+  '/vendor/coco/group1-shard2of5',
+  '/vendor/coco/group1-shard3of5',
+  '/vendor/coco/group1-shard4of5',
+  '/vendor/coco/group1-shard5of5'
 ];
 
 // Install: Cache core application assets immediately
