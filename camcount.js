@@ -1,18 +1,20 @@
 // =====================================================================
-// GudangPro - Camera Counter (AI)
-// Counts bags carried by workers (1 bag per trip on the shoulder) using the
-// phone camera. Pipeline:
-//   1. COCO-SSD (TensorFlow.js, runs 100% offline on the device) detects people.
-//   2. A multi-object tracker gives every worker a stable ID across frames,
-//      so several workers walking at the same time are counted separately.
-//   3. A virtual line with a direction arrow is drawn on the picture. A worker
-//      is counted once each time he crosses the line in the ARROW direction
-//      (walking with a bag). Walking back empty (opposite direction) is ignored.
+// GudangPro - Camera Counter (AI Engine v2.0)
+// Smart Hybrid Sack-Carrier Detector & Multi-Angle Tracker:
+//   1. COCO-SSD (TensorFlow.js, 100% offline) detects workers even when
+//      their head/shoulders are partially occluded by a large fertilizer sack.
+//   2. Adaptive Background Subtraction + Frame-Diff Crown/Shoulder Analyzer
+//      (144x256 real-time buffer) distinguishes workers actually carrying a
+//      sack [BAWA KARUNG] vs bystanders/workers walking empty [LEWAT / KOSONG],
+//      while ignoring static background stacks and white warehouse walls.
+//   3. Dual Counting Engine: counts both sensor line crossings AND angled
+//      aisle/truck-to-stack unload deliveries (sudut lorong / oper karung).
 // =====================================================================
 (function () {
-    const LS_KEY = 'gp_camcount_v1';
+    const LS_KEY = 'gp_camcount_v2';
     const VENDOR = 'vendor/';
     const MAX_THUMBS = 40;
+    const BW = 144, BH = 256;
 
     const CC = {
         running: false, stream: null, fileUrl: null, model: null, loading: null,
@@ -21,36 +23,56 @@
         line: { x1: 0.5, y1: 0.08, x2: 0.5, y2: 0.92 }, // normalized 0..1
         flip: false, // false: count when moving to the side the arrow points to
         busy: false, raf: 0, wake: null, drag: null,
-        fps: 0, lastDet: 0, people: 0, audio: null
+        fps: 0, lastDet: 0, people: 0, carriers: 0, audio: null,
+        bgCanvas: null, bgCtx: null, bgLum: null, bgSat: null, prevLum: null
     };
     window.CC = CC;
     CC._updateTracks = (...a) => updateTracks(...a); // exposed for automated tests
+    CC._resetBg = resetBg;
 
     const el = id => document.getElementById(id);
+
+    function resetBg() {
+        if (!CC.bgCanvas) {
+            CC.bgCanvas = document.createElement('canvas');
+            CC.bgCanvas.width = BW;
+            CC.bgCanvas.height = BH;
+            CC.bgCtx = CC.bgCanvas.getContext('2d', { willReadFrequently: true });
+        }
+        CC.bgLum = new Float32Array(BW * BH);
+        CC.bgSat = new Float32Array(BW * BH);
+        CC.prevLum = null;
+    }
 
     // ------------------------------------------------------------ persistence
     function save() {
         try {
             localStorage.setItem(LS_KEY, JSON.stringify({
                 count: CC.count, line: CC.line, flip: CC.flip, events: CC.events.slice(-500),
-                mode: el('cc-mode').value, wh: el('cc-wh').value, item: el('cc-item').value,
-                per: el('cc-per').value, sens: el('cc-sens').value, minh: el('cc-minh').value
+                mode: el('cc-mode') && el('cc-mode').value,
+                wh: el('cc-wh') && el('cc-wh').value,
+                item: el('cc-item') && el('cc-item').value,
+                per: el('cc-per') && el('cc-per').value,
+                sens: el('cc-sens') && el('cc-sens').value,
+                minh: el('cc-minh') && el('cc-minh').value,
+                bagfilter: el('cc-bagfilter') && el('cc-bagfilter').value
             }));
         } catch (e) { /* storage full - ignore */ }
     }
     function restore() {
         try {
-            const s = JSON.parse(localStorage.getItem(LS_KEY) || 'null');
+            const s = JSON.parse(localStorage.getItem(LS_KEY) || localStorage.getItem('gp_camcount_v1') || 'null');
             if (!s) return;
             CC.count = s.count || 0; CC.events = s.events || [];
             if (s.line) CC.line = s.line;
             CC.flip = !!s.flip;
-            if (s.mode) el('cc-mode').value = s.mode;
-            if (s.per) el('cc-per').value = s.per;
-            if (s.sens) el('cc-sens').value = s.sens;
-            if (s.minh) el('cc-minh').value = s.minh;
-            if (s.wh && [...el('cc-wh').options].some(o => o.value === s.wh)) el('cc-wh').value = s.wh;
-            if (s.item && [...el('cc-item').options].some(o => o.value === s.item)) el('cc-item').value = s.item;
+            if (s.mode && el('cc-mode')) el('cc-mode').value = s.mode;
+            if (s.per && el('cc-per')) el('cc-per').value = s.per;
+            if (s.sens && el('cc-sens') && [...el('cc-sens').options].some(o => o.value === s.sens)) el('cc-sens').value = s.sens;
+            if (s.minh && el('cc-minh') && [...el('cc-minh').options].some(o => o.value === s.minh)) el('cc-minh').value = s.minh;
+            if (s.bagfilter && el('cc-bagfilter') && [...el('cc-bagfilter').options].some(o => o.value === s.bagfilter)) el('cc-bagfilter').value = s.bagfilter;
+            if (s.wh && el('cc-wh') && [...el('cc-wh').options].some(o => o.value === s.wh)) el('cc-wh').value = s.wh;
+            if (s.item && el('cc-item') && [...el('cc-item').options].some(o => o.value === s.item)) el('cc-item').value = s.item;
         } catch (e) { /* corrupted - ignore */ }
     }
 
@@ -68,7 +90,7 @@
         if (CC.model) return CC.model;
         if (CC.loading) return CC.loading;
         CC.loading = (async () => {
-            status('Memuat mesin AI... (pertama kali butuh beberapa detik)');
+            status('Memuat mesin AI v2.0... (pertama kali butuh beberapa detik)');
             try {
                 await loadScript(VENDOR + 'tf.min.js');
                 await loadScript(VENDOR + 'coco-ssd.min.js');
@@ -121,13 +143,12 @@
             try {
                 CC.model = await cocoSsd.load({ base: 'lite_mobilenet_v2', modelUrl: modelSource });
             } catch (err) {
-                // First time on standalone APK without bundled weights: fetch once from CDN and save to IndexedDB for 100% offline use next time
                 const base = 'https://storage.googleapis.com/tfjs-models/savedmodel/ssdlite_mobilenet_v2';
                 const m = await tf.loadGraphModel(base + '/model.json');
                 try { await m.save('indexeddb://gp-coco-ssd-v1'); } catch (e) {}
                 CC.model = await cocoSsd.load({ base: 'lite_mobilenet_v2', modelUrl: base + '/model.json' });
             }
-            status('AI siap (' + tf.getBackend() + ')');
+            status('AI v2.0 siap (' + tf.getBackend() + ')');
             return CC.model;
         })();
         try { return await CC.loading; } catch (e) { CC.loading = null; throw e; }
@@ -137,7 +158,6 @@
     function linePx(w, h) {
         return { x1: CC.line.x1 * w, y1: CC.line.y1 * h, x2: CC.line.x2 * w, y2: CC.line.y2 * h };
     }
-    // signed distance to the line (+ = side the normal points to) and projection t along segment
     function sideInfo(px, py, L) {
         const dx = L.x2 - L.x1, dy = L.y2 - L.y1, len = Math.hypot(dx, dy) || 1;
         const d = (dx * (py - L.y1) - dy * (px - L.x1)) / len;
@@ -153,12 +173,129 @@
     }
     const center = b => [b[0] + b[2] / 2, b[1] + b[3] / 2];
 
+    // ------------------------------------------------------------ Crown / Shoulder Sack Analyzer
+    function updateBgAndAnalyze(v, W, H) {
+        if (!CC.bgCanvas || !CC.bgLum) resetBg();
+        CC.bgCtx.drawImage(v, 0, 0, BW, BH);
+        const data = CC.bgCtx.getImageData(0, 0, BW, BH).data;
+        const curLum = new Float32Array(BW * BH);
+        const bgLum = CC.bgLum, bgSat = CC.bgSat, prevLum = CC.prevLum;
+        for (let i = 0, p = 0; i < data.length; i += 4, p++) {
+            const r = data[i], g = data[i + 1], b = data[i + 2];
+            const lum = (r + g + b) * 0.3333;
+            const sat = Math.max(r, g, b) - Math.min(r, g, b);
+            curLum[p] = lum;
+            if (!prevLum) {
+                bgLum[p] = lum;
+                bgSat[p] = sat;
+            } else {
+                const df = Math.abs(lum - prevLum[p]);
+                // Adapt background quickly when static (df <= 7) so uncovered white walls/stacks become background immediately
+                const alpha = df > 7 ? 0.025 : 0.18;
+                bgLum[p] += (lum - bgLum[p]) * alpha;
+                bgSat[p] += (sat - bgSat[p]) * alpha;
+            }
+        }
+        return { data, curLum, prevLum, bgLum };
+    }
+
+    function analyzeCarry(frameData, bx, by, bw, bh, W, H) {
+        if (!frameData) return { isCarrying: true, crownFgWhite: 0.5, maxRowFgWhite: 0.5 };
+        const { data, curLum, prevLum, bgLum } = frameData;
+        // Crown / Shoulder cap zone: from slightly above head (capped at 6% of screen height so foreground people don't touch ceiling)
+        // down to upper shoulder (by + 0.24*bh)
+        const upPad = Math.min(bh * 0.26, H * 0.06);
+        const dnPad = bh * 0.24;
+        const xPad = bw * 0.12;
+        const ix0 = Math.max(0, Math.floor((bx - xPad) / W * BW));
+        const ix1 = Math.min(BW - 1, Math.ceil((bx + bw + xPad) / W * BW));
+        const iy0 = Math.max(0, Math.floor((by - upPad) / H * BH));
+        const iy1 = Math.min(BH - 1, Math.ceil((by + dnPad) / H * BH));
+
+        const spanW = Math.max(1, ix1 - ix0 + 1);
+        const cx0 = Math.max(0, Math.floor((bx + bw * 0.20) / W * BW));
+        const cx1 = Math.min(BW - 1, Math.ceil((bx + bw * 0.80) / W * BW));
+        let maxRowWhite = 0, maxRowFgWhite = 0;
+        let tot = 0, whiteCnt = 0, fgWhiteCnt = 0;
+        let cTot = 0, cWhite = 0, cDark = 0;
+
+        for (let y = iy0; y <= iy1; y++) {
+            let rowW = 0, rowFgW = 0;
+            for (let x = ix0; x <= ix1; x++) {
+                const p = y * BW + x, i = p * 4;
+                const r = data[i], g = data[i + 1], b = data[i + 2];
+                const lum = curLum[p];
+                const sat = Math.max(r, g, b) - Math.min(r, g, b);
+                const blueTint = b - r; // reject blue/cyan shirts
+                const df = prevLum ? Math.abs(lum - prevLum[p]) : 0;
+                const db = lum - bgLum[p];
+                const isSackColor = (lum > 142 && sat < 52 && blueTint < 16) || (lum > 175 && sat < 68 && blueTint < 20);
+                if (isSackColor) {
+                    whiteCnt++; rowW++;
+                    if (db > 12 || df > 6) { fgWhiteCnt++; rowFgW++; }
+                }
+                tot++;
+                if (x >= cx0 && x <= cx1) {
+                    cTot++;
+                    if (isSackColor) cWhite++;
+                    if (lum < 90) cDark++;
+                }
+            }
+            if (rowW / spanW > maxRowWhite) maxRowWhite = rowW / spanW;
+            if (rowFgW / spanW > maxRowFgWhite) maxRowFgWhite = rowFgW / spanW;
+        }
+
+        // Check outer wall brightness to the left & right of the crown so uncovering a white wall isn't mistaken for carrying a sack
+        const lx0 = Math.max(0, Math.floor((bx - bw * 0.40) / W * BW));
+        const lx1 = Math.max(0, Math.floor((bx - bw * 0.12) / W * BW));
+        const rx0 = Math.min(BW - 1, Math.ceil((bx + bw * 1.12) / W * BW));
+        const rx1 = Math.min(BW - 1, Math.ceil((bx + bw * 1.40) / W * BW));
+        let wTot = 0, wWhite = 0;
+        for (let y = iy0; y <= iy1; y++) {
+            for (let x = lx0; x <= lx1; x++) { wTot++; if (bgLum[y * BW + x] > 150) wWhite++; }
+            for (let x = rx0; x <= rx1; x++) { wTot++; if (bgLum[y * BW + x] > 150) wWhite++; }
+        }
+        const wallWhite = wTot ? wWhite / wTot : 0;
+        const centerWhite = cTot ? cWhite / cTot : 0;
+        const centerDark = cTot ? cDark / cTot : 0;
+        const crownFgWhite = tot ? fgWhiteCnt / tot : 0;
+
+        let isCarrying = false;
+        if (wallWhite >= 0.65) {
+            // Standing in front of a bright white wall/stack: require center of crown to be covered by a moving sack (not bare dark hair)
+            isCarrying = centerWhite >= 0.55 && centerDark <= 0.14 && crownFgWhite >= 0.22;
+        } else {
+            // Normal/dark background around head: foreground bright sack patch on crown/shoulder
+            isCarrying = (maxRowFgWhite >= 0.30 && crownFgWhite >= 0.10) || (crownFgWhite >= 0.18 && maxRowWhite >= 0.45);
+        }
+        return { isCarrying, crownFgWhite: +crownFgWhite.toFixed(2), maxRowFgWhite: +maxRowFgWhite.toFixed(2) };
+    }
+
+    function captureThumbDataUrl(box) {
+        const v = el('cc-video');
+        if (!v || !v.videoWidth) return null;
+        const w = 200, h = Math.round(w * v.videoHeight / v.videoWidth);
+        const c = document.createElement('canvas'); c.width = w; c.height = h;
+        const g = c.getContext('2d');
+        g.drawImage(v, 0, 0, w, h);
+        if (box) {
+            const k = w / v.videoWidth;
+            g.strokeStyle = '#40c057'; g.lineWidth = 2.5;
+            g.strokeRect(box[0] * k, box[1] * k, box[2] * k, box[3] * k);
+        }
+        return c.toDataURL('image/jpeg', 0.65);
+    }
+
     // ------------------------------------------------------------ tracker
-    const TRACK_TTL = 1500;     // ms a track survives without detection
-    const COOLDOWN = 1200;      // ms before the same worker can be counted again
+    const TRACK_TTL = 1900;     // ms a track survives without detection
+    const COOLDOWN = 2200;      // ms before the same worker can be counted again
+
     function updateTracks(dets, now, W, H) {
         const L = linePx(W, H);
-        const margin = Math.max(10, 0.035 * Math.min(W, H)); // hysteresis band around the line
+        const DIAG = Math.hypot(W, H) || 1;
+        const margin = Math.max(8, 0.025 * Math.min(W, H));
+        const filterMode = (el('cc-bagfilter') && el('cc-bagfilter').value) || 'smart';
+
         // predict positions
         for (const t of CC.tracks) {
             const dt = now - t.seen;
@@ -170,42 +307,109 @@
             const ov = iou(t.pred, d.bbox);
             const [ax, ay] = center(t.pred), [bx, by] = center(d.bbox);
             const dist = Math.hypot(ax - bx, ay - by);
-            const lim = 0.75 * Math.max(t.box[2], t.box[3]);
-            if (ov > 0.15 || dist < lim) pairs.push({ ti, di, s: ov > 0.15 ? 1 + ov : 1 - dist / lim });
+            const lim = 0.85 * Math.max(t.box[2], t.box[3], d.bbox[2], d.bbox[3]);
+            if (ov > 0.10 || dist < lim) pairs.push({ ti, di, s: ov > 0.10 ? 1 + ov : 1 - dist / lim });
         }));
         pairs.sort((a, b) => b.s - a.s);
         const usedT = new Set(), usedD = new Set();
         for (const p of pairs) {
             if (usedT.has(p.ti) || usedD.has(p.di)) continue;
             usedT.add(p.ti); usedD.add(p.di);
-            const t = CC.tracks[p.ti], b = dets[p.di].bbox, dt = Math.max(1, now - t.seen);
+            const t = CC.tracks[p.ti], d = dets[p.di], b = d.bbox, dt = Math.max(1, now - t.seen);
             const [ox, oy] = center(t.box), [nx, ny] = center(b);
             t.vx = 0.6 * t.vx + 0.4 * ((nx - ox) / dt);
             t.vy = 0.6 * t.vy + 0.4 * ((ny - oy) / dt);
-            t.box = b; t.seen = now; t.hits++; t.score = dets[p.di].score;
+            t.box = b; t.seen = now; t.hits++; t.score = d.score;
+
+            const carrying = d.isCarrying !== undefined ? !!d.isCarrying : true;
+            t.bagScore = 0.68 * (t.bagScore || 0) + 0.32 * (carrying ? 1 : 0);
+            if (carrying) {
+                t.bagFrames = (t.bagFrames || 0) + 1;
+                t.emptyStreak = 0;
+                if (!t.carryStart && t.bagFrames >= 2) {
+                    t.carryStart = [nx, ny];
+                    t.carryBorn = now;
+                }
+                if (t.carryStart) {
+                    const disp = Math.hypot(nx - t.carryStart[0], ny - t.carryStart[1]) / DIAG;
+                    if (disp > (t.maxCarryDisp || 0)) {
+                        t.maxCarryDisp = disp;
+                        if (t.bagFrames === 4 || t.bagFrames === 10 || disp > 0.09) {
+                            t.bestSnap = captureThumbDataUrl(b) || t.bestSnap;
+                        }
+                    }
+                }
+            } else {
+                t.emptyStreak = (t.emptyStreak || 0) + 1;
+                if (t.emptyStreak >= 6) {
+                    t.bagFrames = 0;
+                    t.bagScore = 0;
+                    t.carryStart = null;
+                    t.maxCarryDisp = 0;
+                    t.countedTrip = false;
+                }
+            }
+            t.hasBag = filterMode === 'line_all'
+                ? true
+                : ((t.bagScore >= 0.34 && t.bagFrames >= 2) || (t.bagFrames >= 4 && t.emptyStreak <= 4));
         }
         dets.forEach((d, di) => {
             if (usedD.has(di)) return;
-            CC.tracks.push({ id: CC.nextId++, box: d.bbox, seen: now, born: now, vx: 0, vy: 0, hits: 1, side: 0, lastCount: 0, flash: 0, score: d.score });
+            const [nx, ny] = center(d.bbox);
+            const carrying = d.isCarrying !== undefined ? !!d.isCarrying : true;
+            CC.tracks.push({
+                id: CC.nextId++, box: d.bbox, seen: now, born: now, vx: 0, vy: 0, hits: 1,
+                side: 0, lastCount: -9999, flash: 0, score: d.score,
+                bagScore: carrying ? 0.6 : 0,
+                bagFrames: carrying ? 1 : 0,
+                emptyStreak: carrying ? 0 : 1,
+                hasBag: filterMode === 'line_all' ? true : carrying,
+                carryStart: carrying ? [nx, ny] : null,
+                carryBorn: now,
+                maxCarryDisp: 0,
+                countedTrip: false,
+                bestSnap: carrying ? captureThumbDataUrl(d.bbox) : null
+            });
         });
         CC.tracks = CC.tracks.filter(t => now - t.seen < TRACK_TTL);
+        CC.carriers = CC.tracks.filter(t => t.hasBag).length;
 
-        // line crossing
-        const want = CC.flip ? -1 : 1; // side the worker must END on to be counted
+        // Counting logic
+        const want = CC.flip ? -1 : 1;
         for (const t of CC.tracks) {
-            if (t.seen !== now) continue; // only update with fresh detections
+            if (t.seen !== now) continue;
             const [cx, cy] = center(t.box);
             const { d, t: proj } = sideInfo(cx, cy, L);
-            if (Math.abs(d) < margin) continue;
-            const s = d > 0 ? 1 : -1;
-            if (t.side !== 0 && s !== t.side) {
-                const insideSegment = proj > -0.1 && proj < 1.1;
-                if (s === want && insideSegment && t.hits >= 2 && now - t.lastCount > COOLDOWN) {
-                    t.lastCount = now; t.flash = now;
+
+            // 1. Sensor Line Crossing
+            if (Math.abs(d) >= margin) {
+                const s = d > 0 ? 1 : -1;
+                if (t.side !== 0 && s !== t.side) {
+                    const insideSegment = proj > -0.1 && proj < 1.1;
+                    const dirOk = filterMode === 'smart' ? true : (s === want);
+                    const bagOk = filterMode === 'line_all' ? true : (t.hasBag || t.bagFrames >= 3);
+                    if (insideSegment && dirOk && bagOk && t.hits >= 2 && !t.countedTrip && now - t.lastCount > COOLDOWN) {
+                        t.countedTrip = true;
+                        t.lastCount = now;
+                        t.flash = now;
+                        addCount(1, 'AI', t);
+                    }
+                }
+                t.side = s;
+            }
+
+            // 2. Smart Angled / Aisle Carrier Delivery Detection (for difficult camera angles where worker unloads onto stack)
+            if (filterMode === 'smart' && !t.countedTrip && now - t.lastCount > COOLDOWN && (t.bagFrames || 0) >= 6) {
+                const disp = t.maxCarryDisp || 0;
+                const longCarry = t.hasBag && disp >= 0.16 && t.bagFrames >= 8;
+                const unloadedAfterCarry = t.emptyStreak >= 2 && t.emptyStreak <= 5 && disp >= 0.095;
+                if (longCarry || unloadedAfterCarry) {
+                    t.countedTrip = true;
+                    t.lastCount = now;
+                    t.flash = now;
                     addCount(1, 'AI', t);
                 }
             }
-            t.side = s;
         }
     }
 
@@ -218,17 +422,9 @@
         renderCount(); save();
     }
     function snapshot(track, ev) {
-        const v = el('cc-video');
-        if (!v.videoWidth) return;
-        const w = 200, h = Math.round(w * v.videoHeight / v.videoWidth);
-        const c = document.createElement('canvas'); c.width = w; c.height = h;
-        const g = c.getContext('2d');
-        g.drawImage(v, 0, 0, w, h);
-        if (track) {
-            const k = w / v.videoWidth, b = track.box;
-            g.strokeStyle = '#40c057'; g.lineWidth = 2; g.strokeRect(b[0] * k, b[1] * k, b[2] * k, b[3] * k);
-        }
-        CC.thumbs.unshift({ img: c.toDataURL('image/jpeg', 0.6), no: CC.count, t: ev.t });
+        const imgUrl = (track && track.bestSnap) || captureThumbDataUrl(track ? track.box : null);
+        if (!imgUrl) return;
+        CC.thumbs.unshift({ img: imgUrl, no: CC.count, t: ev.t });
         if (CC.thumbs.length > MAX_THUMBS) CC.thumbs.pop();
         renderThumbs();
     }
@@ -252,16 +448,17 @@
             ? CC.thumbs.map(x => `<figure class="cc-thumb"><img src="${x.img}"><figcaption>#${x.no} ${x.t.slice(11, 19)}</figcaption></figure>`).join('')
             : '<span class="cell-muted">Foto bukti setiap kuli yang terhitung (+1) akan otomatis muncul di sini.</span>';
     }
-    function status(msg) { el('cc-status').innerText = msg; }
+    function status(msg) { if (el('cc-status')) el('cc-status').innerText = msg; }
 
     // ------------------------------------------------------------ drawing
     function draw() {
         const v = el('cc-video'), c = el('cc-canvas');
+        if (!v || !c) return;
         const W = v.videoWidth || 640, H = v.videoHeight || 480;
         if (c.width !== W || c.height !== H) { c.width = W; c.height = H; }
         const g = c.getContext('2d');
         g.clearRect(0, 0, W, H);
-        const S = Math.max(1, Math.min(W, H) / 360); // scale for strokes / fonts
+        const S = Math.max(1, Math.min(W, H) / 360);
         const L = linePx(W, H);
         // line
         g.lineWidth = 4 * S; g.strokeStyle = '#ffd43b'; g.setLineDash([14 * S, 8 * S]);
@@ -289,27 +486,37 @@
         // tracks
         const now = performance.now();
         for (const t of CC.tracks) {
-            const b = t.box, hot = now - t.flash < 900;
-            g.lineWidth = (hot ? 5 : 3) * S;
-            g.strokeStyle = hot ? '#40c057' : (now - t.seen > 300 ? 'rgba(77,171,247,.45)' : '#4dabf7');
+            const b = t.box, hot = now - t.flash < 1200;
+            const carrying = !!t.hasBag;
+            g.lineWidth = (hot ? 5 : (carrying ? 3.5 : 2)) * S;
+            if (!carrying && !hot) g.setLineDash([6 * S, 4 * S]);
+            const color = hot
+                ? '#ffd43b'
+                : (carrying ? '#40c057' : 'rgba(173,181,189,0.78)');
+            g.strokeStyle = color;
             g.strokeRect(b[0], b[1], b[2], b[3]);
+            g.setLineDash([]);
             const [cx, cy] = center(b);
-            g.fillStyle = g.strokeStyle; g.beginPath(); g.arc(cx, cy, 5 * S, 0, Math.PI * 2); g.fill();
-            label(g, `Kuli #${t.id}${hot ? '  +1' : ''}`, b[0], b[1] - 4 * S, g.strokeStyle, S);
+            g.fillStyle = color; g.beginPath(); g.arc(cx, cy, 4.5 * S, 0, Math.PI * 2); g.fill();
+            const tag = hot
+                ? `Kuli #${t.id} [TERHITUNG +1]`
+                : (carrying ? `Kuli #${t.id} [BAWA KARUNG]` : `Orang #${t.id} [KOSONG]`);
+            label(g, tag, b[0], Math.max(18 * S, b[1] - 4 * S), color, S);
         }
         // HUD
-        g.fillStyle = 'rgba(0,0,0,.55)'; g.fillRect(0, 0, 250 * S, 54 * S);
-        g.fillStyle = '#fff'; g.font = `bold ${30 * S}px system-ui, sans-serif`;
-        g.fillText(`${CC.count}`, 10 * S, 36 * S);
-        g.font = `${11 * S}px system-ui, sans-serif`;
-        g.fillText(`jalan | orang: ${CC.people} | ${CC.fps.toFixed(0)} fps`, 70 * S, 22 * S);
-        g.fillText(el('cc-mode').value === 'IN' ? 'BONGKAR (MASUK)' : 'MUAT (KELUAR)', 70 * S, 40 * S);
+        g.fillStyle = 'rgba(0,0,0,.62)'; g.fillRect(0, 0, 295 * S, 56 * S);
+        g.fillStyle = '#40c057'; g.font = `bold ${30 * S}px system-ui, sans-serif`;
+        g.fillText(`${CC.count}`, 10 * S, 37 * S);
+        g.fillStyle = '#fff'; g.font = `${11 * S}px system-ui, sans-serif`;
+        g.fillText(`karung: ${CC.carriers} aktif | orang: ${CC.people} | ${CC.fps.toFixed(0)} fps`, 68 * S, 22 * S);
+        g.fillText(el('cc-mode').value === 'IN' ? 'BONGKAR (MASUK) - AI FILTER AKTIF' : 'MUAT (KELUAR) - AI FILTER AKTIF', 68 * S, 40 * S);
     }
     function label(g, txt, x, y, color, S) {
-        g.font = `bold ${13 * S}px system-ui, sans-serif`;
+        g.font = `bold ${12 * S}px system-ui, sans-serif`;
         const w = g.measureText(txt).width + 8 * S;
-        g.fillStyle = color; g.fillRect(x, y - 16 * S, w, 18 * S);
-        g.fillStyle = '#000'; g.fillText(txt, x + 4 * S, y - 3 * S);
+        const lx = Math.max(2 * S, Math.min(x, (g.canvas ? g.canvas.width : 9999) - w - 2 * S));
+        g.fillStyle = color; g.fillRect(lx, y - 16 * S, w, 18 * S);
+        g.fillStyle = '#000'; g.fillText(txt, lx + 4 * S, y - 3 * S);
     }
 
     // ------------------------------------------------------------ main loop
@@ -319,12 +526,31 @@
         CC.busy = true;
         const t0 = performance.now();
         try {
-            const minScore = parseFloat(el('cc-sens').value) || 0.45;
-            const minH = (parseFloat(el('cc-minh').value) || 0) / 100 * v.videoHeight;
-            const preds = await CC.model.detect(v, 25, minScore);
-            const people = preds.filter(p => p.class === 'person' && p.bbox[3] >= minH);
-            CC.people = people.length;
-            updateTracks(people, performance.now(), v.videoWidth, v.videoHeight);
+            const W = v.videoWidth, H = v.videoHeight;
+            const userMinScore = parseFloat(el('cc-sens').value) || 0.35;
+            const minHFrac = (parseFloat(el('cc-minh').value) || 12) / 100;
+            const frameData = updateBgAndAnalyze(v, W, H);
+            // Detect down to 0.20 so workers whose heads are occluded by sacks are still caught
+            const rawPreds = await CC.model.detect(v, 30, 0.20);
+            const dets = [];
+            for (const p of rawPreds) {
+                if (p.class !== 'person') continue;
+                const [bx, by, bw, bh] = p.bbox;
+                const hFrac = bh / H;
+                const areaFrac = (bw * bh) / (W * H);
+                const matchesActive = CC.tracks.some(tr => {
+                    const [ax, ay] = center(tr.box), [cx, cy] = center(p.bbox);
+                    return iou(tr.box, p.bbox) > 0.12 || Math.hypot(ax - cx, ay - cy) < 0.65 * Math.max(tr.box[2], tr.box[3]);
+                });
+                if (!matchesActive && (hFrac < Math.max(0.11, minHFrac) || areaFrac < 0.016)) continue;
+                if (hFrac < 0.085) continue;
+                const carry = analyzeCarry(frameData, bx, by, bw, bh, W, H);
+                if (!carry.isCarrying && !matchesActive && p.score < userMinScore) continue;
+                dets.push({ bbox: p.bbox, score: p.score, isCarrying: carry.isCarrying });
+            }
+            CC.prevLum = frameData.curLum;
+            CC.people = dets.length;
+            updateTracks(dets, performance.now(), W, H);
         } catch (e) { console.warn('[CC] detect', e); }
         const dt = performance.now() - t0;
         CC.fps = CC.fps ? CC.fps * 0.85 + (1000 / Math.max(dt, 1)) * 0.15 : 1000 / Math.max(dt, 1);
@@ -342,13 +568,14 @@
         if (CC.running) return;
         const v = el('cc-video');
         try {
+            resetBg();
             if (fromFile) {
                 if (CC.fileUrl) URL.revokeObjectURL(CC.fileUrl);
                 CC.fileUrl = URL.createObjectURL(fromFile);
                 v.srcObject = null; v.src = CC.fileUrl; v.loop = false; v.muted = true;
             } else {
                 if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia)
-                    throw new Error('Camera not available here. Open GudangPro via HTTPS (Chrome / installed app) and allow camera permission.');
+                    throw new Error('Kamera tidak tersedia di sini. Buka GudangPro melalui aplikasi APK atau HTTPS dan izinkan akses kamera.');
                 CC.stream = await navigator.mediaDevices.getUserMedia({
                     audio: false,
                     video: { facingMode: { ideal: CC.facing }, width: { ideal: 640 }, height: { ideal: 480 } }
@@ -360,7 +587,7 @@
             await ensureModel();
             CC.tracks = []; CC.running = true;
             try { if (navigator.wakeLock) CC.wake = await navigator.wakeLock.request('screen'); } catch (e) { }
-            setButtons(); status('Menghitung otomatis... tahan HP agar tetap stabil.');
+            setButtons(); status('AI v2.0 aktif: otomatis membedakan kuli [BAWA KARUNG] vs orang [KOSONG].');
             loop();
         } catch (e) {
             stop();
@@ -375,7 +602,7 @@
         const v = el('cc-video');
         if (v) { v.pause(); v.srcObject = null; }
         if (CC.wake) { CC.wake.release().catch(() => { }); CC.wake = null; }
-        CC.tracks = []; CC.people = 0;
+        CC.tracks = []; CC.people = 0; CC.carriers = 0;
         if (el('cc-start')) { setButtons(); status(CC.model ? 'Kamera dihentikan.' : 'Tekan Mulai Kamera.'); }
     }
     function setButtons() {
@@ -409,7 +636,7 @@
                 const o = CC.drag.L, dx = p.x - CC.drag.sx, dy = p.y - CC.drag.sy;
                 L.x1 = o.x1 + dx; L.y1 = o.y1 + dy; L.x2 = o.x2 + dx; L.y2 = o.y2 + dy;
             }
-            CC.tracks.forEach(t => t.side = 0); // re-arm after moving the line
+            CC.tracks.forEach(t => t.side = 0);
             if (!CC.running) draw();
         });
         const end = () => { if (CC.drag) { CC.drag = null; save(); } };
@@ -423,7 +650,9 @@
     window.camSwitch = async () => { CC.facing = CC.facing === 'environment' ? 'user' : 'environment'; if (CC.running && CC.stream) { stop(); await start(); } };
     window.camFlip = () => { CC.flip = !CC.flip; CC.tracks.forEach(t => t.side = 0); save(); if (!CC.running) draw(); };
     window.camPreset = kind => {
-        CC.line = kind === 'h' ? { x1: 0.06, y1: 0.5, x2: 0.94, y2: 0.5 } : { x1: 0.5, y1: 0.08, x2: 0.5, y2: 0.92 };
+        if (kind === 'h') CC.line = { x1: 0.06, y1: 0.5, x2: 0.94, y2: 0.5 };
+        else if (kind === 'd') { CC.line = { x1: 0.62, y1: 0.22, x2: 0.44, y2: 0.82 }; CC.flip = true; }
+        else CC.line = { x1: 0.5, y1: 0.08, x2: 0.5, y2: 0.92 };
         CC.tracks.forEach(t => t.side = 0); save(); if (!CC.running) draw();
     };
     window.camAdd = n => addCount(n, 'MANUAL');
@@ -456,7 +685,7 @@
     window.initCamCount = () => {
         if (!initCamCount.done) { restore(); bindLineEditing(); initCamCount.done = true; }
         renderCount(); renderThumbs(); setButtons(); draw();
-        if (!CC.running) status(CC.model ? 'AI siap. Tekan Mulai Kamera.' : 'Tekan Mulai Kamera. (AI dimuat saat pertama kali mulai)');
+        if (!CC.running) status(CC.model ? 'AI v2.0 siap. Tekan Mulai Kamera.' : 'Tekan Mulai Kamera. (AI v2.0 dimuat saat pertama kali mulai)');
     };
     document.addEventListener('visibilitychange', async () => {
         if (document.visibilityState === 'visible' && CC.running && !CC.wake && navigator.wakeLock) {

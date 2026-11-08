@@ -1288,25 +1288,32 @@
                     <div class="form-field"><label class="req">Gudang (Warehouse)</label><select id="cc-wh" class="wh-select" onchange="camOnChange()"></select></div>
                     <div class="form-field" style="grid-column: span 2;"><label class="req">Nama Barang (Pupuk)</label><select id="cc-item" class="item-select" onchange="camOnChange()"></select></div>
                     <div class="form-field"><label>Karung per 1x Jalan</label><input type="number" id="cc-per" value="1" min="1" step="1" oninput="camOnChange()"></div>
+                    <div class="form-field"><label>Mode Filter Cerdas AI</label>
+                        <select id="cc-bagfilter" onchange="camOnChange()">
+                            <option value="smart" selected>AI Pintar: Hanya yang Bawa Karung (Semua Sudut)</option>
+                            <option value="line_bag">Garis Sensor + Wajib Bawa Karung</option>
+                            <option value="line_all">Semua Orang Lewat Garis (Tanpa Filter Karung)</option>
+                        </select></div>
                     <div class="form-field"><label>Sensitivitas Sensor AI</label>
                         <select id="cc-sens" onchange="camOnChange()">
-                            <option value="0.35">Tinggi (agak gelap / agak jauh)</option>
-                            <option value="0.45" selected>Normal (disarankan)</option>
+                            <option value="0.25">Sangat Tinggi (sudut sulit / tertutup karung)</option>
+                            <option value="0.35" selected>Tinggi - Optimal Gudang (disarankan)</option>
+                            <option value="0.45">Normal</option>
                             <option value="0.6">Ketat (kurangi deteksi palsu)</option>
                         </select></div>
                     <div class="form-field"><label>Abaikan orang kecil di kejauhan</label>
                         <select id="cc-minh" onchange="camOnChange()">
                             <option value="0">Matikan filter</option>
-                            <option value="15" selected>Lebih kecil dari 15% layar</option>
-                            <option value="25">Lebih kecil dari 25% layar</option>
-                            <option value="35">Lebih kecil dari 35% layar</option>
+                            <option value="12" selected>Lebih kecil dari 12% layar (disarankan)</option>
+                            <option value="20">Lebih kecil dari 20% layar</option>
+                            <option value="30">Lebih kecil dari 30% layar</option>
                         </select></div>
                 </div>
 
                 <div id="cc-stage" style="margin-top:.8rem;">
                     <video id="cc-video" playsinline muted autoplay></video>
                     <canvas id="cc-canvas"></canvas>
-                    <div id="cc-placeholder">Tekan <b>&nbsp;▶ Mulai Kamera&nbsp;</b>. Geser titik kuning untuk mengatur posisi garis sensor sesuai posisi HP.</div>
+                    <div id="cc-placeholder">Tekan <b>&nbsp;▶ Mulai Kamera&nbsp;</b>. AI otomatis membedakan <b style="color:#40c057;">Kuli Bawa Karung (+1)</b> vs <b style="color:#adb5bd;">Orang Lewat Kosong (Diabaikan)</b>.</div>
                     <div class="cc-float">
                         <button type="button" onclick="camAdd(-1)">-1</button>
                         <button type="button" onclick="camAdd(1)" style="background:rgba(12,166,120,.85);">+1</button>
@@ -1321,6 +1328,7 @@
                     <button type="button" class="btn btn-outline" onclick="camFlip()">⇄ Balik Arah Panah</button>
                     <button type="button" class="btn btn-outline" onclick="camPreset('v')">│ Garis Tegak</button>
                     <button type="button" class="btn btn-outline" onclick="camPreset('h')">─ Garis Mendatar</button>
+                    <button type="button" class="btn btn-outline" onclick="camPreset('d')">╱ Sudut Lorong / Truk</button>
                     <button type="button" class="btn btn-outline" onclick="camSwitch()">⟲ Ganti Kamera (Depan/Belakang)</button>
                     <label class="btn btn-outline" style="cursor:pointer;">🎞 Tes Pakai Rekaman Video<input type="file" accept="video/*" style="display:none;" onchange="camFile(this)"></label>
                 </div>
@@ -1335,12 +1343,10 @@
                 </div>
 
                 <div class="banner" style="margin-top:1rem;display:block;font-size:.82rem;line-height:1.5;">
-                    <b>Cara Pakai untuk Checker (Posisi Kamera Bebas / Random):</b>
-                    1) Taruh HP di tempat stabil yang melihat jelas jalur kuli angkut karung (pintu gudang, jembatan/ramp, atau samping truk).
-                    2) Geser <b>titik kuning</b> di layar supaya <b style="color:#e8a600;">garis kuning</b> memotong jalur jalan kuli.
-                    3) Pastikan <b style="color:#2f9e44;">panah hijau (BAWA KARUNG +1)</b> menunjuk ke arah kuli berjalan <b>SAAT MEMIKUL KARUNG</b> (tekan <b>Balik Arah Panah</b> jika terbalik).
-                    Kuli yang jalan balik tanpa karung (arah berlawanan) otomatis <b>diabaikan</b>. Jika ada beberapa kuli lewat bareng, tiap orang dilacak terpisah (kotak biru <b>Kuli #1, #2, #3...</b>).
-                    4) Jika ada koreksi, tekan tombol <b>+1 / -1</b> di layar. 5) Selesai bongkar/muat, klik <b>Masukkan Hasil Hitung</b> lalu klik Save.
+                    <b>AI Engine v2.0 (Sensor Cerdas Karung + Sudut Sulit / Lorong):</b>
+                    1) AI secara otomatis memindai area pundak/kepala setiap orang dan membedakan <b style="color:#2f9e44;">Kuli [BAWA KARUNG] (Kotak Hijau)</b> vs <b style="color:#868e96;">Orang [LEWAT / KOSONG] (Kotak Putus-Putus)</b>. Orang yang hanya lewat atau berdiri tanpa memikul karung otomatis <b>diabaikan</b> dan tidak dihitung.
+                    2) Mendukung sudut kamera sulit (seperti dari dalam lorong tumpukan menghadap truk): kuli yang memikul karung dari truk lalu menurunkan/melempar karung ke tumpukan tetap terhitung <b>+1 otomatis</b> meskipun kepalanya tertutup karung.
+                    3) Anda juga bisa menggeser <b>titik kuning</b> atau klik <b>╱ Sudut Lorong / Truk</b> untuk menyesuaikan garis sensor, atau gunakan tombol <b>+1 / -1</b> untuk koreksi manual.
                 </div>
             </div>
         </div>
