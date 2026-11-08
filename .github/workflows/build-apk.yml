@@ -37,15 +37,6 @@ jobs:
           cp vendor/xlsx.full.min.js build/assets/vendor/xlsx.full.min.js
           cp icon-192.png build/res/drawable/ic_launcher.png
 
-          # Download TensorFlow.js & COCO-SSD model directly on runner for 100% offline bundling
-          curl -sSL "https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.22.0/dist/tf.min.js" -o build/assets/vendor/tf.min.js
-          curl -sSL "https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd@2.2.3/dist/coco-ssd.min.js" -o build/assets/vendor/coco-ssd.min.js
-          BASE_MODEL="https://storage.googleapis.com/tfjs-models/savedmodel/ssdlite_mobilenet_v2"
-          curl -sSL "$BASE_MODEL/model.json" -o build/assets/vendor/coco/model.json
-          for s in group1-shard1of5 group1-shard2of5 group1-shard3of5 group1-shard4of5 group1-shard5of5; do
-            curl -sSL "$BASE_MODEL/$s" -o "build/assets/vendor/coco/$s"
-          done
-
           cat << 'EOF' > build/AndroidManifest.xml
           <?xml version="1.0" encoding="utf-8"?>
           <manifest xmlns:android="http://schemas.android.com/apk/res/android"

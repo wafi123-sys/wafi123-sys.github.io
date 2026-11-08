@@ -68,9 +68,14 @@
         if (CC.model) return CC.model;
         if (CC.loading) return CC.loading;
         CC.loading = (async () => {
-            status('Memuat mesin AI lokal... (pertama kali butuh 10-20 detik)');
-            await loadScript(VENDOR + 'tf.min.js');
-            await loadScript(VENDOR + 'coco-ssd.min.js');
+            status('Memuat mesin AI... (pertama kali butuh beberapa detik)');
+            try {
+                await loadScript(VENDOR + 'tf.min.js');
+                await loadScript(VENDOR + 'coco-ssd.min.js');
+            } catch (err) {
+                await loadScript('https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.22.0/dist/tf.min.js');
+                await loadScript('https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd@2.2.3/dist/coco-ssd.min.js');
+            }
             try { await tf.setBackend('webgl'); } catch (e) { /* fallback below */ }
             if (tf.getBackend() !== 'webgl') { try { await tf.setBackend('cpu'); } catch (e) { } }
             await tf.ready();
@@ -109,9 +114,19 @@
                             weightData: merged.buffer
                         })
                     };
+                } else {
+                    modelSource = 'indexeddb://gp-coco-ssd-v1';
                 }
             }
-            CC.model = await cocoSsd.load({ base: 'lite_mobilenet_v2', modelUrl: modelSource });
+            try {
+                CC.model = await cocoSsd.load({ base: 'lite_mobilenet_v2', modelUrl: modelSource });
+            } catch (err) {
+                // First time on standalone APK without bundled weights: fetch once from CDN and save to IndexedDB for 100% offline use next time
+                const base = 'https://storage.googleapis.com/tfjs-models/savedmodel/ssdlite_mobilenet_v2';
+                const m = await tf.loadGraphModel(base + '/model.json');
+                try { await m.save('indexeddb://gp-coco-ssd-v1'); } catch (e) {}
+                CC.model = await cocoSsd.load({ base: 'lite_mobilenet_v2', modelUrl: base + '/model.json' });
+            }
             status('AI siap (' + tf.getBackend() + ')');
             return CC.model;
         })();
