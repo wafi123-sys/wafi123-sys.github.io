@@ -699,8 +699,12 @@
         </div>
         <form onsubmit="handleLogin(event)">
             <div class="form-field" style="margin-bottom:1rem;"><label>Username</label><input type="text" id="username" placeholder="admin / staff" required></div>
-            <div class="form-field" style="margin-bottom:1.5rem;"><label>Password</label><input type="password" id="password" placeholder="Password" required></div>
+            <div class="form-field" style="margin-bottom:1.1rem;"><label>Password</label><input type="password" id="password" placeholder="Password" required></div>
             <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;">Sign in</button>
+            <div style="display:flex;gap:.5rem;margin-top:.65rem;">
+                <button type="button" class="btn btn-outline btn-sm" style="flex:1;justify-content:center;border-color:#0ca678;color:#087f5b;background:#e6fcf5;font-weight:700;" onclick="quickLogin('admin','admin123')">&#9889; Masuk Cepat: Checker (Admin)</button>
+                <button type="button" class="btn btn-outline btn-sm" style="justify-content:center;" onclick="quickLogin('staff','staff123')">Staff</button>
+            </div>
             <button type="button" id="pwa-login-install" class="btn btn-outline" style="display:none; width:100%; justify-content:center; margin-top:0.75rem;" onclick="installPWA()">Install app</button>
             <a id="https-jump-btn" href="#" style="display:none; width:100%; justify-content:center; margin-top:0.75rem; background:#0ca678; color:#fff; text-decoration:none; font-weight:600; padding:0.65rem 1rem; border-radius:6px; text-align:center; font-size:0.84rem;">
                 &#128242; Klik di Sini: Buka Mode Mandiri (Tanpa Hotspot)
@@ -765,7 +769,7 @@
             <svg class="nav-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
             <span class="nav-txt">Data Sync &amp; Backup</span><span class="nav-chev">›</span>
         </button>
-        <button class="nav-link" style="margin-top:.5rem; color:#63e6be; background:rgba(4,42,52,0.28);" onclick="openPhoneModal()">
+        <button class="nav-link" id="sidebar-phone-btn" style="margin-top:.5rem; color:#63e6be; background:rgba(4,42,52,0.28);" onclick="openPhoneModal()">
             <svg class="nav-ico" viewBox="0 0 24 24" fill="none" stroke="#63e6be" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
             <span class="nav-txt">Install on Phone (HP)</span><span class="nav-chev">›</span>
         </button>
@@ -792,11 +796,11 @@
             <span class="erp-sys-title">Southwind Plantation • Warehouse Control</span>
         </div>
         <div class="erp-header-right">
-            <a href="/GudangPro.apk" download="GudangPro.apk" class="erp-pill" style="cursor:pointer;background:#0ca678;border-color:#63e6be;color:#fff;text-decoration:none;font-weight:700;">
+            <a href="/GudangPro.apk" id="header-apk-btn" download="GudangPro.apk" class="erp-pill" style="cursor:pointer;background:#0ca678;border-color:#63e6be;color:#fff;text-decoration:none;font-weight:700;">
                 <svg viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                 <span>Download GudangPro.apk</span>
             </a>
-            <div class="erp-pill" onclick="openPhoneModal()" style="cursor:pointer;background:rgba(99,230,190,0.2);border-color:rgba(99,230,190,0.45);">
+            <div class="erp-pill" id="header-phone-btn" onclick="openPhoneModal()" style="cursor:pointer;background:rgba(99,230,190,0.2);border-color:rgba(99,230,190,0.45);">
                 <svg viewBox="0 0 24 24" fill="none" stroke="#63e6be" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
                 <span>Install to Phone (HP)</span>
             </div>
@@ -1123,7 +1127,7 @@
                     <div class="form-field"><label>From</label><input type="date" id="bc-from"></div>
                     <div class="form-field"><label>To</label><input type="date" id="bc-to"></div>
                     <button class="btn btn-primary" onclick="loadBinCard()">Show</button>
-                    <button class="btn btn-outline" onclick="window.print()">Print</button>
+                    <button class="btn btn-outline" onclick="printBinCard()">Print</button>
                     <button class="btn btn-outline" onclick="exportTable('tbl-bin','Bin_Card')">Export</button>
                 </div>
             </div>
@@ -1338,7 +1342,8 @@
                     <div><div class="cell-muted">Total Karung (Jalan × Karung/Jalan)</div><div class="n" id="cc-total">0</div></div>
                 </div>
                 <div class="cc-btns">
-                    <button type="button" class="btn btn-primary" onclick="camApply()">✔ Masukkan Hasil Hitung ke Receiving / Issuing</button>
+                    <button type="button" class="btn btn-primary" style="background:#087f5b;border-color:#087f5b;" onclick="camQuickSave()">&#9889; Simpan Langsung ke Stok (1-Klik)</button>
+                    <button type="button" class="btn btn-outline" onclick="camApply()">&#128221; Masukkan ke Form Receiving / Issuing</button>
                     <button type="button" class="btn btn-outline" onclick="camReset()">Reset Hitungan ke 0</button>
                 </div>
 
@@ -1535,6 +1540,22 @@
     </div>
 </div>
 
+<!-- MODAL: Photo Bukti Preview -->
+<div class="modal-backdrop" id="photoModal" onclick="if(event.target===this) closeModal('photoModal')">
+    <div class="modal-box" style="max-width:480px;text-align:center;">
+        <div class="modal-head" style="display:flex;justify-content:space-between;align-items:center;">
+            <h2>Foto Bukti Transaksi</h2>
+            <button type="button" class="btn btn-outline btn-sm" onclick="closeModal('photoModal')">&times;</button>
+        </div>
+        <div class="modal-body">
+            <img id="photo-modal-img" src="" alt="Foto Bukti" style="max-width:100%;max-height:65vh;border-radius:8px;border:1px solid var(--border);">
+        </div>
+        <div class="modal-foot">
+            <button type="button" class="btn btn-primary" onclick="closeModal('photoModal')">Tutup</button>
+        </div>
+    </div>
+</div>
+
 <div class="toast-container"><div class="toast-msg" id="toast"></div></div>
 
 <script src="vendor/chart.umd.js"></script>
@@ -1564,6 +1585,11 @@ function toast(msg, err = false) {
     const t = $('toast'); t.innerText = msg; t.className = 'toast-msg show' + (err ? ' error' : '');
     clearTimeout(toast._t); toast._t = setTimeout(() => t.classList.remove('show'), 3500);
 }
+function viewPhoto(src) {
+    if (!src) return;
+    $('photo-modal-img').src = src;
+    openModal('photoModal');
+}
 
 let IS_OFFLINE_FIELD_MODE = false;
 function setFieldModeBadge(offline) {
@@ -1582,12 +1608,20 @@ function setFieldModeBadge(offline) {
     }
 }
 
+const DEFAULT_FERTILIZER_ITEMS = [
+    { kode_barang: 'PUPUK-UREA', nama_barang: 'Pupuk Urea 50kg', kategori: 'FERTILIZER', satuan: 'bag', conv_factor: 50, conv_unit: 'kg', min_stock_alert: 50, aktif: 1, balances: { MAIN: 500, 'G-BAJA': 200 }, total: 700 },
+    { kode_barang: 'PUPUK-NPK', nama_barang: 'Pupuk NPK Phonska 50kg', kategori: 'FERTILIZER', satuan: 'bag', conv_factor: 50, conv_unit: 'kg', min_stock_alert: 50, aktif: 1, balances: { MAIN: 450, 'G-BAJA': 150 }, total: 600 },
+    { kode_barang: 'PUPUK-ZA', nama_barang: 'Pupuk ZA 50kg', kategori: 'FERTILIZER', satuan: 'bag', conv_factor: 50, conv_unit: 'kg', min_stock_alert: 30, aktif: 1, balances: { MAIN: 300 }, total: 300 },
+    { kode_barang: 'PUPUK-KCL', nama_barang: 'Pupuk MOP / KCL 50kg', kategori: 'FERTILIZER', satuan: 'bag', conv_factor: 50, conv_unit: 'kg', min_stock_alert: 30, aktif: 1, balances: { MAIN: 250 }, total: 250 }
+];
+
 const DEFAULT_OFFLINE_STORE = {
     warehouses: [
         { code: 'MAIN', name: 'Main Warehouse', remarks: 'Default warehouse (existing data)', aktif: 1 },
         { code: 'G-BAJA', name: 'STORE 1', remarks: 'SEBELAH BENGKEL', aktif: 1 }
     ],
     items: [
+        ...DEFAULT_FERTILIZER_ITEMS,
         { kode_barang: 'SKU-001', nama_barang: 'Besi Baja Ringan', kategori: 'OTHER', satuan: 'btg', conv_factor: 0, conv_unit: '', min_stock_alert: 50, aktif: 1, balances: { MAIN: 31697 }, total: 31697 },
         { kode_barang: 'SKU-002', nama_barang: 'Semen Gresik 50kg', kategori: 'OTHER', satuan: 'sak', conv_factor: 0, conv_unit: '', min_stock_alert: 20, aktif: 1, balances: { MAIN: 1214 }, total: 1214 },
         { kode_barang: 'SKU-003', nama_barang: 'Cat Tembok Dulux 5L', kategori: 'OTHER', satuan: 'klg', conv_factor: 0, conv_unit: '', min_stock_alert: 10, aktif: 1, balances: { 'G-BAJA': 100, MAIN: 2456 }, total: 2556 },
@@ -1609,7 +1643,16 @@ function getOfflineStore() {
         const raw = localStorage.getItem('gp_offline_store');
         if (raw) {
             const parsed = JSON.parse(raw);
-            if (parsed && Array.isArray(parsed.warehouses) && parsed.warehouses.length) return parsed;
+            if (parsed && Array.isArray(parsed.warehouses) && parsed.warehouses.length) {
+                parsed.items = Array.isArray(parsed.items) ? parsed.items : [];
+                if (!parsed.items.some(i => i.kategori === 'FERTILIZER')) {
+                    const existingCodes = new Set(parsed.items.map(i => i.kode_barang));
+                    const seedFert = JSON.parse(JSON.stringify(DEFAULT_FERTILIZER_ITEMS)).filter(f => !existingCodes.has(f.kode_barang));
+                    parsed.items = [...seedFert, ...parsed.items];
+                    saveOfflineStore(parsed);
+                }
+                return parsed;
+            }
         }
     } catch (e) {}
     return JSON.parse(JSON.stringify(DEFAULT_OFFLINE_STORE));
@@ -1626,7 +1669,15 @@ function parseOptsBody(opts) {
         opts.body.forEach((v, k) => { if (typeof v === 'string') o[k] = v; });
         return o;
     }
+    if (typeof opts.body === 'object') return opts.body;
     return {};
+}
+
+function isOfflineDayLocked(st, wh, dt) {
+    const closes = (st.closing_days || []).filter(c => c.gudang === wh).map(c => c.tanggal).sort();
+    if (!closes.length) return null;
+    const lastClosed = closes[closes.length - 1];
+    return dt <= lastClosed ? lastClosed : null;
 }
 
 function offlineApiFallback(url, opts = {}) {
@@ -1655,6 +1706,10 @@ function offlineApiFallback(url, opts = {}) {
         const code = decodeURIComponent(p.split('/').pop());
         const w = st.warehouses.find(x => x.code === code);
         if (!w) throw new Error('Warehouse not found.');
+        if (b.aktif !== undefined && !b.aktif && w.aktif !== 0 && !b.force) {
+            const hasStock = st.items.some(i => ((i.balances && i.balances[code]) || 0) > 0);
+            if (hasStock) return { status: 'confirm', message: `Warehouse ${w.name} still has stock. Deactivate anyway?` };
+        }
         if (b.name !== undefined) w.name = b.name.trim();
         if (b.remarks !== undefined) w.remarks = b.remarks.trim();
         if (b.aktif !== undefined) w.aktif = b.aktif ? 1 : 0;
@@ -1674,6 +1729,9 @@ function offlineApiFallback(url, opts = {}) {
         const code = decodeURIComponent(p.split('/').pop());
         const it = st.items.find(x => x.kode_barang === code);
         if (!it) throw new Error('Item not found.');
+        if (b.aktif !== undefined && !b.aktif && it.aktif !== 0 && !b.force && (it.total || 0) > 0) {
+            return { status: 'confirm', message: `Item ${it.nama_barang} still has ${it.total} ${it.satuan} in stock. Deactivate anyway?` };
+        }
         Object.assign(it, { nama_barang: b.nama_barang || it.nama_barang, kategori: b.kategori || it.kategori, satuan: b.satuan || it.satuan, conv_factor: Number(b.conv_factor) || 0, conv_unit: b.conv_unit || '', min_stock_alert: Number(b.min_stock_alert) || 0, aktif: b.aktif !== undefined ? (b.aktif ? 1 : 0) : it.aktif });
         saveOfflineStore(st);
         return { status: 'success', message: 'Item updated.' };
@@ -1719,8 +1777,12 @@ function offlineApiFallback(url, opts = {}) {
     }
     if (p === '/api/inbound' && method === 'POST') {
         const qty = Number(b.qty_masuk) || 0;
+        if (qty <= 0) throw new Error('Quantity must be greater than 0.');
         const wh = b.gudang || 'MAIN';
-        const rec = { transaction_id: 'IN-HP-' + Date.now(), tanggal_masuk: b.tanggal_masuk || today(), gudang: wh, kode_barang: b.kode_barang, qty_masuk: qty, supplier: b.supplier || '', surat_jalan: b.surat_jalan || '', lokasi: b.lokasi || '', pic: b.pic || 'field', created_at: new Date().toISOString() };
+        const dt = b.tanggal_masuk || today();
+        const locked = isOfflineDayLocked(st, wh, dt);
+        if (locked) throw new Error(`Day ${dt} is locked (closed up to ${locked} for ${wh}). Reopen the day first.`);
+        const rec = { transaction_id: 'IN-HP-' + Date.now() + '-' + Math.random().toString(36).slice(2, 6), tanggal_masuk: dt, gudang: wh, kode_barang: b.kode_barang, qty_masuk: qty, supplier: b.supplier || '', surat_jalan: b.surat_jalan || '', lokasi: b.lokasi || '', pic: b.pic || localStorage.getItem('auth') || 'field', foto_bukti: b.foto_bukti || null, created_at: new Date().toISOString() };
         st.inbound.unshift(rec);
         const it = st.items.find(x => x.kode_barang === b.kode_barang);
         if (it) { it.balances = it.balances || {}; it.balances[wh] = round3((it.balances[wh] || 0) + qty); it.total = round3((it.total || 0) + qty); }
@@ -1732,6 +1794,8 @@ function offlineApiFallback(url, opts = {}) {
         const idx = (st.inbound || []).findIndex(x => x.transaction_id === id);
         if (idx < 0) throw new Error('Transaction not found.');
         const rec = st.inbound[idx];
+        const locked = isOfflineDayLocked(st, rec.gudang || 'MAIN', rec.tanggal_masuk);
+        if (locked) throw new Error(`Cannot cancel transaction on locked day ${rec.tanggal_masuk}.`);
         const it = st.items.find(x => x.kode_barang === rec.kode_barang);
         if (it && it.balances) {
             it.balances[rec.gudang || 'MAIN'] = round3((it.balances[rec.gudang || 'MAIN'] || 0) - (Number(rec.qty_masuk) || 0));
@@ -1747,11 +1811,15 @@ function offlineApiFallback(url, opts = {}) {
     }
     if (p === '/api/outbound' && method === 'POST') {
         const qty = Number(b.qty_keluar) || 0;
+        if (qty <= 0) throw new Error('Quantity must be greater than 0.');
         const wh = b.gudang || 'MAIN';
+        const dt = b.tanggal_keluar || today();
+        const locked = isOfflineDayLocked(st, wh, dt);
+        if (locked) throw new Error(`Day ${dt} is locked (closed up to ${locked} for ${wh}). Reopen the day first.`);
         const it = st.items.find(x => x.kode_barang === b.kode_barang);
         const avail = it && it.balances ? (it.balances[wh] || 0) : 0;
         if (avail < qty) throw new Error(`Insufficient stock in ${wh}. Available: ${avail}`);
-        const rec = { transaction_id: 'OUT-HP-' + Date.now(), tanggal_keluar: b.tanggal_keluar || today(), gudang: wh, kode_barang: b.kode_barang, qty_keluar: qty, kondisi_keluar: 'OK', alasan_keluar: b.alasan_keluar || '', pic: b.pic || 'field', requisition_no: b.requisition_no || '', block: b.block || '', phase: b.phase || '', account_no: b.account_no || '', requested_by: b.requested_by || '', approved_by: b.approved_by || '', received_by: b.received_by || '', empty_returned: b.empty_returned !== undefined && b.empty_returned !== '' ? Number(b.empty_returned) : null, created_at: new Date().toISOString() };
+        const rec = { transaction_id: 'OUT-HP-' + Date.now() + '-' + Math.random().toString(36).slice(2, 6), tanggal_keluar: dt, gudang: wh, kode_barang: b.kode_barang, qty_keluar: qty, kondisi_keluar: 'OK', alasan_keluar: b.alasan_keluar || '', pic: b.pic || localStorage.getItem('auth') || 'field', requisition_no: b.requisition_no || '', block: b.block || '', phase: b.phase || '', account_no: b.account_no || '', requested_by: b.requested_by || '', approved_by: b.approved_by || '', received_by: b.received_by || '', empty_returned: b.empty_returned !== undefined && b.empty_returned !== '' ? Number(b.empty_returned) : null, foto_bukti: b.foto_bukti || null, created_at: new Date().toISOString() };
         st.outbound.unshift(rec);
         if (it) { it.balances[wh] = round3((it.balances[wh] || 0) - qty); it.total = round3((it.total || 0) - qty); }
         saveOfflineStore(st);
@@ -1768,6 +1836,8 @@ function offlineApiFallback(url, opts = {}) {
         const idx = (st.outbound || []).findIndex(x => x.transaction_id === id);
         if (idx < 0) throw new Error('Transaction not found.');
         const rec = st.outbound[idx];
+        const locked = isOfflineDayLocked(st, rec.gudang || 'MAIN', rec.tanggal_keluar);
+        if (locked) throw new Error(`Cannot cancel transaction on locked day ${rec.tanggal_keluar}.`);
         const it = st.items.find(x => x.kode_barang === rec.kode_barang);
         if (it) {
             it.balances = it.balances || {};
@@ -1810,12 +1880,13 @@ function offlineApiFallback(url, opts = {}) {
                 saved_physical: saved ? saved.physical : undefined, saved_selisih: saved ? saved.selisih : undefined, saved_reason: saved ? saved.reason : undefined
             };
         });
-        return { status: 'success', data: { date: dt, gudang: wh, closed: isClosed, closed_by: closeRec ? (closeRec.closed_by || 'field') : '', closed_at: closeRec ? (closeRec.created_at || closeRec.closed_at || dt) : '', last_closed: lastClosed, rows } };
+        return { status: 'success', data: { date: dt, gudang: wh, closed: isClosed, closed_by: closeRec ? (closeRec.closed_by || 'admin') : '', closed_at: closeRec ? (closeRec.created_at || closeRec.closed_at || dt) : '', last_closed: lastClosed, rows } };
     }
     if (p === '/api/closing' && method === 'POST') {
         const dt = b.tanggal || today();
         const wh = b.gudang || 'MAIN';
         const sub = Array.isArray(b.rows) ? b.rows : [];
+        const userWho = localStorage.getItem('auth') || 'admin';
         st.closing_days = st.closing_days || [];
         st.daily_closing = st.daily_closing || [];
         let mismatches = 0;
@@ -1828,7 +1899,7 @@ function offlineApiFallback(url, opts = {}) {
             const diff = round3(phys - exp);
             if (diff !== 0 && !String(s.reason || '').trim()) throw new Error(`Please give a reason for the difference on ${it.nama_barang}.`);
             if (diff !== 0) mismatches++;
-            newDaily.push({ it, wh, exp, phys, diff, rec: { tanggal: dt, gudang: wh, kode_barang: s.kode_barang, opening: exp, qty_in: 0, qty_out: 0, adj: 0, expected: exp, physical: phys, selisih: diff, reason: s.reason || '', pic: 'field', created_at: new Date().toISOString() } });
+            newDaily.push({ it, wh, exp, phys, diff, rec: { tanggal: dt, gudang: wh, kode_barang: s.kode_barang, opening: exp, qty_in: 0, qty_out: 0, adj: 0, expected: exp, physical: phys, selisih: diff, reason: s.reason || '', pic: userWho, created_at: new Date().toISOString() } });
         });
         st.daily_closing = st.daily_closing.filter(d => !(d.gudang === wh && d.tanggal === dt));
         newDaily.forEach(x => {
@@ -1836,7 +1907,7 @@ function offlineApiFallback(url, opts = {}) {
             st.daily_closing.push(x.rec);
         });
         st.closing_days = st.closing_days.filter(c => !(c.gudang === wh && c.tanggal === dt));
-        st.closing_days.unshift({ tanggal: dt, gudang: wh, closed_by: 'field', created_at: new Date().toISOString(), items: sub.length, mismatches });
+        st.closing_days.unshift({ tanggal: dt, gudang: wh, closed_by: userWho, created_at: new Date().toISOString(), items: sub.length, mismatches });
         saveOfflineStore(st);
         return { status: 'success', message: `Day ${dt} closed in Offline HP Memory.`, data: { items: sub.length, mismatches } };
     }
@@ -2254,7 +2325,7 @@ function closeModal(id) { $(id).classList.remove('open'); }
 
 // ===================================================== auth
 async function handleLogin(e) {
-    e.preventDefault();
+    if (e) e.preventDefault();
     try {
         const d = await api('/api/login', { method: 'POST', headers: JSONH, body: JSON.stringify({ username: $('username').value, password: $('password').value }) });
         localStorage.setItem('auth', d.token);
@@ -2262,8 +2333,19 @@ async function handleLogin(e) {
         checkAuth();
     } catch (err) { toast(err.message, true); }
 }
+function quickLogin(u, p) {
+    $('username').value = u;
+    $('password').value = p;
+    handleLogin(null);
+}
 function logout() { localStorage.removeItem('auth'); localStorage.removeItem('role'); location.reload(); }
 function checkAuth() {
+    if (window.AndroidBridge || window.location.protocol === 'file:') {
+        if ($('sidebar-phone-btn')) $('sidebar-phone-btn').style.display = 'none';
+        if ($('header-apk-btn')) $('header-apk-btn').style.display = 'none';
+        if ($('header-phone-btn')) $('header-phone-btn').style.display = 'none';
+        setFieldModeBadge(true);
+    }
     currentUser = localStorage.getItem('auth');
     currentRole = localStorage.getItem('role');
     if (currentUser) {
@@ -2537,6 +2619,50 @@ async function toggleWH(idx, force = false) {
 // ===================================================== receiving
 let INS = [];
 function availText(it, wh) { return it ? (it.balances[wh] || 0) : 0; }
+function readFileAsCompressedDataUrl(file) {
+    return new Promise((resolve) => {
+        if (!file || !(file instanceof Blob) || !file.size) return resolve(null);
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+            const img = new Image();
+            img.onload = () => {
+                try {
+                    const maxDim = 480;
+                    const scale = Math.min(1, maxDim / Math.max(img.width || 1, img.height || 1));
+                    const c = document.createElement('canvas');
+                    c.width = Math.max(1, Math.round(img.width * scale));
+                    c.height = Math.max(1, Math.round(img.height * scale));
+                    c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+                    resolve(c.toDataURL('image/jpeg', 0.72));
+                } catch (e) { resolve(ev.target.result); }
+            };
+            img.onerror = () => resolve(ev.target.result);
+            img.src = ev.target.result;
+        };
+        reader.onerror = () => resolve(null);
+        reader.readAsDataURL(file);
+    });
+}
+async function buildFormSubmitOptions(formEl) {
+    const fd = new FormData(formEl);
+    if (IS_OFFLINE_FIELD_MODE || window.location.protocol === 'file:' || window.location.hostname.endsWith('.github.io') || window.GUDANGPRO_STANDALONE === true) {
+        const obj = {};
+        let fileBlob = null;
+        fd.forEach((v, k) => {
+            if (typeof v === 'string') obj[k] = v;
+            else if (k === 'foto' && v && v.size > 0) fileBlob = v;
+        });
+        if (fileBlob) {
+            obj.foto_bukti = await readFileAsCompressedDataUrl(fileBlob);
+        } else if (window._ccPendingPhoto) {
+            obj.foto_bukti = window._ccPendingPhoto;
+        }
+        window._ccPendingPhoto = null;
+        return { method: 'POST', headers: JSONH, body: JSON.stringify(obj) };
+    }
+    window._ccPendingPhoto = null;
+    return { method: 'POST', body: fd };
+}
 function onInItem() {
     const it = itemOf($('in-item').value); const q = parseFloat($('in-qty').value) || 0;
     $('in-unit').innerText = it ? `(${it.satuan})` : '';
@@ -2551,7 +2677,7 @@ async function loadReceiving() {
         $('in-body').innerHTML = INS.length ? INS.map((r, i) => `<tr><td>${esc(r.tanggal_masuk)}</td><td>${esc(whName(r.gudang))}</td>
             <td class="cell-bold">${esc(r.nama_barang)}<div class="cell-muted cell-mono">${esc(r.kode_barang)}</div></td>
             <td class="num">${fmt(r.qty_masuk)} ${esc(r.satuan)}</td><td>${esc(r.supplier)}</td><td>${esc(r.surat_jalan)}</td><td>${esc(r.pic)}</td>
-            <td>${r.foto_bukti ? `<a href="${esc(r.foto_bukti)}" target="_blank"><img class="thumb" src="${esc(r.foto_bukti)}"></a>` : '<span class="no-img">-</span>'}</td>
+            <td>${r.foto_bukti ? `<a href="#" onclick="viewPhoto('${esc(r.foto_bukti)}');return false;"><img class="thumb" src="${esc(r.foto_bukti)}"></a>` : '<span class="no-img">-</span>'}</td>
             <td class="admin-only"><button class="btn btn-destructive btn-sm" onclick="delTrx('inbound', ${i})">Cancel</button></td></tr>`).join('')
             : '<tr><td colspan="9" class="cell-muted">No receiving recorded yet.</td></tr>';
     } catch (e) { toast(e.message, true); }
@@ -2560,7 +2686,8 @@ async function submitIn(e) {
     e.preventDefault();
     const btn = e.submitter; if (btn) btn.disabled = true;
     try {
-        const r = await api('/api/inbound', { method: 'POST', body: new FormData($('in-form')) });
+        const opts = await buildFormSubmitOptions($('in-form'));
+        const r = await api('/api/inbound', opts);
         toast(r.message);
         const d = $('in-date').value, w = $('in-wh').value, p = $('in-pic').value;
         $('in-form').reset(); $('in-date').value = d; $('in-wh').value = w; $('in-pic').value = p;
@@ -2595,7 +2722,8 @@ async function loadIssuing() {
                 if (r.empty_returned === null || r.empty_returned === undefined) eb = '<span class="tag tag-amber">Pending</span>';
                 else { const d = round3(r.qty_keluar - r.empty_returned); eb = d === 0 ? `<span class="tag tag-green">${fmt(r.empty_returned)} OK</span>` : `<span class="tag tag-red">${fmt(r.empty_returned)} (${d > 0 ? 'missing ' + fmt(d) : 'extra ' + fmt(-d)})</span>`; }
             }
-            return `<tr><td>${esc(r.tanggal_keluar)}</td><td class="cell-mono">${esc(r.requisition_no)}</td><td>${esc(whName(r.gudang))}</td>
+            const photoLink = r.foto_bukti ? ` <a href="#" onclick="viewPhoto('${esc(r.foto_bukti)}');return false;" title="Lihat Foto Bukti">&#128247;</a>` : '';
+            return `<tr><td>${esc(r.tanggal_keluar)}</td><td class="cell-mono">${esc(r.requisition_no)}${photoLink}</td><td>${esc(whName(r.gudang))}</td>
                 <td class="cell-bold">${esc(r.nama_barang)}<div class="cell-muted cell-mono">${esc(r.kode_barang)}</div></td>
                 <td class="num">${fmt(r.qty_keluar)} ${esc(r.satuan)}</td><td>${esc(r.block)} / ${esc(r.phase)}</td><td>${esc(r.account_no)}</td>
                 <td>${esc(r.received_by)}</td><td>${eb}</td><td>${esc(r.pic)}</td>
@@ -2608,7 +2736,8 @@ async function submitOut(e) {
     const btn = e.submitter; if (btn) btn.disabled = true;
     try {
         const it = itemOf($('out-item').value);
-        const r = await api('/api/outbound', { method: 'POST', body: new FormData($('out-form')) });
+        const opts = await buildFormSubmitOptions($('out-form'));
+        const r = await api('/api/outbound', opts);
         toast(r.message + ' Remember to count the remaining stock in Daily Closing.');
         const d = $('out-date').value, w = $('out-wh').value, p = $('out-pic').value;
         $('out-form').reset(); $('out-date').value = d; $('out-wh').value = w; $('out-pic').value = p;
@@ -2771,6 +2900,13 @@ function viewClosing(i) { $('cl-date').value = CLH[i].tanggal; $('cl-wh').value 
 function initBinCard() {
     if (!$('bc-to').value) $('bc-to').value = today();
     if (!$('bc-from').value) { const d = new Date(); $('bc-from').value = dstr(new Date(d.getFullYear(), d.getMonth(), 1)); }
+}
+function printBinCard() {
+    if (window.AndroidBridge && typeof window.AndroidBridge.printPage === 'function') {
+        window.AndroidBridge.printPage();
+    } else {
+        window.print();
+    }
 }
 async function loadBinCard() {
     const code = $('bc-item').value;

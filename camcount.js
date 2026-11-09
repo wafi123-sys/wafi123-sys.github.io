@@ -671,19 +671,83 @@
         if (!qty) return toast('Hitungan masih 0 - belum ada barang untuk dimasukkan.', true);
         if (!item) return toast('Pilih barang (pupuk) terlebih dahulu.', true);
         stop();
+        window._ccPendingPhoto = (CC.thumbs && CC.thumbs.length && CC.thumbs[0].url) ? CC.thumbs[0].url : null;
+        const stamp = 'CAM-' + new Date().toTimeString().slice(0, 8).replace(/:/g, '');
         if (mode === 'IN') {
             switchTab('receiving');
-            el('in-wh').value = wh; el('in-item').value = item; el('in-qty').value = qty; onInItem();
+            el('in-wh').value = wh; el('in-item').value = item; el('in-qty').value = qty;
+            const sjInp = document.querySelector('#in-form input[name="surat_jalan"]');
+            if (sjInp && !sjInp.value) sjInp.value = stamp;
+            onInItem();
             el('in-form').scrollIntoView({ behavior: 'smooth' });
         } else {
             switchTab('issuing');
-            el('out-wh').value = wh; el('out-item').value = item; el('out-qty').value = qty; onOutItem();
+            el('out-wh').value = wh; el('out-item').value = item; el('out-qty').value = qty;
+            const reqInp = document.querySelector('#out-form input[name="requisition_no"]');
+            if (reqInp && !reqInp.value) reqInp.value = stamp;
+            onOutItem();
             el('out-form').scrollIntoView({ behavior: 'smooth' });
         }
-        toast(`Jumlah ${qty} karung otomatis terisi dari kamera. Lengkapi form lalu klik Save.`);
+        toast(`Jumlah ${qty} karung otomatis terisi dari kamera. Klik Save untuk menyimpan.`);
+    };
+    window.camQuickSave = async () => {
+        const qty = total(), mode = el('cc-mode').value, wh = el('cc-wh').value, item = el('cc-item').value;
+        if (!qty) return toast('Hitungan masih 0 - belum ada karung terhitung.', true);
+        if (!item) return toast('Pilih nama barang (pupuk) terlebih dahulu.', true);
+        stop();
+        const photoUrl = (CC.thumbs && CC.thumbs.length && CC.thumbs[0].url) ? CC.thumbs[0].url : null;
+        const stamp = 'CAM-' + new Date().toTimeString().slice(0, 8).replace(/:/g, '');
+        const userPic = localStorage.getItem('auth') || 'checker';
+        const dStr = typeof today === 'function' ? today() : new Date().toISOString().slice(0, 10);
+        try {
+            if (mode === 'IN') {
+                await api('/api/inbound', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        tanggal_masuk: dStr,
+                        gudang: wh,
+                        kode_barang: item,
+                        qty_masuk: qty,
+                        supplier: 'Kamera AI Counter',
+                        surat_jalan: stamp,
+                        lokasi: '',
+                        pic: userPic,
+                        foto_bukti: photoUrl
+                    })
+                });
+            } else {
+                await api('/api/outbound', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        tanggal_keluar: dStr,
+                        gudang: wh,
+                        kode_barang: item,
+                        qty_keluar: qty,
+                        requisition_no: stamp,
+                        alasan_keluar: 'Hitung Otomatis Kamera AI',
+                        pic: userPic,
+                        foto_bukti: photoUrl
+                    })
+                });
+            }
+            if (typeof refreshBase === 'function') await refreshBase();
+            const itObj = typeof itemOf === 'function' ? itemOf(item) : null;
+            const itName = itObj ? itObj.nama_barang : item;
+            CC.count = 0; CC.events = []; CC.thumbs = []; renderThumbs(); renderCount(); save();
+            toast(`Tersimpan langsung: ${mode === 'IN' ? '+' : '-'}${qty} karung ${itName} (${wh})!`);
+        } catch (err) {
+            toast(err.message || String(err), true);
+        }
     };
     window.initCamCount = () => {
         if (!initCamCount.done) { restore(); bindLineEditing(); initCamCount.done = true; }
+        const sel = el('cc-item');
+        if (sel && !sel.value && sel.options.length > 1) {
+            const fertOpt = [...sel.options].find(o => o.value.startsWith('PUPUK-')) || sel.options[1];
+            if (fertOpt) sel.value = fertOpt.value;
+        }
         renderCount(); renderThumbs(); setButtons(); draw();
         if (!CC.running) status(CC.model ? 'AI v2.0 siap. Tekan Mulai Kamera.' : 'Tekan Mulai Kamera. (AI v2.0 dimuat saat pertama kali mulai)');
     };
