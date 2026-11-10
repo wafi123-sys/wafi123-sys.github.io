@@ -1,4 +1,4 @@
-const CACHE_NAME = 'gudangpro-v4.7';
+const CACHE_NAME = 'gudangpro-v4.8';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',

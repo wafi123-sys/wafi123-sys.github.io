@@ -587,11 +587,11 @@
             await ensureModel();
             CC.tracks = []; CC.running = true;
             try { if (navigator.wakeLock) CC.wake = await navigator.wakeLock.request('screen'); } catch (e) { }
-            setButtons(); status('AI v2.0 aktif: otomatis membedakan kuli [BAWA KARUNG] vs orang [KOSONG].');
+            setButtons(); status('Kamera AI aktif.');
             loop();
         } catch (e) {
             stop();
-            const msg = e && e.name === 'NotAllowedError' ? 'Izin kamera ditolak. Izinkan akses kamera untuk Chrome / GudangPro di pengaturan HP.' : (e.message || String(e));
+            const msg = e && e.name === 'NotAllowedError' ? 'Izin kamera ditolak.' : (e.message || String(e));
             status(msg); if (window.toast) toast(msg, true);
         }
     }
@@ -603,7 +603,7 @@
         if (v) { v.pause(); v.srcObject = null; }
         if (CC.wake) { CC.wake.release().catch(() => { }); CC.wake = null; }
         CC.tracks = []; CC.people = 0; CC.carriers = 0;
-        if (el('cc-start')) { setButtons(); status(CC.model ? 'Kamera dihentikan.' : 'Tekan Mulai Kamera.'); }
+        if (el('cc-start')) { setButtons(); status('Siap.'); }
     }
     function setButtons() {
         el('cc-start').style.display = CC.running ? 'none' : '';
@@ -749,7 +749,7 @@
             if (fertOpt) sel.value = fertOpt.value;
         }
         renderCount(); renderThumbs(); setButtons(); draw();
-        if (!CC.running) status(CC.model ? 'AI v2.0 siap. Tekan Mulai Kamera.' : 'Tekan Mulai Kamera. (AI v2.0 dimuat saat pertama kali mulai)');
+        if (!CC.running) status('Siap.');
     };
     document.addEventListener('visibilitychange', async () => {
         if (document.visibilityState === 'visible' && CC.running && !CC.wake && navigator.wakeLock) {

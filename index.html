@@ -812,12 +812,12 @@
             <div class="form-field" style="margin-bottom:1.1rem;"><label>Password</label><input type="password" id="password" placeholder="Password" required></div>
             <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;">Sign in</button>
             <div style="display:flex;gap:.5rem;margin-top:.65rem;">
-                <button type="button" class="btn btn-outline btn-sm" style="flex:1;justify-content:center;border-color:#0ca678;color:#087f5b;background:#e6fcf5;font-weight:700;" onclick="quickLogin('admin','admin123')">&#9889; Masuk Cepat: Checker (Admin)</button>
+                <button type="button" class="btn btn-outline btn-sm" style="flex:1;justify-content:center;border-color:#0ca678;color:#087f5b;background:#e6fcf5;font-weight:700;" onclick="quickLogin('admin','admin123')">Masuk Cepat: Checker (Admin)</button>
                 <button type="button" class="btn btn-outline btn-sm" style="justify-content:center;" onclick="quickLogin('staff','staff123')">Staff</button>
             </div>
             <button type="button" id="pwa-login-install" class="btn btn-outline" style="display:none; width:100%; justify-content:center; margin-top:0.75rem;" onclick="installPWA()">Install app</button>
             <a id="https-jump-btn" href="#" style="display:none; width:100%; justify-content:center; margin-top:0.75rem; background:#0ca678; color:#fff; text-decoration:none; font-weight:600; padding:0.65rem 1rem; border-radius:6px; text-align:center; font-size:0.84rem;">
-                &#128242; Klik di Sini: Buka Mode Mandiri (Tanpa Hotspot)
+                Buka Mode Mandiri (Tanpa Hotspot)
             </a>
         </form>
     </div>
@@ -1033,10 +1033,6 @@
                             <span class="filter-chip" data-cat="OTHER" onclick="setStockCat('OTHER')">Other</span>
                         </div>
                     </div>
-                    <div style="background:#e6fcf5;border:1px solid #63e6be;border-radius:6px;padding:.45rem .7rem;font-size:.78rem;color:#087f5b;display:flex;align-items:center;gap:.45rem;margin-bottom:.35rem;">
-                        <span>&#128203;</span>
-                        <span><b>Klik nama barang / baris mana saja</b> untuk membuka <b>Stock Card (Kartu Stok Southwind Plantation)</b> dan mencatat <b>Barang Masuk / Barang Keluar</b> secara langsung.</span>
-                    </div>
                 </div>
             </div>
             <div class="table-wrap"><table id="tbl-stock"><thead id="stock-head"></thead><tbody id="stock-body"></tbody></table></div>
@@ -1099,10 +1095,6 @@
 
     <!-- ISSUING -->
     <div class="page" id="tab-issuing">
-        <div class="banner no-print">
-            <span>After issuing goods, count what is physically left in the warehouse and confirm it in <b>Daily Closing</b>.</span>
-            <button class="btn btn-outline btn-sm" onclick="switchTab('closing')">Go to Daily Closing</button>
-        </div>
         <div class="panel">
             <div class="panel-header"><h2>Record Issue (Store Requisition Chit)</h2></div>
             <div class="panel-body">
@@ -1301,9 +1293,6 @@
                     <span class="tag tag-default cell-mono">GUDANGPRO_SYNC_V1</span>
                 </div>
                 <div class="panel-body">
-                    <div class="cell-muted" style="margin-bottom:1rem;line-height:1.5;">
-                        Pack transactions for a specific date or date range into a portable <span class="cell-mono">.gpsync.json</span> file to transfer between phone and laptop.
-                    </div>
                     <div style="display:flex;gap:.4rem;margin-bottom:1rem;flex-wrap:wrap;">
                         <button type="button" class="filter-chip active" id="exp-preset-today" onclick="setExportRange(0, this)">Today</button>
                         <button type="button" class="filter-chip" onclick="setExportRange(1, this)">Yesterday</button>
@@ -1342,7 +1331,6 @@
                     <div class="dropzone" id="imp-dropzone" onclick="$('imp-file').value=''; $('imp-file').click()" ondragover="onSyncDragOver(event)" ondragleave="onSyncDragLeave(event)" ondrop="onSyncDrop(event)">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#57534e" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="margin:0 auto;display:block;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><polyline points="9 15 12 12 15 15"/></svg>
                         <div class="dropzone-title" id="imp-file-label">Select or drop a .gpsync.json file</div>
-                        <div class="dropzone-sub">Existing dates outside your selection remain untouched. Duplicate IDs are automatically skipped.</div>
                     </div>
 
                     <div id="imp-inspector" style="display:none;margin-top:1.25rem;">
@@ -1464,24 +1452,24 @@
                 <div id="cc-stage" style="margin-top:.8rem;">
                     <video id="cc-video" playsinline muted autoplay></video>
                     <canvas id="cc-canvas"></canvas>
-                    <div id="cc-placeholder">Tekan <b>&nbsp;▶ Mulai Kamera&nbsp;</b>. AI otomatis membedakan <b style="color:#40c057;">Kuli Bawa Karung (+1)</b> vs <b style="color:#adb5bd;">Orang Lewat Kosong (Diabaikan)</b>.</div>
+                    <div id="cc-placeholder">Kamera belum aktif.</div>
                     <div class="cc-float">
                         <button type="button" onclick="camAdd(-1)">-1</button>
                         <button type="button" onclick="camAdd(1)" style="background:rgba(12,166,120,.85);">+1</button>
-                        <button type="button" onclick="camFullscreen()" title="Layar Penuh">⛶</button>
+                        <button type="button" onclick="camFullscreen()" title="Layar Penuh">[ ]</button>
                     </div>
                 </div>
-                <div class="cell-muted" id="cc-status" style="margin-top:.4rem;font-size:.8rem;">Tekan Mulai Kamera.</div>
+                <div class="cell-muted" id="cc-status" style="margin-top:.4rem;font-size:.8rem;">Siap.</div>
 
                 <div class="cc-btns">
-                    <button type="button" class="btn btn-primary" id="cc-start" onclick="camStart()">▶ Mulai Kamera</button>
-                    <button type="button" class="btn btn-destructive" id="cc-stop" onclick="camStop()" style="display:none;">■ Berhenti</button>
-                    <button type="button" class="btn btn-outline" onclick="camFlip()">⇄ Balik Arah Panah</button>
-                    <button type="button" class="btn btn-outline" onclick="camPreset('v')">│ Garis Tegak</button>
-                    <button type="button" class="btn btn-outline" onclick="camPreset('h')">─ Garis Mendatar</button>
-                    <button type="button" class="btn btn-outline" onclick="camPreset('d')">╱ Sudut Lorong / Truk</button>
-                    <button type="button" class="btn btn-outline" onclick="camSwitch()">⟲ Ganti Kamera (Depan/Belakang)</button>
-                    <label class="btn btn-outline" style="cursor:pointer;">🎞 Tes Pakai Rekaman Video<input type="file" accept="video/*" style="display:none;" onchange="camFile(this)"></label>
+                    <button type="button" class="btn btn-primary" id="cc-start" onclick="camStart()">Mulai Kamera</button>
+                    <button type="button" class="btn btn-destructive" id="cc-stop" onclick="camStop()" style="display:none;">Berhenti</button>
+                    <button type="button" class="btn btn-outline" onclick="camFlip()">Balik Arah</button>
+                    <button type="button" class="btn btn-outline" onclick="camPreset('v')">Garis Tegak</button>
+                    <button type="button" class="btn btn-outline" onclick="camPreset('h')">Garis Mendatar</button>
+                    <button type="button" class="btn btn-outline" onclick="camPreset('d')">Sudut Lorong</button>
+                    <button type="button" class="btn btn-outline" onclick="camSwitch()">Ganti Kamera</button>
+                    <label class="btn btn-outline" style="cursor:pointer;">Pilih Video<input type="file" accept="video/*" style="display:none;" onchange="camFile(this)"></label>
                 </div>
 
                 <div class="cc-big">
@@ -1489,16 +1477,9 @@
                     <div><div class="cell-muted">Total Karung (Jalan × Karung/Jalan)</div><div class="n" id="cc-total">0</div></div>
                 </div>
                 <div class="cc-btns">
-                    <button type="button" class="btn btn-primary" style="background:#087f5b;border-color:#087f5b;" onclick="camQuickSave()">&#9889; Simpan Langsung ke Stok (1-Klik)</button>
-                    <button type="button" class="btn btn-outline" onclick="camApply()">&#128221; Masukkan ke Form Receiving / Issuing</button>
-                    <button type="button" class="btn btn-outline" onclick="camReset()">Reset Hitungan ke 0</button>
-                </div>
-
-                <div class="banner" style="margin-top:1rem;display:block;font-size:.82rem;line-height:1.5;">
-                    <b>AI Engine v2.0 (Sensor Cerdas Karung + Sudut Sulit / Lorong):</b>
-                    1) AI secara otomatis memindai area pundak/kepala setiap orang dan membedakan <b style="color:#2f9e44;">Kuli [BAWA KARUNG] (Kotak Hijau)</b> vs <b style="color:#868e96;">Orang [LEWAT / KOSONG] (Kotak Putus-Putus)</b>. Orang yang hanya lewat atau berdiri tanpa memikul karung otomatis <b>diabaikan</b> dan tidak dihitung.
-                    2) Mendukung sudut kamera sulit (seperti dari dalam lorong tumpukan menghadap truk): kuli yang memikul karung dari truk lalu menurunkan/melempar karung ke tumpukan tetap terhitung <b>+1 otomatis</b> meskipun kepalanya tertutup karung.
-                    3) Anda juga bisa menggeser <b>titik kuning</b> atau klik <b>╱ Sudut Lorong / Truk</b> untuk menyesuaikan garis sensor, atau gunakan tombol <b>+1 / -1</b> untuk koreksi manual.
+                    <button type="button" class="btn btn-primary" style="background:#087f5b;border-color:#087f5b;" onclick="camQuickSave()">Simpan Langsung ke Stok</button>
+                    <button type="button" class="btn btn-outline" onclick="camApply()">Masukkan ke Form</button>
+                    <button type="button" class="btn btn-outline" onclick="camReset()">Reset</button>
                 </div>
             </div>
         </div>
@@ -1566,7 +1547,6 @@
                         <input type="number" id="it-conv" min="0" step="any" placeholder="e.g. 50">
                         <input type="text" id="it-convunit" placeholder="e.g. kg">
                     </div>
-                    <div class="hint">Example: unit = bag, 1 bag = 50 kg. Stock will then also show the kg equivalent.</div>
                 </div>
                 <label id="it-active-wrap" style="display:none;gap:.4rem;align-items:center;font-size:.85rem;"><input type="checkbox" id="it-active" checked> Active (inactive items are hidden and skipped in daily closing)</label>
             </div>
@@ -1631,53 +1611,40 @@
 <div class="modal-backdrop" id="phoneModal">
     <div class="modal-box wide">
         <div class="modal-head" style="background:linear-gradient(90deg,#0b7a8e,#075969);color:#fff;border-radius:12px 12px 0 0;display:flex;justify-content:space-between;align-items:center;">
-            <h2 style="display:flex;align-items:center;gap:.5rem;">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#63e6be" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
-                Install GudangPro on Android Phone (WebAPK)
-            </h2>
-            <span class="tag" style="background:rgba(99,230,190,0.2);color:#63e6be;">Langkah A</span>
+            <h2>Koneksi &amp; APK Android</h2>
         </div>
         <div class="modal-body">
-            <div style="background:#e6fcf5;border:2px solid #0ca678;border-radius:8px;padding:1rem;margin-bottom:1rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;">
+            <div style="background:#e6fcf5;border:1px solid #0ca678;border-radius:8px;padding:1rem;margin-bottom:1rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;">
                 <div>
-                    <div style="font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#087f5b;margin-bottom:.25rem;">File Instalasi Android (.APK) Siap Kirim via WhatsApp</div>
-                    <div style="font-size:.84rem;color:#0b7285;">Unduh file <b>GudangPro.apk (1.05 MB)</b> ke Desktop/Downloads Anda lalu kirim lewat WhatsApp ke HP.</div>
+                    <div style="font-size:.85rem;font-weight:700;color:#087f5b;">File APK Android (GudangPro.apk)</div>
                 </div>
-                <a href="/GudangPro.apk" download="GudangPro.apk" class="btn btn-primary" style="background:#0ca678;border-color:#0ca678;text-decoration:none;white-space:nowrap;">&#128229; Download GudangPro.apk</a>
+                <a href="/GudangPro.apk" download="GudangPro.apk" class="btn btn-primary" style="background:#0ca678;border-color:#0ca678;text-decoration:none;white-space:nowrap;">Download GudangPro.apk</a>
             </div>
             <div id="phone-https-box" style="display:none;background:#e6fcf5;border:1px solid #63e6be;border-radius:8px;padding:1rem;margin-bottom:1rem;">
-                <div style="font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#087f5b;margin-bottom:.35rem;">Link Install Mandiri 100% Offline (Tanpa Perlu Hotspot Lagi)</div>
                 <div style="display:flex;align-items:center;justify-content:space-between;gap:.75rem;flex-wrap:wrap;">
-                    <a id="phone-https-url" href="#" target="_blank" class="cell-mono" style="font-size:1.1rem;font-weight:700;color:#087f5b;text-decoration:underline;word-break:break-all;">https://...</a>
-                    <a id="phone-https-btn" href="#" class="btn btn-primary btn-sm" style="background:#0ca678;border-color:#0ca678;text-decoration:none;">Buka Link HTTPS Sekarang</a>
+                    <a id="phone-https-url" href="#" target="_blank" class="cell-mono" style="font-size:1rem;font-weight:700;color:#087f5b;text-decoration:underline;word-break:break-all;">https://...</a>
+                    <a id="phone-https-btn" href="#" class="btn btn-primary btn-sm" style="background:#0ca678;border-color:#0ca678;text-decoration:none;">Buka Link</a>
                 </div>
-                <div class="cell-muted" style="margin-top:.35rem;font-size:.76rem;color:#087f5b;">Buka link HTTPS di atas 1 kali saja di Chrome HP, lalu pilih <b>Tambahkan ke Layar Utama / Install app</b>. Setelah terpasang, aplikasi bisa dibuka kapan saja <b>tanpa Hotspot &amp; tanpa internet!</b></div>
             </div>
 
             <div style="background:var(--accent-soft);border:1px solid #99e9f2;border-radius:8px;padding:1rem;margin-bottom:1rem;">
-                <div style="font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--accent-text);margin-bottom:.35rem;">Alamat Koneksi HP (Ketik di Chrome HP Anda)</div>
+                <div style="font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--accent-text);margin-bottom:.35rem;">Alamat LAN / Wi-Fi</div>
                 <div style="display:flex;align-items:center;justify-content:space-between;gap:.75rem;flex-wrap:wrap;">
-                    <span class="cell-mono" id="phone-lan-url" style="font-size:1.25rem;font-weight:700;color:#0b7285;">http://10.34.144.42:3000</span>
+                    <span class="cell-mono" id="phone-lan-url" style="font-size:1.15rem;font-weight:700;color:#0b7285;">http://10.34.144.42:3000</span>
                     <button type="button" class="btn btn-primary btn-sm" onclick="copyPhoneUrl()">Copy URL</button>
                 </div>
-                <div class="cell-muted" id="phone-lan-list" style="margin-top:.35rem;font-size:.76rem;">Pastikan HP dan Laptop terhubung ke Wi-Fi atau Hotspot HP yang sama.</div>
-            </div>
-
-            <div style="display:flex;flex-direction:column;gap:.65rem;font-size:.86rem;line-height:1.5;margin-bottom:1.1rem;">
-                <div><b>1. Sambungkan Wi-Fi / Hotspot:</b> Hubungkan HP Android dan laptop ini ke jaringan Wi-Fi yang sama (atau nyalakan Hotspot di HP lalu sambungkan laptop ke Hotspot HP).</div>
-                <div><b>2. Buka di Chrome HP:</b> Buka aplikasi <b>Google Chrome</b> di HP Anda, lalu ketik alamat <b class="cell-mono" id="phone-lan-url-inline">http://10.34.144.42:3000</b> di bagian atas.</div>
-                <div><b>3. Pasang seperti Aplikasi Biasa:</b> Di HP Anda, tekan tombol <b>"Install app"</b> atau tekan menu <b>Titik Tiga (&#8942;)</b> di pojok kanan atas Chrome &rsaquo; pilih <b>"Tambahkan ke Layar Utama" (Add to Home screen / Install app)</b>.</div>
-                <div><b>4. Siap Dibawa ke Kebun / Gudang (Offline Field Mode):</b> Tekan tombol <b>"Sync Data ke Memori HP"</b> di bawah ini dari HP Anda sebelum berangkat ke kebun agar HP tetap bisa mencatat barang masuk/keluar walaupun jauh dari laptop!</div>
+                <div class="cell-muted" id="phone-lan-list" style="margin-top:.35rem;font-size:.76rem;"></div>
+                <span id="phone-lan-url-inline" style="display:none;"></span>
             </div>
 
             <div style="background:var(--bg-input);border:1px solid var(--border);border-radius:8px;padding:.85rem 1rem;display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap;">
                 <div>
-                    <div style="font-weight:600;font-size:.85rem;">Offline Field Memory (Memori Lokal Perangkat Ini)</div>
+                    <div style="font-weight:600;font-size:.85rem;">Memori Lokal Perangkat</div>
                     <div class="cell-muted" id="offline-cache-status" style="font-size:.76rem;">Checking local cache...</div>
                 </div>
                 <div style="display:flex;gap:.5rem;">
                     <button type="button" class="btn btn-outline btn-sm" onclick="clearOfflineFieldTx()">Reset Offline Log</button>
-                    <button type="button" class="btn btn-primary btn-sm" onclick="syncMasterToPhoneCache()">Sync Data ke Memori HP</button>
+                    <button type="button" class="btn btn-primary btn-sm" onclick="syncMasterToPhoneCache()">Sync Data</button>
                 </div>
             </div>
         </div>
@@ -1708,10 +1675,10 @@
     <div class="modal-box" style="max-width:860px;width:96vw;max-height:92vh;display:flex;flex-direction:column;padding:0;overflow:hidden;">
         <div class="modal-head" style="display:flex;justify-content:space-between;align-items:center;padding:.85rem 1.15rem;border-bottom:1px solid var(--border);background:var(--surface-2);">
             <div style="display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;">
-                <span style="font-size:1.1rem;font-weight:800;color:var(--text);">&#128203; STOCK CARD BARANG</span>
-                <span class="tag tag-green" id="sc-live-badge">TERHUBUNG LIVE IN / OUT</span>
+                <span style="font-size:1.05rem;font-weight:800;color:var(--text);">STOCK CARD</span>
+                <span class="tag tag-green" id="sc-live-badge">LIVE IN / OUT</span>
             </div>
-            <button type="button" class="btn btn-outline btn-sm" onclick="closeModal('stockCardModal')">&times; Tutup</button>
+            <button type="button" class="btn btn-outline btn-sm" onclick="closeModal('stockCardModal')">Tutup</button>
         </div>
         <div class="modal-body" style="padding:1rem;overflow-y:auto;flex:1;background:#eef1f5;">
             <!-- Filter & Quick Action Toolbar -->
@@ -1732,21 +1699,21 @@
                     <button type="button" class="btn btn-outline btn-sm" onclick="$('sc-modal-from').value='';$('sc-modal-to').value='';loadStockCardModal()" style="height:34px;">Semua Tanggal</button>
                 </div>
                 <div class="sc-quick-actions">
-                    <button type="button" class="btn btn-primary btn-sm" onclick="toggleScQuickForm('IN')">&#10133; Barang Masuk</button>
-                    <button type="button" class="btn btn-destructive btn-sm" onclick="toggleScQuickForm('OUT')">&#10134; Barang Keluar</button>
-                    <button type="button" class="btn btn-outline btn-sm" onclick="jumpFromStockCard('CAM')">&#128247; Kamera AI</button>
-                    <button type="button" class="btn btn-outline btn-sm" onclick="printBinCard()">&#128424; Cetak</button>
-                    <button type="button" class="btn btn-outline btn-sm" onclick="exportStockCardExcel()">&#128229; Excel</button>
+                    <button type="button" class="btn btn-primary btn-sm" onclick="toggleScQuickForm('IN')">+ Barang Masuk</button>
+                    <button type="button" class="btn btn-destructive btn-sm" onclick="toggleScQuickForm('OUT')">- Barang Keluar</button>
+                    <button type="button" class="btn btn-outline btn-sm" onclick="jumpFromStockCard('CAM')">Kamera AI</button>
+                    <button type="button" class="btn btn-outline btn-sm" onclick="printBinCard()">Cetak</button>
+                    <button type="button" class="btn btn-outline btn-sm" onclick="exportStockCardExcel()">Excel</button>
                 </div>
             </div>
 
             <!-- Inline Quick Transaction Form (Directly Connected to Barang Masuk & Keluar) -->
             <form id="sc-quick-form" onsubmit="submitScQuickTx(event)" style="display:none;background:#fff;border:2px solid var(--accent);border-radius:10px;padding:.85rem 1rem;margin-bottom:.85rem;box-shadow:var(--shadow);">
                 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.65rem;">
-                    <div style="font-weight:800;font-size:.9rem;" id="sc-qf-title">&#10133; Catat Barang Masuk Langsung ke Stock Card</div>
+                    <div style="font-weight:800;font-size:.9rem;" id="sc-qf-title">Catat Barang Masuk</div>
                     <div style="display:flex;gap:.4rem;">
-                        <button type="button" class="btn btn-outline btn-sm" id="sc-qf-full-btn" onclick="jumpFromStockCard('FULL')">Buka Form Lengkap &rarr;</button>
-                        <button type="button" class="btn btn-outline btn-sm" onclick="toggleScQuickForm(null)">&times;</button>
+                        <button type="button" class="btn btn-outline btn-sm" id="sc-qf-full-btn" onclick="jumpFromStockCard('FULL')">Form Lengkap</button>
+                        <button type="button" class="btn btn-outline btn-sm" onclick="toggleScQuickForm(null)">Tutup</button>
                     </div>
                 </div>
                 <input type="hidden" id="sc-qf-kind" value="IN">
@@ -1779,24 +1746,24 @@
                     <!-- OUT fields -->
                     <div class="form-field sc-qf-out" style="margin:0;display:none;">
                         <label>Requisition No. *</label>
-                        <input type="text" id="sc-qf-req" placeholder="cth: 71290">
+                        <input type="text" id="sc-qf-req" placeholder="71290">
                     </div>
                     <div class="form-field sc-qf-out" style="margin:0;display:none;">
                         <label>Phase / Afdeling</label>
-                        <input type="text" id="sc-qf-phase" placeholder="cth: PH4 / NS">
+                        <input type="text" id="sc-qf-phase" placeholder="PH4 / NS">
                     </div>
                     <div class="form-field sc-qf-out" style="margin:0;display:none;">
                         <label>Block</label>
-                        <input type="text" id="sc-qf-block" placeholder="cth: 2686 / B56">
+                        <input type="text" id="sc-qf-block" placeholder="2686 / B56">
                     </div>
                     <div class="form-field sc-qf-out" style="margin:0;display:none;">
                         <label>Allocation / Remarks</label>
-                        <input type="text" id="sc-qf-remarks" placeholder="cth: Repacking / BHB">
+                        <input type="text" id="sc-qf-remarks" placeholder="Repacking / BHB">
                     </div>
                 </div>
                 <div style="display:flex;justify-content:flex-end;gap:.5rem;margin-top:.75rem;">
                     <button type="button" class="btn btn-outline btn-sm" onclick="toggleScQuickForm(null)">Batal</button>
-                    <button type="submit" class="btn btn-primary btn-sm" id="sc-qf-submit">&#10004; Simpan &amp; Update Stock Card</button>
+                    <button type="submit" class="btn btn-primary btn-sm" id="sc-qf-submit">Simpan</button>
                 </div>
             </form>
 
@@ -2598,7 +2565,7 @@ async function fetchNetworkUrls() {
                         bar.id = 'https-top-banner';
                         bar.href = CURRENT_HTTPS_URL;
                         bar.style.cssText = 'position:fixed;bottom:14px;left:14px;right:14px;z-index:9999;background:#087f5b;color:#fff;padding:12px 16px;border-radius:10px;box-shadow:0 10px 25px rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:space-between;gap:10px;text-decoration:none;font-weight:700;font-size:0.86rem;border:2px solid #63e6be;';
-                        bar.innerHTML = '<span>&#128242; Klik di Sini: Pasang Mode Mandiri (Agar Bisa Tanpa Hotspot)</span><span style="background:#fff;color:#087f5b;padding:4px 10px;border-radius:6px;font-size:0.78rem;white-space:nowrap;">Buka &rsaquo;</span>';
+                        bar.innerHTML = '<span>Mode Mandiri Offline</span><span style="background:#fff;color:#087f5b;padding:4px 10px;border-radius:6px;font-size:0.78rem;white-space:nowrap;">Buka</span>';
                         document.body.appendChild(bar);
                     } else {
                         bar.href = CURRENT_HTTPS_URL;
@@ -2842,7 +2809,7 @@ function renderStock() {
         if (i.aktif === 0) status = '<span class="tag tag-default">Inactive</span>';
         const targetWh = isSingleWH ? stockWH : 'ALL';
         const actionBtns = `<div style="display:flex;gap:.35rem;flex-wrap:wrap;" onclick="event.stopPropagation()">
-            <button class="btn btn-primary btn-sm" onclick="openStockCard('${esc(i.kode_barang)}','${esc(targetWh)}')">&#128203; Stock Card</button>
+            <button class="btn btn-primary btn-sm" onclick="openStockCard('${esc(i.kode_barang)}','${esc(targetWh)}')">Stock Card</button>
             <button class="btn btn-outline btn-sm admin-only" onclick="openItemModal(${idx})">Edit</button>
         </div>`;
 
@@ -2994,6 +2961,9 @@ async function buildFormSubmitOptions(formEl) {
         window._ccPendingPhoto = null;
         return { method: 'POST', headers: JSONH, body: JSON.stringify(obj) };
     }
+    if (window._ccPendingPhoto) {
+        fd.append('foto_bukti', window._ccPendingPhoto);
+    }
     window._ccPendingPhoto = null;
     return { method: 'POST', body: fd };
 }
@@ -3056,7 +3026,7 @@ async function loadIssuing() {
                 if (r.empty_returned === null || r.empty_returned === undefined) eb = '<span class="tag tag-amber">Pending</span>';
                 else { const d = round3(r.qty_keluar - r.empty_returned); eb = d === 0 ? `<span class="tag tag-green">${fmt(r.empty_returned)} OK</span>` : `<span class="tag tag-red">${fmt(r.empty_returned)} (${d > 0 ? 'missing ' + fmt(d) : 'extra ' + fmt(-d)})</span>`; }
             }
-            const photoLink = r.foto_bukti ? ` <a href="#" onclick="viewPhoto('${esc(r.foto_bukti)}');return false;" title="Lihat Foto Bukti">&#128247;</a>` : '';
+            const photoLink = r.foto_bukti ? ` <a href="#" onclick="viewPhoto('${esc(r.foto_bukti)}');return false;" title="Lihat Foto Bukti">[Foto]</a>` : '';
             return `<tr><td>${esc(r.tanggal_keluar)}</td><td class="cell-mono">${esc(r.requisition_no)}${photoLink}</td><td>${esc(whName(r.gudang))}</td>
                 <td class="cell-bold">${esc(r.nama_barang)}<div class="cell-muted cell-mono">${esc(r.kode_barang)}</div></td>
                 <td class="num">${fmt(r.qty_keluar)} ${esc(r.satuan)}</td><td>${esc(r.block)} / ${esc(r.phase)}</td><td>${esc(r.account_no)}</td>
@@ -3072,7 +3042,7 @@ async function submitOut(e) {
         const it = itemOf($('out-item').value);
         const opts = await buildFormSubmitOptions($('out-form'));
         const r = await api('/api/outbound', opts);
-        toast(r.message + ' Remember to count the remaining stock in Daily Closing.');
+        toast(r.message);
         const d = $('out-date').value, w = $('out-wh').value, p = $('out-pic').value;
         $('out-form').reset(); $('out-date').value = d; $('out-wh').value = w; $('out-pic').value = p;
         await refreshBase(); onOutItem(); loadIssuing();
@@ -3152,8 +3122,8 @@ function renderClosing() {
     const d = CL, rows = d.rows;
     $('cl-last').innerText = d.last_closed ? `Last closed day for this warehouse: ${d.last_closed}` : 'This warehouse has never been closed.';
     $('cl-banner').innerHTML = d.closed
-        ? `<div class="banner ok"><span>This day is <b>closed</b> (by ${esc(d.closed_by)}, ${esc(d.closed_at)}). Transactions on or before this date are locked.</span></div>`
-        : (rows.length ? `<div class="banner warn"><span>Day is <b>open</b>. Count every item physically, type the number in <b>Physical count</b>, and give a reason wherever there is a difference.</span></div>` : '');
+        ? `<div class="banner ok"><span>Status: <b>Closed</b> (${esc(d.closed_by)}, ${esc(d.closed_at)}).</span></div>`
+        : '';
     $('btn-close').style.display = d.closed || !rows.length ? 'none' : '';
     $('btn-reopen').style.display = d.closed && d.date === d.last_closed ? '' : 'none';
     $('cl-total').innerText = rows.length;
@@ -3376,11 +3346,11 @@ function toggleScQuickForm(kind) {
     if ($('sc-qf-qty')) $('sc-qf-qty').step = it ? stepFor(it.satuan) : '1';
     const isIn = kind === 'IN';
     $('sc-qf-title').innerHTML = isIn
-        ? `&#10133; Catat Barang Masuk (Receipt) &mdash; <span style="color:var(--accent);">${esc(it ? it.nama_barang : currentScCode)}</span>`
-        : `&#10134; Catat Barang Keluar (Issue) &mdash; <span style="color:var(--red);">${esc(it ? it.nama_barang : currentScCode)}</span>`;
+        ? `Catat Barang Masuk (Receipt) &mdash; <span style="color:var(--accent);">${esc(it ? it.nama_barang : currentScCode)}</span>`
+        : `Catat Barang Keluar (Issue) &mdash; <span style="color:var(--red);">${esc(it ? it.nama_barang : currentScCode)}</span>`;
     $('sc-qf-qty-lbl').innerText = isIn ? `Qty Masuk (${it ? it.satuan : 'unit'}) *` : `Qty Keluar (${it ? it.satuan : 'unit'}) *`;
     $('sc-qf-submit').className = isIn ? 'btn btn-primary btn-sm' : 'btn btn-destructive btn-sm';
-    $('sc-qf-submit').innerHTML = isIn ? '&#10004; Simpan Masuk &amp; Update Kartu' : '&#10004; Simpan Keluar &amp; Update Kartu';
+    $('sc-qf-submit').innerHTML = isIn ? 'Simpan Masuk &amp; Update Kartu' : 'Simpan Keluar &amp; Update Kartu';
     document.querySelectorAll('.sc-qf-in').forEach(el => el.style.display = isIn ? '' : 'none');
     document.querySelectorAll('.sc-qf-out').forEach(el => el.style.display = isIn ? 'none' : '');
     if ($('sc-qf-req')) $('sc-qf-req').required = !isIn;
