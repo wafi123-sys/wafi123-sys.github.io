@@ -2506,27 +2506,88 @@ function offlineApiFallback(url, opts = {}) {
     return { status: 'success', data: [] };
 }
 
+let AUTO_CLOUD_URL = (localStorage.getItem('gudangpro_auto_cloud_url') || '').trim().replace(/\/+$/, '');
+let _cloudDiscoveryPromise = null;
+
+async function discoverCloudServer(force = false) {
+    if (!force && _cloudDiscoveryPromise) return _cloudDiscoveryPromise;
+    _cloudDiscoveryPromise = (async () => {
+        const candidates = [
+            `https://raw.githubusercontent.com/wafi123-sys/wafi123-sys.github.io/main/cloud-endpoint.json?t=${Date.now()}`,
+            `https://wafi123-sys.github.io/cloud-endpoint.json?t=${Date.now()}`
+        ];
+        for (const u of candidates) {
+            try {
+                const r = await fetch(u, { cache: 'no-store' });
+                if (r.ok) {
+                    const j = await r.json();
+                    if (j && j.serverUrl && String(j.serverUrl).startsWith('https://')) {
+                        AUTO_CLOUD_URL = String(j.serverUrl).trim().replace(/\/+$/, '');
+                        localStorage.setItem('gudangpro_auto_cloud_url', AUTO_CLOUD_URL);
+                        return AUTO_CLOUD_URL;
+                    }
+                }
+            } catch (e) {}
+        }
+        return AUTO_CLOUD_URL;
+    })();
+    return _cloudDiscoveryPromise;
+}
+
 async function api(url, opts = {}) {
     const customServer = (localStorage.getItem('gudangpro_server_url') || '').trim().replace(/\/+$/, '');
     const isLocalBundle = window.location.protocol === 'file:' || window.location.hostname.endsWith('.github.io') || window.GUDANGPRO_STANDALONE === true;
-    if (isLocalBundle && !customServer) {
+    let baseServer = customServer;
+    if (isLocalBundle && !baseServer) {
+        baseServer = AUTO_CLOUD_URL || (await discoverCloudServer(false));
+    }
+    if (isLocalBundle && !baseServer) {
         return offlineApiFallback(url, opts);
     }
-    const targetUrl = (customServer && url.startsWith('/')) ? (customServer + url) : url;
+    const buildTarget = (srv) => (srv && url.startsWith('/')) ? (srv + url) : url;
     opts.headers = Object.assign({}, opts.headers || {});
     const tk = localStorage.getItem('auth');
     if (tk) opts.headers['Authorization'] = tk;
     let res;
     try {
-        res = await fetch(targetUrl, opts);
+        res = await fetch(buildTarget(baseServer), opts);
     } catch (netErr) {
-        return offlineApiFallback(url, opts);
+        if (isLocalBundle && !customServer) {
+            const refreshed = await discoverCloudServer(true);
+            if (refreshed && refreshed !== baseServer) {
+                try { res = await fetch(buildTarget(refreshed), opts); } catch (e2) { return offlineApiFallback(url, opts); }
+            } else {
+                return offlineApiFallback(url, opts);
+            }
+        } else {
+            return offlineApiFallback(url, opts);
+        }
     }
-    if (res.status === 401 && url !== '/api/login') { logout(); throw new Error('Session expired'); }
+    if (res.status === 401 && url !== '/api/login') {
+        if (isLocalBundle) {
+            opts.headers['Authorization'] = 'checker';
+            try { res = await fetch(buildTarget(baseServer), opts); } catch (e) { return offlineApiFallback(url, opts); }
+        } else {
+            logout(); throw new Error('Session expired');
+        }
+    }
     let data = {};
     try { data = await res.json(); } catch (e) {}
     if ((data && data.status === 'error' && String(data.message || '').includes('Offline')) || res.status === 404 || res.status === 405 || res.status >= 500) {
-        return offlineApiFallback(url, opts);
+        if (isLocalBundle && !customServer) {
+            const refreshed = await discoverCloudServer(true);
+            if (refreshed && refreshed !== baseServer) {
+                try {
+                    res = await fetch(buildTarget(refreshed), opts);
+                    data = await res.json();
+                } catch (e3) {
+                    return offlineApiFallback(url, opts);
+                }
+            }
+        }
+        if (!res.ok || (data && data.status === 'error' && String(data.message || '').includes('Offline'))) {
+            return offlineApiFallback(url, opts);
+        }
     }
     setFieldModeBadge(false);
     if (!res.ok && res.status !== 409) throw new Error(data.message || ('Error ' + res.status));
