@@ -2507,15 +2507,18 @@ function offlineApiFallback(url, opts = {}) {
 }
 
 async function api(url, opts = {}) {
-    if (window.location.protocol === 'file:' || window.location.hostname.endsWith('.github.io') || window.GUDANGPRO_STANDALONE === true) {
+    const customServer = (localStorage.getItem('gudangpro_server_url') || '').trim().replace(/\/+$/, '');
+    const isLocalBundle = window.location.protocol === 'file:' || window.location.hostname.endsWith('.github.io') || window.GUDANGPRO_STANDALONE === true;
+    if (isLocalBundle && !customServer) {
         return offlineApiFallback(url, opts);
     }
+    const targetUrl = (customServer && url.startsWith('/')) ? (customServer + url) : url;
     opts.headers = Object.assign({}, opts.headers || {});
     const tk = localStorage.getItem('auth');
     if (tk) opts.headers['Authorization'] = tk;
     let res;
     try {
-        res = await fetch(url, opts);
+        res = await fetch(targetUrl, opts);
     } catch (netErr) {
         return offlineApiFallback(url, opts);
     }
