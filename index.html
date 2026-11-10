@@ -671,6 +671,116 @@
             .commit-footer { padding: .7rem .9rem; gap: .6rem; }
             .commit-receipt { font-size: .7rem; }
         }
+
+        /* Authentic Southwind Plantation Paper Stock Card */
+        .stock-row-clickable { cursor: pointer; transition: background .12s ease; }
+        .stock-row-clickable:hover { background: #e6fcf5 !important; }
+        .stock-row-clickable:active { background: #c3fae8 !important; }
+        .paper-stockcard {
+            background: #fffdf8;
+            border: 2px solid #2b2b2b;
+            border-radius: 6px;
+            padding: 1rem 1.1rem;
+            color: #1a1a1a;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+            font-family: 'Outfit', system-ui, -apple-system, sans-serif;
+        }
+        .paper-sc-company {
+            text-align: center;
+            font-size: 1.05rem;
+            font-weight: 800;
+            letter-spacing: .04em;
+            text-transform: uppercase;
+            margin-bottom: .65rem;
+            color: #111;
+        }
+        .paper-sc-meta {
+            display: grid;
+            grid-template-columns: 1.25fr 1fr;
+            gap: .75rem 1.25rem;
+            margin-bottom: .75rem;
+            font-size: .84rem;
+        }
+        .paper-sc-field {
+            display: flex;
+            align-items: baseline;
+            gap: .4rem;
+            margin-bottom: .3rem;
+        }
+        .paper-sc-field b {
+            white-space: nowrap;
+            font-weight: 700;
+            color: #111;
+            min-width: 72px;
+        }
+        .paper-sc-line {
+            flex: 1;
+            border-bottom: 1.5px solid #2b2b2b;
+            padding: 0 .35rem .1rem .35rem;
+            font-weight: 700;
+            min-height: 1.35rem;
+        }
+        .paper-sc-code-red {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.18rem;
+            font-weight: 800;
+            color: #c92a2a;
+            letter-spacing: .03em;
+            transform: rotate(-2deg);
+            display: inline-block;
+        }
+        .paper-sc-table-wrap {
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        table.paper-sc-table {
+            width: 100%;
+            border-collapse: collapse;
+            border: 2px solid #222;
+            background: #fffdf8;
+            font-size: .8rem;
+        }
+        table.paper-sc-table th,
+        table.paper-sc-table td {
+            border: 1px solid #333;
+            padding: .36rem .48rem;
+            color: #111;
+            line-height: 1.25;
+        }
+        table.paper-sc-table thead th {
+            background: #f3f0e6 !important;
+            color: #111 !important;
+            font-weight: 800;
+            text-align: center;
+            text-transform: none;
+            font-size: .74rem;
+            letter-spacing: .01em;
+            vertical-align: middle;
+        }
+        table.paper-sc-table tbody tr:nth-child(even) { background: rgba(0,0,0,0.015); }
+        table.paper-sc-table tbody tr.sc-bf-row td {
+            font-weight: 800;
+            background: #f8f5ec;
+            border-bottom: 1.5px solid #222;
+        }
+        table.paper-sc-table tbody tr.sc-empty-row td {
+            height: 24px;
+            color: transparent;
+        }
+        .sc-quick-box {
+            background: #f8fafc;
+            border: 1.5px solid var(--accent);
+            border-radius: 8px;
+            padding: .8rem .9rem;
+            margin-bottom: .85rem;
+        }
+        @media (max-width: 820px) {
+            .paper-stockcard { padding: .7rem .65rem; }
+            .paper-sc-company { font-size: .92rem; }
+            .paper-sc-meta { grid-template-columns: 1fr; gap: .25rem; font-size: .78rem; }
+            table.paper-sc-table th, table.paper-sc-table td { padding: .3rem .38rem; font-size: .73rem; }
+        }
         @media print {
             body { display: block; height: auto; overflow: visible; background: #fff; }
             .sidebar, .erp-header, .topbar, .no-print, #login-screen, .toast-container { display: none !important; }
@@ -923,6 +1033,10 @@
                             <span class="filter-chip" data-cat="OTHER" onclick="setStockCat('OTHER')">Other</span>
                         </div>
                     </div>
+                    <div style="background:#e6fcf5;border:1px solid #63e6be;border-radius:6px;padding:.45rem .7rem;font-size:.78rem;color:#087f5b;display:flex;align-items:center;gap:.45rem;margin-bottom:.35rem;">
+                        <span>&#128203;</span>
+                        <span><b>Klik nama barang / baris mana saja</b> untuk membuka <b>Stock Card (Kartu Stok Southwind Plantation)</b> dan mencatat <b>Barang Masuk / Barang Keluar</b> secara langsung.</span>
+                    </div>
                 </div>
             </div>
             <div class="table-wrap"><table id="tbl-stock"><thead id="stock-head"></thead><tbody id="stock-body"></tbody></table></div>
@@ -1122,24 +1236,57 @@
         <div class="panel no-print">
             <div class="panel-body">
                 <div class="filter-row">
-                    <div class="form-field" style="min-width:280px;"><label>Item</label><select id="bc-item" class="item-select" data-all-items="1"></select></div>
-                    <div class="form-field"><label>Warehouse</label><select id="bc-wh" class="wh-select" data-all="1"></select></div>
-                    <div class="form-field"><label>From</label><input type="date" id="bc-from"></div>
-                    <div class="form-field"><label>To</label><input type="date" id="bc-to"></div>
+                    <div class="form-field" style="min-width:240px;"><label>Item</label><select id="bc-item" class="item-select" data-all-items="1" onchange="loadBinCard()"></select></div>
+                    <div class="form-field"><label>Warehouse</label><select id="bc-wh" class="wh-select" data-all="1" onchange="loadBinCard()"></select></div>
+                    <div class="form-field"><label>From</label><input type="date" id="bc-from" onchange="loadBinCard()"></div>
+                    <div class="form-field"><label>To</label><input type="date" id="bc-to" onchange="loadBinCard()"></div>
                     <button class="btn btn-primary" onclick="loadBinCard()">Show</button>
+                    <button class="btn btn-outline" onclick="$('bc-from').value='';$('bc-to').value='';loadBinCard()">All Dates</button>
                     <button class="btn btn-outline" onclick="printBinCard()">Print</button>
-                    <button class="btn btn-outline" onclick="exportTable('tbl-bin','Bin_Card')">Export</button>
+                    <button class="btn btn-outline" onclick="exportTable('tbl-bin','Stock_Card')">Export</button>
                 </div>
             </div>
         </div>
-        <div class="panel">
-            <div class="panel-body">
-                <div class="print-only" id="bc-print-head"></div>
-                <div id="bc-title" class="cell-muted" style="margin-bottom:.75rem;">Select an item and press Show.</div>
-                <div class="table-wrap"><table id="tbl-bin">
-                    <thead><tr><th>Date</th><th>Warehouse</th><th>Supplier</th><th>D/O No.</th><th>Requisition No.</th><th class="num">Received</th><th class="num">Issued</th><th class="num">Adj.</th><th class="num">Balance</th><th>Allocation (Block / Phase / Account)</th><th>PIC</th></tr></thead>
-                    <tbody id="bc-body"></tbody>
-                </table></div>
+        <div class="panel" style="background:transparent;border:none;box-shadow:none;">
+            <div class="panel-body" style="padding:0;">
+                <div class="print-only" id="bc-print-head" style="display:none;"></div>
+                <div id="bc-title" class="cell-muted" style="display:none;"></div>
+                <div class="paper-stockcard">
+                    <div class="paper-sc-company">SOUTHWIND PLANTATION SDN. BHD.</div>
+                    <div class="paper-sc-meta">
+                        <div>
+                            <div class="paper-sc-field"><b>ITEM :</b><span class="paper-sc-line" id="bc-sc-item">-</span></div>
+                            <div class="paper-sc-field"><b></b><span class="paper-sc-line" id="bc-sc-sub" style="font-weight:500;color:#444;">-</span></div>
+                        </div>
+                        <div>
+                            <div class="paper-sc-field"><b>Code No :</b><span class="paper-sc-line"><span class="paper-sc-code-red" id="bc-sc-code">-</span></span></div>
+                            <div class="paper-sc-field"><b>Sheet No :</b><span class="paper-sc-line" id="bc-sc-sheet">1 (ALL)</span></div>
+                            <div class="paper-sc-field"><b>Unit :</b><span class="paper-sc-line" id="bc-sc-unit">-</span></div>
+                        </div>
+                    </div>
+                    <div class="paper-sc-table-wrap">
+                        <table id="tbl-bin" class="paper-sc-table">
+                            <thead>
+                                <tr>
+                                    <th rowspan="2" style="width:76px;">DATE</th>
+                                    <th colspan="2">RECEIPT</th>
+                                    <th colspan="1">ISSUE</th>
+                                    <th colspan="3">QUANTITIES</th>
+                                    <th rowspan="2" style="min-width:110px;">Allocation</th>
+                                </tr>
+                                <tr>
+                                    <th>SUPPLIER</th>
+                                    <th>D/O No.</th>
+                                    <th>Requisition No.</th>
+                                    <th>Received</th>
+                                    <th>Issued</th>
+                                    <th>Balance</th>
+                                </tr>
+                            </thead>
+                            <tbody id="bc-body"></tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -1556,6 +1703,144 @@
     </div>
 </div>
 
+<!-- MODAL: Interactive Stock Card (Southwind Plantation Style) -->
+<div class="modal-backdrop" id="stockCardModal" onclick="if(event.target===this) closeModal('stockCardModal')">
+    <div class="modal-box" style="max-width:860px;width:96vw;max-height:92vh;display:flex;flex-direction:column;padding:0;overflow:hidden;">
+        <div class="modal-head" style="display:flex;justify-content:space-between;align-items:center;padding:.85rem 1.15rem;border-bottom:1px solid var(--border);background:var(--surface-2);">
+            <div style="display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;">
+                <span style="font-size:1.1rem;font-weight:800;color:var(--text);">&#128203; STOCK CARD BARANG</span>
+                <span class="tag tag-green" id="sc-live-badge">TERHUBUNG LIVE IN / OUT</span>
+            </div>
+            <button type="button" class="btn btn-outline btn-sm" onclick="closeModal('stockCardModal')">&times; Tutup</button>
+        </div>
+        <div class="modal-body" style="padding:1rem;overflow-y:auto;flex:1;background:#eef1f5;">
+            <!-- Filter & Quick Action Toolbar -->
+            <div class="sc-modal-toolbar">
+                <div style="display:flex;gap:.5rem;align-items:flex-end;flex-wrap:wrap;">
+                    <div class="form-field" style="min-width:140px;margin:0;">
+                        <label style="font-size:.7rem;">Gudang</label>
+                        <select id="sc-modal-wh" class="wh-select" data-all="1" onchange="loadStockCardModal()" style="height:34px;padding:0 .5rem;font-size:.82rem;"></select>
+                    </div>
+                    <div class="form-field" style="margin:0;">
+                        <label style="font-size:.7rem;">Dari Tanggal</label>
+                        <input type="date" id="sc-modal-from" onchange="loadStockCardModal()" style="height:34px;padding:0 .45rem;font-size:.8rem;">
+                    </div>
+                    <div class="form-field" style="margin:0;">
+                        <label style="font-size:.7rem;">Sampai</label>
+                        <input type="date" id="sc-modal-to" onchange="loadStockCardModal()" style="height:34px;padding:0 .45rem;font-size:.8rem;">
+                    </div>
+                    <button type="button" class="btn btn-outline btn-sm" onclick="$('sc-modal-from').value='';$('sc-modal-to').value='';loadStockCardModal()" style="height:34px;">Semua Tanggal</button>
+                </div>
+                <div class="sc-quick-actions">
+                    <button type="button" class="btn btn-primary btn-sm" onclick="toggleScQuickForm('IN')">&#10133; Barang Masuk</button>
+                    <button type="button" class="btn btn-destructive btn-sm" onclick="toggleScQuickForm('OUT')">&#10134; Barang Keluar</button>
+                    <button type="button" class="btn btn-outline btn-sm" onclick="jumpFromStockCard('CAM')">&#128247; Kamera AI</button>
+                    <button type="button" class="btn btn-outline btn-sm" onclick="printBinCard()">&#128424; Cetak</button>
+                    <button type="button" class="btn btn-outline btn-sm" onclick="exportStockCardExcel()">&#128229; Excel</button>
+                </div>
+            </div>
+
+            <!-- Inline Quick Transaction Form (Directly Connected to Barang Masuk & Keluar) -->
+            <form id="sc-quick-form" onsubmit="submitScQuickTx(event)" style="display:none;background:#fff;border:2px solid var(--accent);border-radius:10px;padding:.85rem 1rem;margin-bottom:.85rem;box-shadow:var(--shadow);">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.65rem;">
+                    <div style="font-weight:800;font-size:.9rem;" id="sc-qf-title">&#10133; Catat Barang Masuk Langsung ke Stock Card</div>
+                    <div style="display:flex;gap:.4rem;">
+                        <button type="button" class="btn btn-outline btn-sm" id="sc-qf-full-btn" onclick="jumpFromStockCard('FULL')">Buka Form Lengkap &rarr;</button>
+                        <button type="button" class="btn btn-outline btn-sm" onclick="toggleScQuickForm(null)">&times;</button>
+                    </div>
+                </div>
+                <input type="hidden" id="sc-qf-kind" value="IN">
+                <div class="form-grid" style="grid-template-columns:repeat(auto-fit,minmax(135px,1fr));gap:.6rem;">
+                    <div class="form-field" style="margin:0;">
+                        <label>Tanggal *</label>
+                        <input type="date" id="sc-qf-date" required>
+                    </div>
+                    <div class="form-field" style="margin:0;">
+                        <label>Gudang *</label>
+                        <select id="sc-qf-wh" class="wh-select" required></select>
+                    </div>
+                    <div class="form-field" style="margin:0;">
+                        <label id="sc-qf-qty-lbl">Qty Masuk *</label>
+                        <input type="number" id="sc-qf-qty" min="0.01" step="1" required placeholder="0">
+                    </div>
+                    <!-- IN fields -->
+                    <div class="form-field sc-qf-in" style="margin:0;">
+                        <label>Supplier</label>
+                        <input type="text" id="sc-qf-supplier" placeholder="Nama Supplier">
+                    </div>
+                    <div class="form-field sc-qf-in" style="margin:0;">
+                        <label>D/O No. (Surat Jalan)</label>
+                        <input type="text" id="sc-qf-do" placeholder="No. DO / SJ">
+                    </div>
+                    <div class="form-field sc-qf-in" style="margin:0;">
+                        <label>Allocation / Lokasi</label>
+                        <input type="text" id="sc-qf-loc" placeholder="Rak / Blok">
+                    </div>
+                    <!-- OUT fields -->
+                    <div class="form-field sc-qf-out" style="margin:0;display:none;">
+                        <label>Requisition No. *</label>
+                        <input type="text" id="sc-qf-req" placeholder="cth: 71290">
+                    </div>
+                    <div class="form-field sc-qf-out" style="margin:0;display:none;">
+                        <label>Phase / Afdeling</label>
+                        <input type="text" id="sc-qf-phase" placeholder="cth: PH4 / NS">
+                    </div>
+                    <div class="form-field sc-qf-out" style="margin:0;display:none;">
+                        <label>Block</label>
+                        <input type="text" id="sc-qf-block" placeholder="cth: 2686 / B56">
+                    </div>
+                    <div class="form-field sc-qf-out" style="margin:0;display:none;">
+                        <label>Allocation / Remarks</label>
+                        <input type="text" id="sc-qf-remarks" placeholder="cth: Repacking / BHB">
+                    </div>
+                </div>
+                <div style="display:flex;justify-content:flex-end;gap:.5rem;margin-top:.75rem;">
+                    <button type="button" class="btn btn-outline btn-sm" onclick="toggleScQuickForm(null)">Batal</button>
+                    <button type="submit" class="btn btn-primary btn-sm" id="sc-qf-submit">&#10004; Simpan &amp; Update Stock Card</button>
+                </div>
+            </form>
+
+            <!-- Physical Southwind Plantation Stock Card Sheet -->
+            <div class="paper-stockcard" id="sc-modal-paper">
+                <div class="paper-sc-company">SOUTHWIND PLANTATION SDN. BHD.</div>
+                <div class="paper-sc-meta">
+                    <div>
+                        <div class="paper-sc-field"><b>ITEM :</b><span class="paper-sc-line" id="sc-m-item">-</span></div>
+                        <div class="paper-sc-field"><b></b><span class="paper-sc-line" id="sc-m-sub" style="font-weight:600;color:#333;">-</span></div>
+                    </div>
+                    <div>
+                        <div class="paper-sc-field"><b>Code No :</b><span class="paper-sc-line"><span class="paper-sc-code-red" id="sc-m-code">-</span></span></div>
+                        <div class="paper-sc-field"><b>Sheet No :</b><span class="paper-sc-line" id="sc-m-sheet">1 (ALL)</span></div>
+                        <div class="paper-sc-field"><b>Unit :</b><span class="paper-sc-line" id="sc-m-unit">-</span></div>
+                    </div>
+                </div>
+                <div class="paper-sc-table-wrap">
+                    <table id="tbl-modal-stockcard" class="paper-sc-table">
+                        <thead>
+                            <tr>
+                                <th rowspan="2" style="width:76px;">DATE</th>
+                                <th colspan="2">RECEIPT</th>
+                                <th colspan="1">ISSUE</th>
+                                <th colspan="3">QUANTITIES</th>
+                                <th rowspan="2" style="min-width:115px;">Allocation</th>
+                            </tr>
+                            <tr>
+                                <th>SUPPLIER</th>
+                                <th>D/O No.</th>
+                                <th>Requisition No.</th>
+                                <th>Received</th>
+                                <th>Issued</th>
+                                <th>Balance</th>
+                            </tr>
+                        </thead>
+                        <tbody id="sc-m-body"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="toast-container"><div class="toast-msg" id="toast"></div></div>
 
 <script src="vendor/chart.umd.js"></script>
@@ -1609,10 +1894,40 @@ function setFieldModeBadge(offline) {
 }
 
 const DEFAULT_FERTILIZER_ITEMS = [
+    { kode_barang: '010337', nama_barang: 'PROFICOTE (CRF) / SK cote', kategori: 'FERTILIZER', satuan: 'bag', conv_factor: 25, conv_unit: 'kg', min_stock_alert: 100, aktif: 1, balances: { MAIN: 2013 }, total: 2013 },
+    { kode_barang: 'CPD-45B', nama_barang: 'Compound 45B', kategori: 'FERTILIZER', satuan: 'bag', conv_factor: 50, conv_unit: 'kg', min_stock_alert: 50, aktif: 1, balances: { MAIN: 1200 }, total: 1200 },
+    { kode_barang: 'CPD-55', nama_barang: 'Compound 55', kategori: 'FERTILIZER', satuan: 'bag', conv_factor: 50, conv_unit: 'kg', min_stock_alert: 50, aktif: 1, balances: { MAIN: 950 }, total: 950 },
+    { kode_barang: 'NK-MIX', nama_barang: 'NK MIX', kategori: 'FERTILIZER', satuan: 'bag', conv_factor: 50, conv_unit: 'kg', min_stock_alert: 50, aktif: 1, balances: { MAIN: 800 }, total: 800 },
     { kode_barang: 'PUPUK-UREA', nama_barang: 'Pupuk Urea 50kg', kategori: 'FERTILIZER', satuan: 'bag', conv_factor: 50, conv_unit: 'kg', min_stock_alert: 50, aktif: 1, balances: { MAIN: 500, 'G-BAJA': 200 }, total: 700 },
     { kode_barang: 'PUPUK-NPK', nama_barang: 'Pupuk NPK Phonska 50kg', kategori: 'FERTILIZER', satuan: 'bag', conv_factor: 50, conv_unit: 'kg', min_stock_alert: 50, aktif: 1, balances: { MAIN: 450, 'G-BAJA': 150 }, total: 600 },
     { kode_barang: 'PUPUK-ZA', nama_barang: 'Pupuk ZA 50kg', kategori: 'FERTILIZER', satuan: 'bag', conv_factor: 50, conv_unit: 'kg', min_stock_alert: 30, aktif: 1, balances: { MAIN: 300 }, total: 300 },
     { kode_barang: 'PUPUK-KCL', nama_barang: 'Pupuk MOP / KCL 50kg', kategori: 'FERTILIZER', satuan: 'bag', conv_factor: 50, conv_unit: 'kg', min_stock_alert: 30, aktif: 1, balances: { MAIN: 250 }, total: 250 }
+];
+
+const DEFAULT_PROFICOTE_OUTBOUND = [
+    { transaction_id: 'SC-010337-01', tanggal_keluar: '2026-10-06', gudang: 'MAIN', kode_barang: '010337', qty_keluar: 4, kondisi_keluar: 'OK', alasan_keluar: '', pic: 'admin', requisition_no: '70332', phase: 'NS', block: 'B56', account_no: '', requested_by: '', approved_by: '', received_by: 'Field Team', empty_returned: 4 },
+    { transaction_id: 'SC-010337-02', tanggal_keluar: '2026-10-08', gudang: 'MAIN', kode_barang: '010337', qty_keluar: 86, kondisi_keluar: 'OK', alasan_keluar: '', pic: 'admin', requisition_no: '71277', phase: 'PH4', block: '2686', account_no: '', requested_by: '', approved_by: '', received_by: 'Field Team', empty_returned: 86 },
+    { transaction_id: 'SC-010337-03', tanggal_keluar: '2026-10-09', gudang: 'MAIN', kode_barang: '010337', qty_keluar: 86, kondisi_keluar: 'OK', alasan_keluar: '', pic: 'admin', requisition_no: '71278', phase: 'PH4', block: '2686', account_no: '', requested_by: '', approved_by: '', received_by: 'Field Team', empty_returned: 86 },
+    { transaction_id: 'SC-010337-04', tanggal_keluar: '2026-10-09', gudang: 'MAIN', kode_barang: '010337', qty_keluar: 77, kondisi_keluar: 'OK', alasan_keluar: '', pic: 'admin', requisition_no: '71278', phase: 'PH4', block: '2689', account_no: '', requested_by: '', approved_by: '', received_by: 'Field Team', empty_returned: 77 },
+    { transaction_id: 'SC-010337-05', tanggal_keluar: '2026-10-10', gudang: 'MAIN', kode_barang: '010337', qty_keluar: 12, kondisi_keluar: 'OK', alasan_keluar: 'Repacking Fertilizer', pic: 'admin', requisition_no: '72020', phase: '', block: '', account_no: '', requested_by: '', approved_by: '', received_by: 'Repacking', empty_returned: 12 },
+    { transaction_id: 'SC-010337-06', tanggal_keluar: '2026-10-10', gudang: 'MAIN', kode_barang: '010337', qty_keluar: 12, kondisi_keluar: 'OK', alasan_keluar: 'Repacking Fertilizer', pic: 'admin', requisition_no: '72021', phase: '', block: '', account_no: '', requested_by: '', approved_by: '', received_by: 'Repacking', empty_returned: 12 },
+    { transaction_id: 'SC-010337-07', tanggal_keluar: '2026-10-10', gudang: 'MAIN', kode_barang: '010337', qty_keluar: 12, kondisi_keluar: 'OK', alasan_keluar: 'Repacking Fertilizer', pic: 'admin', requisition_no: '72022', phase: '', block: '', account_no: '', requested_by: '', approved_by: '', received_by: 'Repacking', empty_returned: 12 },
+    { transaction_id: 'SC-010337-08', tanggal_keluar: '2026-10-10', gudang: 'MAIN', kode_barang: '010337', qty_keluar: 12, kondisi_keluar: 'OK', alasan_keluar: 'Repacking Fertilizer', pic: 'admin', requisition_no: '72023', phase: '', block: '', account_no: '', requested_by: '', approved_by: '', received_by: 'Repacking', empty_returned: 12 },
+    { transaction_id: 'SC-010337-09', tanggal_keluar: '2026-10-10', gudang: 'MAIN', kode_barang: '010337', qty_keluar: 12, kondisi_keluar: 'OK', alasan_keluar: 'Repacking Fertilizer', pic: 'admin', requisition_no: '72024', phase: '', block: '', account_no: '', requested_by: '', approved_by: '', received_by: 'Repacking', empty_returned: 12 },
+    { transaction_id: 'SC-010337-10', tanggal_keluar: '2026-10-12', gudang: 'MAIN', kode_barang: '010337', qty_keluar: 2, kondisi_keluar: 'OK', alasan_keluar: '', pic: 'admin', requisition_no: '70333', phase: 'NS', block: 'B56', account_no: '', requested_by: '', approved_by: '', received_by: 'Field Team', empty_returned: 2 },
+    { transaction_id: 'SC-010337-11', tanggal_keluar: '2026-10-12', gudang: 'MAIN', kode_barang: '010337', qty_keluar: 40, kondisi_keluar: 'OK', alasan_keluar: 'BHB', pic: 'admin', requisition_no: '72122', phase: '', block: '', account_no: '', requested_by: '', approved_by: '', received_by: 'BHB', empty_returned: 40 },
+    { transaction_id: 'SC-010337-12', tanggal_keluar: '2026-10-13', gudang: 'MAIN', kode_barang: '010337', qty_keluar: 44, kondisi_keluar: 'OK', alasan_keluar: 'BHB', pic: 'admin', requisition_no: '71281', phase: '', block: '', account_no: '', requested_by: '', approved_by: '', received_by: 'BHB', empty_returned: 44 },
+    { transaction_id: 'SC-010337-13', tanggal_keluar: '2026-10-13', gudang: 'MAIN', kode_barang: '010337', qty_keluar: 93, kondisi_keluar: 'OK', alasan_keluar: '', pic: 'admin', requisition_no: '71279', phase: 'PH4', block: '2688', account_no: '', requested_by: '', approved_by: '', received_by: 'Field Team', empty_returned: 93 },
+    { transaction_id: 'SC-010337-14', tanggal_keluar: '2026-10-13', gudang: 'MAIN', kode_barang: '010337', qty_keluar: 93, kondisi_keluar: 'OK', alasan_keluar: '', pic: 'admin', requisition_no: '71280', phase: 'PH4', block: '2688', account_no: '', requested_by: '', approved_by: '', received_by: 'Field Team', empty_returned: 93 },
+    { transaction_id: 'SC-010337-15', tanggal_keluar: '2026-10-14', gudang: 'MAIN', kode_barang: '010337', qty_keluar: 168, kondisi_keluar: 'OK', alasan_keluar: '', pic: 'admin', requisition_no: '71282', phase: 'PH4', block: '2687', account_no: '', requested_by: '', approved_by: '', received_by: 'Field Team', empty_returned: 168 },
+    { transaction_id: 'SC-010337-16', tanggal_keluar: '2026-10-24', gudang: 'MAIN', kode_barang: '010337', qty_keluar: 87, kondisi_keluar: 'OK', alasan_keluar: '', pic: 'admin', requisition_no: '71288', phase: 'PH4', block: '2696', account_no: '', requested_by: '', approved_by: '', received_by: 'Field Team', empty_returned: 87 },
+    { transaction_id: 'SC-010337-17', tanggal_keluar: '2026-10-26', gudang: 'MAIN', kode_barang: '010337', qty_keluar: 87, kondisi_keluar: 'OK', alasan_keluar: '', pic: 'admin', requisition_no: '71289', phase: 'PH4', block: '2696', account_no: '', requested_by: '', approved_by: '', received_by: 'Field Team', empty_returned: 87 },
+    { transaction_id: 'SC-010337-18', tanggal_keluar: '2026-10-26', gudang: 'MAIN', kode_barang: '010337', qty_keluar: 3, kondisi_keluar: 'OK', alasan_keluar: '', pic: 'admin', requisition_no: '70334', phase: 'NS', block: 'B60', account_no: '', requested_by: '', approved_by: '', received_by: 'Field Team', empty_returned: 3 },
+    { transaction_id: 'SC-010337-19', tanggal_keluar: '2026-10-27', gudang: 'MAIN', kode_barang: '010337', qty_keluar: 30, kondisi_keluar: 'OK', alasan_keluar: '', pic: 'admin', requisition_no: '72127', phase: 'PH2', block: '2644', account_no: '', requested_by: '', approved_by: '', received_by: 'Field Team', empty_returned: 30 },
+    { transaction_id: 'SC-010337-20', tanggal_keluar: '2026-10-28', gudang: 'MAIN', kode_barang: '010337', qty_keluar: 132, kondisi_keluar: 'OK', alasan_keluar: '', pic: 'admin', requisition_no: '72128', phase: 'PH2', block: '2644', account_no: '', requested_by: '', approved_by: '', received_by: 'Field Team', empty_returned: 132 },
+    { transaction_id: 'SC-010337-21', tanggal_keluar: '2026-10-28', gudang: 'MAIN', kode_barang: '010337', qty_keluar: 55, kondisi_keluar: 'OK', alasan_keluar: 'BHB', pic: 'admin', requisition_no: '71283', phase: '', block: '', account_no: '', requested_by: '', approved_by: '', received_by: 'BHB', empty_returned: 55 },
+    { transaction_id: 'SC-010337-22', tanggal_keluar: '2026-10-28', gudang: 'MAIN', kode_barang: '010337', qty_keluar: 12, kondisi_keluar: 'OK', alasan_keluar: 'Repacking Fertilizer', pic: 'admin', requisition_no: '72018', phase: '', block: '', account_no: '', requested_by: '', approved_by: '', received_by: 'Repacking', empty_returned: 12 },
+    { transaction_id: 'SC-010337-23', tanggal_keluar: '2026-10-28', gudang: 'MAIN', kode_barang: '010337', qty_keluar: 12, kondisi_keluar: 'OK', alasan_keluar: 'Repacking Fertilizer', pic: 'admin', requisition_no: '72019', phase: '', block: '', account_no: '', requested_by: '', approved_by: '', received_by: 'Repacking', empty_returned: 12 }
 ];
 
 const DEFAULT_OFFLINE_STORE = {
@@ -1635,7 +1950,7 @@ const DEFAULT_OFFLINE_STORE = {
         { kode_barang: 'SKU1233456', nama_barang: 'LUMUT', kategori: 'OTHER', satuan: 'pcs', conv_factor: 0, conv_unit: '', min_stock_alert: 0, aktif: 1, balances: { MAIN: 2500 }, total: 2500 },
         { kode_barang: 'SKU99999', nama_barang: 'KANGKUNG', kategori: 'OTHER', satuan: 'pcs', conv_factor: 0, conv_unit: '', min_stock_alert: 1000, aktif: 1, balances: {}, total: 0 }
     ],
-    inbound: [], outbound: [], closing_days: [], daily_closing: [], synced_at: '2026-11-05T13:35:00Z'
+    inbound: [], outbound: [...DEFAULT_PROFICOTE_OUTBOUND], closing_days: [], daily_closing: [], synced_at: '2026-11-05T13:35:00Z'
 };
 
 function getOfflineStore() {
@@ -1645,12 +1960,19 @@ function getOfflineStore() {
             const parsed = JSON.parse(raw);
             if (parsed && Array.isArray(parsed.warehouses) && parsed.warehouses.length) {
                 parsed.items = Array.isArray(parsed.items) ? parsed.items : [];
-                if (!parsed.items.some(i => i.kategori === 'FERTILIZER')) {
-                    const existingCodes = new Set(parsed.items.map(i => i.kode_barang));
-                    const seedFert = JSON.parse(JSON.stringify(DEFAULT_FERTILIZER_ITEMS)).filter(f => !existingCodes.has(f.kode_barang));
-                    parsed.items = [...seedFert, ...parsed.items];
-                    saveOfflineStore(parsed);
+                parsed.outbound = Array.isArray(parsed.outbound) ? parsed.outbound : [];
+                let dirty = false;
+                const existingCodes = new Set(parsed.items.map(i => i.kode_barang));
+                const missingFert = JSON.parse(JSON.stringify(DEFAULT_FERTILIZER_ITEMS)).filter(f => !existingCodes.has(f.kode_barang));
+                if (missingFert.length) {
+                    parsed.items = [...missingFert, ...parsed.items];
+                    dirty = true;
                 }
+                if (!parsed.outbound.some(o => o.kode_barang === '010337')) {
+                    parsed.outbound = [...parsed.outbound, ...JSON.parse(JSON.stringify(DEFAULT_PROFICOTE_OUTBOUND))];
+                    dirty = true;
+                }
+                if (dirty) saveOfflineStore(parsed);
                 return parsed;
             }
         }
@@ -1939,17 +2261,22 @@ function offlineApiFallback(url, opts = {}) {
         if (!it) throw new Error('Item not found.');
         const curBal = wh === 'ALL' ? (it.total || 0) : ((it.balances && it.balances[wh]) || 0);
         const allMoves = [];
-        (st.inbound || []).filter(r => r.kode_barang === code && (wh === 'ALL' || r.gudang === wh)).forEach(r => {
-            allMoves.push({ tanggal: r.tanggal_masuk, gudang: r.gudang || 'MAIN', supplier: r.supplier || '', do_no: r.surat_jalan || '', requisition_no: '', kind: 'IN', qty: Number(r.qty_masuk) || 0, allocation: r.lokasi || '', pic: r.pic || '' });
+        const inList = (st.inbound || []).filter(r => r.kode_barang === code && (wh === 'ALL' || r.gudang === wh)).slice().reverse();
+        inList.forEach(r => {
+            allMoves.push({ tanggal: r.tanggal_masuk, gudang: r.gudang || 'MAIN', supplier: r.supplier || '', do_no: r.surat_jalan || '', requisition_no: '', kind: 'IN', qty: Number(r.qty_masuk) || 0, allocation: r.lokasi || '', pic: r.pic || '', seq: allMoves.length });
         });
-        (st.outbound || []).filter(r => r.kode_barang === code && (wh === 'ALL' || r.gudang === wh)).forEach(r => {
-            const alloc = [r.block, r.phase, r.account_no].filter(Boolean).join(' / ');
-            allMoves.push({ tanggal: r.tanggal_keluar, gudang: r.gudang || 'MAIN', supplier: '', do_no: '', requisition_no: r.requisition_no || '', kind: 'OUT', qty: -(Number(r.qty_keluar) || 0), allocation: alloc, pic: r.pic || '' });
+        const outList = (st.outbound || []).filter(r => r.kode_barang === code && (wh === 'ALL' || r.gudang === wh));
+        const isSeedOrder = outList.length > 1 && String(outList[0].transaction_id || '').startsWith('SC-');
+        const orderedOut = isSeedOrder ? outList : outList.slice().reverse();
+        orderedOut.forEach(r => {
+            const loc = (r.phase && r.block) ? `${r.phase}/${r.block}` : (r.block || r.phase || '');
+            const alloc = [loc, r.alasan_keluar, r.account_no].filter(Boolean).join(' · ');
+            allMoves.push({ tanggal: r.tanggal_keluar, gudang: r.gudang || 'MAIN', supplier: '', do_no: '', requisition_no: r.requisition_no || '', kind: 'OUT', qty: -(Number(r.qty_keluar) || 0), allocation: alloc, pic: r.pic || '', seq: allMoves.length });
         });
         (st.daily_closing || []).filter(r => r.kode_barang === code && (wh === 'ALL' || r.gudang === wh) && Number(r.selisih) !== 0).forEach(r => {
-            allMoves.push({ tanggal: r.tanggal, gudang: r.gudang || 'MAIN', supplier: '', do_no: '', requisition_no: 'CLOSING', kind: 'ADJ', qty: Number(r.selisih) || 0, allocation: r.reason || 'Daily Closing Adj.', pic: r.pic || '' });
+            allMoves.push({ tanggal: r.tanggal, gudang: r.gudang || 'MAIN', supplier: '', do_no: '', requisition_no: 'CLOSING', kind: 'ADJ', qty: Number(r.selisih) || 0, allocation: r.reason || 'Daily Closing Adj.', pic: r.pic || '', seq: allMoves.length });
         });
-        allMoves.sort((a, b) => a.tanggal.localeCompare(b.tanggal));
+        allMoves.sort((a, b) => a.tanggal.localeCompare(b.tanggal) || (a.seq - b.seq));
         const netRecorded = allMoves.reduce((s, m) => s + m.qty, 0);
         const baseSeed = round3(curBal - netRecorded);
         const beforeMoves = allMoves.filter(m => m.tanggal < from);
@@ -2459,8 +2786,8 @@ async function fetchStats() {
                 options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true } } }
             });
         }
-        $('low-stock-list').innerHTML = d.lowStock.length ? d.lowStock.map(i => `<div style="display:flex;justify-content:space-between;padding:.4rem 0;border-bottom:1px solid var(--border);"><span>${esc(i.nama_barang)}</span><span class="tag tag-red">${fmt(i.total)} ${esc(i.satuan)} (min ${fmt(i.min_stock_alert)})</span></div>`).join('') : '<span class="cell-muted">All stock levels are fine.</span>';
-        $('dead-stock-list').innerHTML = d.deadStock.length ? d.deadStock.map(i => `<div style="display:flex;justify-content:space-between;padding:.4rem 0;border-bottom:1px solid var(--border);"><span>${esc(i.nama_barang)}</span><span class="cell-muted">${fmt(i.total)} ${esc(i.satuan)}</span></div>`).join('') : '<span class="cell-muted">None.</span>';
+        $('low-stock-list').innerHTML = d.lowStock.length ? d.lowStock.map(i => `<div style="display:flex;justify-content:space-between;padding:.4rem 0;border-bottom:1px solid var(--border);cursor:pointer;" onclick="openStockCard('${esc(i.kode_barang)}')"><span><b>${esc(i.nama_barang)}</b> <span class="cell-muted">(${esc(i.kode_barang)})</span></span><span class="tag tag-red">${fmt(i.total)} ${esc(i.satuan)} (min ${fmt(i.min_stock_alert)})</span></div>`).join('') : '<span class="cell-muted">All stock levels are fine.</span>';
+        $('dead-stock-list').innerHTML = d.deadStock.length ? d.deadStock.map(i => `<div style="display:flex;justify-content:space-between;padding:.4rem 0;border-bottom:1px solid var(--border);cursor:pointer;" onclick="openStockCard('${esc(i.kode_barang)}')"><span><b>${esc(i.nama_barang)}</b> <span class="cell-muted">(${esc(i.kode_barang)})</span></span><span class="cell-muted">${fmt(i.total)} ${esc(i.satuan)}</span></div>`).join('') : '<span class="cell-muted">None.</span>';
     } catch (e) { toast(e.message, true); }
 }
 function gotoClosing(code) { $('cl-wh').value = code; $('cl-date').value = today(); switchTab('closing'); }
@@ -2498,9 +2825,9 @@ function renderStock() {
     const singleWhObj = isSingleWH ? (WH.find(w => w.code === stockWH) || { code: stockWH, name: stockWH }) : null;
 
     if (isSingleWH) {
-        $('stock-head').innerHTML = `<tr><th>Code</th><th>Item</th><th>Category</th><th>Unit</th><th class="num">Stock in ${esc(singleWhObj.name)}</th><th>Converted</th><th class="num">Total (All Warehouses)</th><th class="num">Min</th><th>Status</th><th class="admin-only">Action</th></tr>`;
+        $('stock-head').innerHTML = `<tr><th>Code</th><th>Item</th><th>Category</th><th>Unit</th><th class="num">Stock in ${esc(singleWhObj.name)}</th><th>Converted</th><th class="num">Total (All Warehouses)</th><th class="num">Min</th><th>Status</th><th>Stock Card / Action</th></tr>`;
     } else {
-        $('stock-head').innerHTML = `<tr><th>Code</th><th>Item</th><th>Category</th><th>Unit</th>${allWhs.map(w => `<th class="num">${esc(w.name)}</th>`).join('')}<th class="num">Total</th><th>Converted</th><th class="num">Min</th><th>Status</th><th class="admin-only">Action</th></tr>`;
+        $('stock-head').innerHTML = `<tr><th>Code</th><th>Item</th><th>Category</th><th>Unit</th>${allWhs.map(w => `<th class="num">${esc(w.name)}</th>`).join('')}<th class="num">Total</th><th>Converted</th><th class="num">Min</th><th>Status</th><th>Stock Card / Action</th></tr>`;
     }
 
     const rows = STOCK.map((i, idx) => ({ i, idx })).filter(({ i }) =>
@@ -2513,26 +2840,33 @@ function renderStock() {
         if (currentQty <= 0) status = '<span class="tag tag-default">Empty</span>';
         else if (i.min_stock_alert > 0 && currentQty <= i.min_stock_alert) status = '<span class="tag tag-red">Low</span>';
         if (i.aktif === 0) status = '<span class="tag tag-default">Inactive</span>';
+        const targetWh = isSingleWH ? stockWH : 'ALL';
+        const actionBtns = `<div style="display:flex;gap:.35rem;flex-wrap:wrap;" onclick="event.stopPropagation()">
+            <button class="btn btn-primary btn-sm" onclick="openStockCard('${esc(i.kode_barang)}','${esc(targetWh)}')">&#128203; Stock Card</button>
+            <button class="btn btn-outline btn-sm admin-only" onclick="openItemModal(${idx})">Edit</button>
+        </div>`;
 
         if (isSingleWH) {
             const whQty = i.balances[stockWH] || 0;
-            return `<tr class="${i.aktif === 0 ? 'row-muted' : ''}">
-                <td class="cell-mono">${esc(i.kode_barang)}</td><td class="cell-bold">${esc(i.nama_barang)}</td>
+            return `<tr class="stock-row-clickable ${i.aktif === 0 ? 'row-muted' : ''}" onclick="openStockCard('${esc(i.kode_barang)}','${esc(stockWH)}')" title="Klik untuk melihat Stock Card ${esc(i.nama_barang)}">
+                <td class="cell-mono" style="color:#c92a2a;font-weight:700;">${esc(i.kode_barang)}</td>
+                <td class="cell-bold">${esc(i.nama_barang)}</td>
                 <td><span class="tag ${CATTAG[i.kategori]}">${CAT[i.kategori]}</span></td><td>${esc(i.satuan)}</td>
                 <td class="num cell-bold" style="color:var(--accent-text);background:var(--accent-soft);">${fmt(whQty)}</td>
                 <td class="cell-muted">${esc(convText(i, whQty))}</td>
                 <td class="num cell-muted">${fmt(i.total)}</td>
                 <td class="num">${fmt(i.min_stock_alert)}</td><td>${status}</td>
-                <td class="admin-only"><button class="btn btn-outline btn-sm" onclick="openItemModal(${idx})">Edit</button></td></tr>`;
+                <td>${actionBtns}</td></tr>`;
         }
 
-        return `<tr class="${i.aktif === 0 ? 'row-muted' : ''}">
-            <td class="cell-mono">${esc(i.kode_barang)}</td><td class="cell-bold">${esc(i.nama_barang)}</td>
+        return `<tr class="stock-row-clickable ${i.aktif === 0 ? 'row-muted' : ''}" onclick="openStockCard('${esc(i.kode_barang)}','ALL')" title="Klik untuk melihat Stock Card ${esc(i.nama_barang)}">
+            <td class="cell-mono" style="color:#c92a2a;font-weight:700;">${esc(i.kode_barang)}</td>
+            <td class="cell-bold">${esc(i.nama_barang)}</td>
             <td><span class="tag ${CATTAG[i.kategori]}">${CAT[i.kategori]}</span></td><td>${esc(i.satuan)}</td>
             ${allWhs.map(w => `<td class="num">${fmt(i.balances[w.code] || 0)}</td>`).join('')}
             <td class="num cell-bold">${fmt(i.total)}</td><td class="cell-muted">${esc(convText(i, i.total))}</td>
             <td class="num">${fmt(i.min_stock_alert)}</td><td>${status}</td>
-            <td class="admin-only"><button class="btn btn-outline btn-sm" onclick="openItemModal(${idx})">Edit</button></td></tr>`;
+            <td>${actionBtns}</td></tr>`;
     }).join('') : `<tr><td colspan="${isSingleWH ? 10 : (9 + allWhs.length)}" class="cell-muted">No items found.</td></tr>`;
 }
 
@@ -2896,10 +3230,80 @@ async function loadClosingHistory() {
 }
 function viewClosing(i) { $('cl-date').value = CLH[i].tanggal; $('cl-wh').value = CLH[i].gudang; loadClosing(); window.scrollTo(0, 0); }
 
-// ===================================================== bin card
+// ===================================================== bin card & southwind stock card
+let currentScCode = null;
+let currentScData = null;
+
+function fmtScDate(iso) {
+    if (!iso) return '';
+    const p = String(iso).split('-');
+    if (p.length !== 3) return iso;
+    return `${ parseInt(p[2], 10) }/${ parseInt(p[1], 10) }/${ String(p[0]).slice(-2) }`;
+}
+
+function splitItemTitle(nama, kat) {
+    const raw = String(nama || '-');
+    if (raw.includes('/')) {
+        const parts = raw.split('/');
+        return { main: parts[0].trim(), sub: parts.slice(1).join('/').trim() };
+    }
+    return { main: raw, sub: CAT[kat] || '' };
+}
+
+function renderPaperStockCard(d, whCode, ids) {
+    const it = d.item;
+    const names = splitItemTitle(it.nama_barang, it.kategori);
+    if ($(ids.item)) $(ids.item).innerText = names.main;
+    if ($(ids.sub)) $(ids.sub).innerText = names.sub;
+    if ($(ids.code)) $(ids.code).innerText = it.kode_barang;
+    if ($(ids.sheet)) $(ids.sheet).innerText = `1 (${whCode === 'ALL' ? 'ALL WAREHOUSES' : whName(whCode)})`;
+    if ($(ids.unit)) $(ids.unit).innerText = `${it.satuan}${it.conv_factor > 0 && it.conv_unit ? ' (@ ' + it.conv_factor + ' ' + it.conv_unit + ')' : ''}`;
+
+    let html = `<tr class="sc-bf-row">
+        <td></td>
+        <td style="text-align:center;font-weight:800;letter-spacing:.06em;">B/F</td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td class="sc-num">${fmt(d.opening)}</td>
+        <td></td>
+    </tr>`;
+
+    d.rows.forEach(r => {
+        const isIn = r.kind === 'IN';
+        const isOut = r.kind === 'OUT';
+        const isAdj = r.kind === 'ADJ';
+        const recVal = isIn ? fmt(r.qty) : (isAdj && r.qty > 0 ? '+' + fmt(r.qty) : '');
+        const issVal = isOut ? fmt(-r.qty) : (isAdj && r.qty < 0 ? fmt(-r.qty) : '');
+        const reqNo = isAdj ? 'ADJ-CLOSING' : (r.requisition_no || '');
+        html += `<tr>
+            <td class="sc-date">${esc(fmtScDate(r.tanggal))}</td>
+            <td>${esc(r.supplier || '')}</td>
+            <td class="sc-req">${esc(r.do_no || '')}</td>
+            <td class="sc-req">${esc(reqNo)}</td>
+            <td class="sc-num" style="color:#087f5b;">${recVal}</td>
+            <td class="sc-num" style="color:#c92a2a;">${issVal}</td>
+            <td class="sc-num" style="font-weight:800;">${fmt(r.balance)}</td>
+            <td class="sc-alloc">${esc(r.allocation || '')}</td>
+        </tr>`;
+    });
+
+    const minLines = 15;
+    const emptyCount = Math.max(2, minLines - d.rows.length);
+    for (let k = 0; k < emptyCount; k++) {
+        html += `<tr class="sc-empty-row"><td>&nbsp;</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>`;
+    }
+
+    if ($(ids.body)) $(ids.body).innerHTML = html;
+}
+
 function initBinCard() {
-    if (!$('bc-to').value) $('bc-to').value = today();
-    if (!$('bc-from').value) { const d = new Date(); $('bc-from').value = dstr(new Date(d.getFullYear(), d.getMonth(), 1)); }
+    if ($('bc-item') && !$('bc-item').value && STOCK.length) {
+        const prof = STOCK.find(i => i.kode_barang === '010337') || STOCK[0];
+        if (prof) $('bc-item').value = prof.kode_barang;
+    }
+    loadBinCard();
 }
 function printBinCard() {
     if (window.AndroidBridge && typeof window.AndroidBridge.printPage === 'function') {
@@ -2909,22 +3313,177 @@ function printBinCard() {
     }
 }
 async function loadBinCard() {
-    const code = $('bc-item').value;
-    if (!code) return toast('Select an item first.', true);
+    const code = $('bc-item').value || (STOCK[0] && STOCK[0].kode_barang);
+    if (!code) return;
+    if ($('bc-item').value !== code) $('bc-item').value = code;
     try {
-        const q = `kode_barang=${encodeURIComponent(code)}&gudang=${encodeURIComponent($('bc-wh').value || 'ALL')}&from=${$('bc-from').value}&to=${$('bc-to').value}`;
+        const wh = $('bc-wh').value || 'ALL';
+        const q = `kode_barang=${encodeURIComponent(code)}&gudang=${encodeURIComponent(wh)}&from=${$('bc-from').value}&to=${$('bc-to').value}`;
         const d = (await api('/api/bincard?' + q)).data;
         const it = d.item;
-        const title = `${it.nama_barang} (${it.kode_barang}) | Unit: ${it.satuan} | ${$('bc-wh').value === 'ALL' ? 'All warehouses' : whName($('bc-wh').value)} | ${$('bc-from').value || '...'} to ${$('bc-to').value || '...'}`;
+        const title = `${it.nama_barang} (${it.kode_barang}) | Unit: ${it.satuan} | ${wh === 'ALL' ? 'All warehouses' : whName(wh)}`;
         $('bc-title').innerText = title;
-        $('bc-print-head').innerHTML = `<h2 style="margin-bottom:.25rem;">SOUTHWIND PLANTATION - BIN CARD</h2><div>${esc(title)}</div>`;
-        let html = `<tr class="row-total"><td colspan="8">B/F (brought forward)</td><td class="num">${fmt(d.opening)}</td><td colspan="2"></td></tr>`;
-        html += d.rows.map(r => `<tr><td>${esc(r.tanggal)}</td><td>${esc(whName(r.gudang))}</td><td>${esc(r.supplier || '')}</td><td>${esc(r.do_no || '')}</td><td class="cell-mono">${esc(r.requisition_no || '')}</td>
-            <td class="num">${r.kind === 'IN' ? fmt(r.qty) : ''}</td><td class="num">${r.kind === 'OUT' ? fmt(-r.qty) : ''}</td><td class="num">${r.kind === 'ADJ' ? (r.qty > 0 ? '+' : '') + fmt(r.qty) : ''}</td>
-            <td class="num cell-bold">${fmt(r.balance)}</td><td class="cell-muted">${esc(r.allocation || '')}</td><td>${esc(r.pic)}</td></tr>`).join('');
-        html += `<tr class="row-total"><td colspan="8">Closing balance ${esc(convText(it, d.closing) ? '(' + convText(it, d.closing) + ')' : '')}</td><td class="num">${fmt(d.closing)}</td><td colspan="2"></td></tr>`;
-        $('bc-body').innerHTML = html;
+        $('bc-print-head').innerHTML = `<h2 style="margin-bottom:.25rem;">SOUTHWIND PLANTATION SDN. BHD. - STOCK CARD</h2><div>${esc(title)}</div>`;
+        renderPaperStockCard(d, wh, {
+            item: 'bc-sc-item', sub: 'bc-sc-sub', code: 'bc-sc-code', sheet: 'bc-sc-sheet', unit: 'bc-sc-unit', body: 'bc-body'
+        });
     } catch (e) { toast(e.message, true); }
+}
+
+async function openStockCard(code, wh = 'ALL') {
+    if (!code) return;
+    currentScCode = code;
+    if ($('sc-modal-wh')) $('sc-modal-wh').value = wh || 'ALL';
+    if ($('sc-modal-from')) $('sc-modal-from').value = '';
+    if ($('sc-modal-to')) $('sc-modal-to').value = '';
+    toggleScQuickForm(null);
+    openModal('stockCardModal');
+    await loadStockCardModal();
+}
+
+async function loadStockCardModal() {
+    if (!currentScCode) return;
+    try {
+        const wh = ($('sc-modal-wh') && $('sc-modal-wh').value) || 'ALL';
+        const from = ($('sc-modal-from') && $('sc-modal-from').value) || '';
+        const to = ($('sc-modal-to') && $('sc-modal-to').value) || '';
+        const q = `kode_barang=${encodeURIComponent(currentScCode)}&gudang=${encodeURIComponent(wh)}&from=${from}&to=${to}`;
+        const d = (await api('/api/bincard?' + q)).data;
+        currentScData = d;
+        renderPaperStockCard(d, wh, {
+            item: 'sc-m-item', sub: 'sc-m-sub', code: 'sc-m-code', sheet: 'sc-m-sheet', unit: 'sc-m-unit', body: 'sc-m-body'
+        });
+        if ($('bc-item')) {
+            $('bc-item').value = currentScCode;
+            if ($('bc-wh')) $('bc-wh').value = wh;
+        }
+    } catch (e) { toast(e.message, true); }
+}
+
+function toggleScQuickForm(kind) {
+    const form = $('sc-quick-form');
+    if (!form) return;
+    if (!kind) {
+        form.style.display = 'none';
+        return;
+    }
+    form.reset();
+    $('sc-qf-kind').value = kind;
+    $('sc-qf-date').value = today();
+    const curWh = ($('sc-modal-wh') && $('sc-modal-wh').value !== 'ALL') ? $('sc-modal-wh').value : ((activeWH()[0] && activeWH()[0].code) || 'MAIN');
+    if ($('sc-qf-wh')) $('sc-qf-wh').value = curWh;
+    const it = itemOf(currentScCode);
+    if ($('sc-qf-qty')) $('sc-qf-qty').step = it ? stepFor(it.satuan) : '1';
+    const isIn = kind === 'IN';
+    $('sc-qf-title').innerHTML = isIn
+        ? `&#10133; Catat Barang Masuk (Receipt) &mdash; <span style="color:var(--accent);">${esc(it ? it.nama_barang : currentScCode)}</span>`
+        : `&#10134; Catat Barang Keluar (Issue) &mdash; <span style="color:var(--red);">${esc(it ? it.nama_barang : currentScCode)}</span>`;
+    $('sc-qf-qty-lbl').innerText = isIn ? `Qty Masuk (${it ? it.satuan : 'unit'}) *` : `Qty Keluar (${it ? it.satuan : 'unit'}) *`;
+    $('sc-qf-submit').className = isIn ? 'btn btn-primary btn-sm' : 'btn btn-destructive btn-sm';
+    $('sc-qf-submit').innerHTML = isIn ? '&#10004; Simpan Masuk &amp; Update Kartu' : '&#10004; Simpan Keluar &amp; Update Kartu';
+    document.querySelectorAll('.sc-qf-in').forEach(el => el.style.display = isIn ? '' : 'none');
+    document.querySelectorAll('.sc-qf-out').forEach(el => el.style.display = isIn ? 'none' : '');
+    if ($('sc-qf-req')) $('sc-qf-req').required = !isIn;
+    form.style.display = 'block';
+    setTimeout(() => { if ($('sc-qf-qty')) $('sc-qf-qty').focus(); }, 60);
+}
+
+async function submitScQuickTx(e) {
+    e.preventDefault();
+    if (!currentScCode) return;
+    const kind = $('sc-qf-kind').value;
+    const wh = $('sc-qf-wh').value || 'MAIN';
+    const dt = $('sc-qf-date').value || today();
+    const qty = parseFloat($('sc-qf-qty').value) || 0;
+    if (qty <= 0) return toast('Masukkan jumlah (Qty) yang valid.', true);
+    const btn = $('sc-qf-submit');
+    if (btn) btn.disabled = true;
+    try {
+        if (kind === 'IN') {
+            const payload = {
+                tanggal_masuk: dt,
+                gudang: wh,
+                kode_barang: currentScCode,
+                qty_masuk: qty,
+                supplier: ($('sc-qf-supplier').value || '').trim(),
+                surat_jalan: ($('sc-qf-do').value || '').trim(),
+                lokasi: ($('sc-qf-loc').value || '').trim(),
+                pic: currentUser || 'checker'
+            };
+            const r = await api('/api/inbound', { method: 'POST', headers: JSONH, body: JSON.stringify(payload) });
+            toast(r.message || 'Barang Masuk berhasil dicatat ke Stock Card!');
+        } else {
+            const reqNo = ($('sc-qf-req').value || '').trim() || ('REQ-' + Date.now().toString().slice(-5));
+            const payload = {
+                tanggal_keluar: dt,
+                gudang: wh,
+                kode_barang: currentScCode,
+                qty_keluar: qty,
+                requisition_no: reqNo,
+                phase: ($('sc-qf-phase').value || '').trim(),
+                block: ($('sc-qf-block').value || '').trim(),
+                alasan_keluar: ($('sc-qf-remarks').value || '').trim(),
+                received_by: currentUser || 'Field',
+                pic: currentUser || 'checker'
+            };
+            const r = await api('/api/outbound', { method: 'POST', headers: JSONH, body: JSON.stringify(payload) });
+            toast(r.message || 'Barang Keluar berhasil dicatat ke Stock Card!');
+        }
+        toggleScQuickForm(null);
+        await refreshBase();
+        await loadStockCardModal();
+        renderStock();
+    } catch (err) {
+        toast(err.message, true);
+    }
+    if (btn) btn.disabled = false;
+}
+
+function jumpFromStockCard(target) {
+    const code = currentScCode;
+    const wh = ($('sc-modal-wh') && $('sc-modal-wh').value !== 'ALL') ? $('sc-modal-wh').value : ((activeWH()[0] && activeWH()[0].code) || 'MAIN');
+    const kind = ($('sc-qf-kind') && $('sc-qf-kind').value) || 'IN';
+    closeModal('stockCardModal');
+    if (target === 'CAM') {
+        switchTab('camcount');
+        if ($('cc-wh')) $('cc-wh').value = wh;
+        if ($('cc-item') && code) $('cc-item').value = code;
+        return;
+    }
+    if (kind === 'IN') {
+        switchTab('receiving');
+        if ($('in-wh')) $('in-wh').value = wh;
+        if ($('in-item') && code) { $('in-item').value = code; onInItem(); }
+    } else {
+        switchTab('issuing');
+        if ($('out-wh')) $('out-wh').value = wh;
+        if ($('out-item') && code) { $('out-item').value = code; onOutItem(); }
+    }
+}
+
+function exportStockCardExcel() {
+    if (!currentScData || !currentScData.item) return exportTable('tbl-modal-stockcard', 'Stock_Card');
+    const it = currentScData.item;
+    const aoa = [
+        ['SOUTHWIND PLANTATION SDN. BHD. - STOCK CARD'],
+        ['ITEM', it.nama_barang, 'Code No', it.kode_barang, 'Unit', it.satuan],
+        [],
+        ['DATE', 'SUPPLIER', 'D/O No.', 'Requisition No.', 'Received', 'Issued', 'Balance', 'Allocation'],
+        ['', 'B/F', '', '', '', '', currentScData.opening, '']
+    ];
+    currentScData.rows.forEach(r => {
+        aoa.push([
+            fmtScDate(r.tanggal),
+            r.supplier || '',
+            r.do_no || '',
+            r.kind === 'ADJ' ? 'ADJ-CLOSING' : (r.requisition_no || ''),
+            r.kind === 'IN' ? r.qty : (r.kind === 'ADJ' && r.qty > 0 ? r.qty : ''),
+            r.kind === 'OUT' ? -r.qty : (r.kind === 'ADJ' && r.qty < 0 ? -r.qty : ''),
+            r.balance,
+            r.allocation || ''
+        ]);
+    });
+    saveAoa(aoa, `StockCard_${it.kode_barang}`);
 }
 
 // ===================================================== data sync & backup
