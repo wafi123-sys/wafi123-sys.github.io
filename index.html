@@ -1278,19 +1278,44 @@
                 </div>
                 <div class="panel-body">
                     <div style="display:flex;gap:.4rem;margin-bottom:1rem;flex-wrap:wrap;">
-                        <button type="button" class="filter-chip active" id="exp-preset-today" onclick="setExportRange(0, this)">Today</button>
-                        <button type="button" class="filter-chip" onclick="setExportRange(1, this)">Yesterday</button>
-                        <button type="button" class="filter-chip" onclick="setExportRange(7, this)">Last 7 days</button>
-                        <button type="button" class="filter-chip" onclick="setExportRange(30, this)">Last 30 days</button>
+                        <button type="button" class="filter-chip active" id="exp-preset-today" onclick="setExportRange(0, this)">Hari Ini (Today)</button>
+                        <button type="button" class="filter-chip" onclick="setExportRange(1, this)">Kemarin</button>
+                        <button type="button" class="filter-chip" onclick="setExportRange(7, this)">7 Hari Terakhir</button>
+                        <button type="button" class="filter-chip" onclick="setExportRange(30, this)">30 Hari Terakhir</button>
+                        <button type="button" class="filter-chip" onclick="setExportRange('ALL', this)" style="font-weight:700;border-color:var(--accent);">⭐ Semua Waktu (All Time)</button>
                     </div>
+
+                    <!-- Kategori Komponen Ekspor (Granular / Pecah Kategori) -->
+                    <div style="background:var(--bg-subtle, #f8f9fa);border:1px solid var(--border);border-radius:8px;padding:.75rem 1rem;margin-bottom:1rem;">
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem;flex-wrap:wrap;gap:.4rem;">
+                            <span style="font-weight:700;font-size:.82rem;">Komponen Data yang Diekspor:</span>
+                            <div style="display:flex;gap:.35rem;flex-wrap:wrap;">
+                                <button type="button" class="btn btn-outline btn-xs" onclick="setSyncExportTypes('ALL')">Pilih Semua</button>
+                                <button type="button" class="btn btn-outline btn-xs" onclick="setSyncExportTypes('OUT')">Hanya Issue (Out)</button>
+                                <button type="button" class="btn btn-outline btn-xs" onclick="setSyncExportTypes('IN')">Hanya Inbound</button>
+                                <button type="button" class="btn btn-outline btn-xs" onclick="setSyncExportTypes('STOCK')">Hanya Stok</button>
+                            </div>
+                        </div>
+                        <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(130px, 1fr));gap:.45rem;font-size:.82rem;">
+                            <label style="display:flex;align-items:center;gap:.35rem;cursor:pointer;"><input type="checkbox" id="exp-chk-in" checked onchange="previewExportPackage()"> <span>📥 Inbound (Masuk)</span></label>
+                            <label style="display:flex;align-items:center;gap:.35rem;cursor:pointer;"><input type="checkbox" id="exp-chk-out" checked onchange="previewExportPackage()"> <span>📤 Outbound (Issue)</span></label>
+                            <label style="display:flex;align-items:center;gap:.35rem;cursor:pointer;"><input type="checkbox" id="exp-chk-stock" checked onchange="previewExportPackage()"> <span>📦 Master Barang</span></label>
+                            <label style="display:flex;align-items:center;gap:.35rem;cursor:pointer;"><input type="checkbox" id="exp-chk-opname" checked onchange="previewExportPackage()"> <span>⚖️ Stock Opname</span></label>
+                            <label style="display:flex;align-items:center;gap:.35rem;cursor:pointer;"><input type="checkbox" id="exp-chk-cl" checked onchange="previewExportPackage()"> <span>🔒 Closing Harian</span></label>
+                            <label style="display:flex;align-items:center;gap:.35rem;cursor:pointer;"><input type="checkbox" id="exp-chk-wh" checked onchange="previewExportPackage()"> <span>🏢 Master Gudang</span></label>
+                        </div>
+                    </div>
+
                     <div class="form-grid-3" style="margin-bottom:1rem;">
                         <div class="form-field"><label>From date</label><input type="date" id="exp-from" onchange="previewExportPackage()"></div>
                         <div class="form-field"><label>To date</label><input type="date" id="exp-to" onchange="previewExportPackage()"></div>
                         <div class="form-field"><label>Warehouse</label><select id="exp-wh" class="wh-select" data-all="1" onchange="previewExportPackage()"></select></div>
                     </div>
                     <div class="spec-strip">
-                        <div class="spec-cell"><div class="k">Receiving</div><div class="v" id="exp-cnt-in">0</div></div>
-                        <div class="spec-cell"><div class="k">Requisitions</div><div class="v" id="exp-cnt-out">0</div></div>
+                        <div class="spec-cell"><div class="k">Inbound</div><div class="v" id="exp-cnt-in">0</div></div>
+                        <div class="spec-cell"><div class="k">Outbound / Issue</div><div class="v" id="exp-cnt-out">0</div></div>
+                        <div class="spec-cell"><div class="k">Master Items</div><div class="v" id="exp-cnt-stock">0</div></div>
+                        <div class="spec-cell"><div class="k">Opname</div><div class="v" id="exp-cnt-op">0</div></div>
                         <div class="spec-cell"><div class="k">Closings</div><div class="v" id="exp-cnt-cl">0</div></div>
                         <div class="spec-cell"><div class="k">SHA-256 Digest</div><div class="v" id="exp-digest" style="font-size:.78rem;">—</div></div>
                     </div>
@@ -1534,9 +1559,12 @@
                 </div>
                 <label id="it-active-wrap" style="display:none;gap:.4rem;align-items:center;font-size:.85rem;"><input type="checkbox" id="it-active" checked> Active (inactive items are hidden and skipped in daily closing)</label>
             </div>
-            <div class="modal-foot">
-                <button type="button" class="btn btn-outline" onclick="closeModal('itemModal')">Cancel</button>
-                <button type="submit" class="btn btn-primary">Save</button>
+            <div class="modal-foot" style="display:flex;justify-content:space-between;align-items:center;">
+                <button type="button" id="it-del-btn" class="btn btn-outline admin-only" style="color:#e03131;border-color:rgba(224,49,49,0.35);display:none;" onclick="if(editingItem) deleteStockItem(editingItem.kode_barang)">Hapus Barang</button>
+                <div style="display:flex;gap:.5rem;margin-left:auto;">
+                    <button type="button" class="btn btn-outline" onclick="closeModal('itemModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
             </div>
         </form>
     </div>
@@ -1630,7 +1658,18 @@
                 </div>
                 <div style="display:flex;gap:.5rem;">
                     <button type="button" class="btn btn-outline btn-sm" onclick="clearOfflineFieldTx()">Hapus Cache</button>
-                    <a href="/GudangPro.apk" download="GudangPro.apk" class="btn btn-outline btn-sm" style="text-decoration:none;">Download APK</a>
+                    <a href="/GudangPro-Offline.apk" download="GudangPro-Offline.apk" class="btn btn-primary btn-sm" style="text-decoration:none;">Download APK Offline</a>
+                </div>
+            </div>
+
+            <!-- Reset Local Data -->
+            <div style="background:#fff5f5;border:1px solid #ffc9c9;border-radius:8px;padding:.85rem 1rem;margin-bottom:1rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.75rem;">
+                <div>
+                    <div style="font-weight:700;font-size:.83rem;color:#c92a2a;">Kosongkan Semua Data Stok &amp; Riwayat</div>
+                    <div class="cell-muted" style="font-size:.76rem;color:#c92a2a;">Reset total stok jadi 0 dan hapus semua transaksi in/out di HP ini.</div>
+                </div>
+                <div>
+                    <button type="button" class="btn btn-outline btn-sm" style="color:#c92a2a;border-color:#ffa8a8;" onclick="resetAllLocalData()">Reset Data HP</button>
                 </div>
             </div>
         </div>
@@ -1847,63 +1886,37 @@ function setFieldModeBadge(offline) {
 }
 
 const DEFAULT_FERTILIZER_ITEMS = [
-    { kode_barang: '010337', nama_barang: 'PROFICOTE (CRF) / SK cote', kategori: 'FERTILIZER', satuan: 'bag', conv_factor: 25, conv_unit: 'kg', min_stock_alert: 100, aktif: 1, balances: { MAIN: 2013 }, total: 2013 },
-    { kode_barang: 'CPD-45B', nama_barang: 'Compound 45B', kategori: 'FERTILIZER', satuan: 'bag', conv_factor: 50, conv_unit: 'kg', min_stock_alert: 50, aktif: 1, balances: { MAIN: 1200 }, total: 1200 },
-    { kode_barang: 'CPD-55', nama_barang: 'Compound 55', kategori: 'FERTILIZER', satuan: 'bag', conv_factor: 50, conv_unit: 'kg', min_stock_alert: 50, aktif: 1, balances: { MAIN: 950 }, total: 950 },
-    { kode_barang: 'NK-MIX', nama_barang: 'NK MIX', kategori: 'FERTILIZER', satuan: 'bag', conv_factor: 50, conv_unit: 'kg', min_stock_alert: 50, aktif: 1, balances: { MAIN: 800 }, total: 800 },
-    { kode_barang: 'PUPUK-UREA', nama_barang: 'Pupuk Urea 50kg', kategori: 'FERTILIZER', satuan: 'bag', conv_factor: 50, conv_unit: 'kg', min_stock_alert: 50, aktif: 1, balances: { MAIN: 500, 'G-BAJA': 200 }, total: 700 },
-    { kode_barang: 'PUPUK-NPK', nama_barang: 'Pupuk NPK Phonska 50kg', kategori: 'FERTILIZER', satuan: 'bag', conv_factor: 50, conv_unit: 'kg', min_stock_alert: 50, aktif: 1, balances: { MAIN: 450, 'G-BAJA': 150 }, total: 600 },
-    { kode_barang: 'PUPUK-ZA', nama_barang: 'Pupuk ZA 50kg', kategori: 'FERTILIZER', satuan: 'bag', conv_factor: 50, conv_unit: 'kg', min_stock_alert: 30, aktif: 1, balances: { MAIN: 300 }, total: 300 },
-    { kode_barang: 'PUPUK-KCL', nama_barang: 'Pupuk MOP / KCL 50kg', kategori: 'FERTILIZER', satuan: 'bag', conv_factor: 50, conv_unit: 'kg', min_stock_alert: 30, aktif: 1, balances: { MAIN: 250 }, total: 250 }
+    { kode_barang: '010337', nama_barang: 'PROFICOTE (CRF) / SK cote', kategori: 'FERTILIZER', satuan: 'bag', conv_factor: 25, conv_unit: 'kg', min_stock_alert: 100, aktif: 1, balances: {}, total: 0 },
+    { kode_barang: 'CPD-45B', nama_barang: 'Compound 45B', kategori: 'FERTILIZER', satuan: 'bag', conv_factor: 50, conv_unit: 'kg', min_stock_alert: 50, aktif: 1, balances: {}, total: 0 },
+    { kode_barang: 'CPD-55', nama_barang: 'Compound 55', kategori: 'FERTILIZER', satuan: 'bag', conv_factor: 50, conv_unit: 'kg', min_stock_alert: 50, aktif: 1, balances: {}, total: 0 },
+    { kode_barang: 'NK-MIX', nama_barang: 'NK MIX', kategori: 'FERTILIZER', satuan: 'bag', conv_factor: 50, conv_unit: 'kg', min_stock_alert: 50, aktif: 1, balances: {}, total: 0 },
+    { kode_barang: 'PUPUK-UREA', nama_barang: 'Pupuk Urea 50kg', kategori: 'FERTILIZER', satuan: 'bag', conv_factor: 50, conv_unit: 'kg', min_stock_alert: 50, aktif: 1, balances: {}, total: 0 },
+    { kode_barang: 'PUPUK-NPK', nama_barang: 'Pupuk NPK Phonska 50kg', kategori: 'FERTILIZER', satuan: 'bag', conv_factor: 50, conv_unit: 'kg', min_stock_alert: 50, aktif: 1, balances: {}, total: 0 },
+    { kode_barang: 'PUPUK-ZA', nama_barang: 'Pupuk ZA 50kg', kategori: 'FERTILIZER', satuan: 'bag', conv_factor: 50, conv_unit: 'kg', min_stock_alert: 30, aktif: 1, balances: {}, total: 0 },
+    { kode_barang: 'PUPUK-KCL', nama_barang: 'Pupuk MOP / KCL 50kg', kategori: 'FERTILIZER', satuan: 'bag', conv_factor: 50, conv_unit: 'kg', min_stock_alert: 30, aktif: 1, balances: {}, total: 0 }
 ];
 
-const DEFAULT_PROFICOTE_OUTBOUND = [
-    { transaction_id: 'SC-010337-01', tanggal_keluar: '2026-10-06', gudang: 'MAIN', kode_barang: '010337', qty_keluar: 4, kondisi_keluar: 'OK', alasan_keluar: '', pic: 'admin', requisition_no: '70332', phase: 'NS', block: 'B56', account_no: '', requested_by: '', approved_by: '', received_by: 'Field Team', empty_returned: 4 },
-    { transaction_id: 'SC-010337-02', tanggal_keluar: '2026-10-08', gudang: 'MAIN', kode_barang: '010337', qty_keluar: 86, kondisi_keluar: 'OK', alasan_keluar: '', pic: 'admin', requisition_no: '71277', phase: 'PH4', block: '2686', account_no: '', requested_by: '', approved_by: '', received_by: 'Field Team', empty_returned: 86 },
-    { transaction_id: 'SC-010337-03', tanggal_keluar: '2026-10-09', gudang: 'MAIN', kode_barang: '010337', qty_keluar: 86, kondisi_keluar: 'OK', alasan_keluar: '', pic: 'admin', requisition_no: '71278', phase: 'PH4', block: '2686', account_no: '', requested_by: '', approved_by: '', received_by: 'Field Team', empty_returned: 86 },
-    { transaction_id: 'SC-010337-04', tanggal_keluar: '2026-10-09', gudang: 'MAIN', kode_barang: '010337', qty_keluar: 77, kondisi_keluar: 'OK', alasan_keluar: '', pic: 'admin', requisition_no: '71278', phase: 'PH4', block: '2689', account_no: '', requested_by: '', approved_by: '', received_by: 'Field Team', empty_returned: 77 },
-    { transaction_id: 'SC-010337-05', tanggal_keluar: '2026-10-10', gudang: 'MAIN', kode_barang: '010337', qty_keluar: 12, kondisi_keluar: 'OK', alasan_keluar: 'Repacking Fertilizer', pic: 'admin', requisition_no: '72020', phase: '', block: '', account_no: '', requested_by: '', approved_by: '', received_by: 'Repacking', empty_returned: 12 },
-    { transaction_id: 'SC-010337-06', tanggal_keluar: '2026-10-10', gudang: 'MAIN', kode_barang: '010337', qty_keluar: 12, kondisi_keluar: 'OK', alasan_keluar: 'Repacking Fertilizer', pic: 'admin', requisition_no: '72021', phase: '', block: '', account_no: '', requested_by: '', approved_by: '', received_by: 'Repacking', empty_returned: 12 },
-    { transaction_id: 'SC-010337-07', tanggal_keluar: '2026-10-10', gudang: 'MAIN', kode_barang: '010337', qty_keluar: 12, kondisi_keluar: 'OK', alasan_keluar: 'Repacking Fertilizer', pic: 'admin', requisition_no: '72022', phase: '', block: '', account_no: '', requested_by: '', approved_by: '', received_by: 'Repacking', empty_returned: 12 },
-    { transaction_id: 'SC-010337-08', tanggal_keluar: '2026-10-10', gudang: 'MAIN', kode_barang: '010337', qty_keluar: 12, kondisi_keluar: 'OK', alasan_keluar: 'Repacking Fertilizer', pic: 'admin', requisition_no: '72023', phase: '', block: '', account_no: '', requested_by: '', approved_by: '', received_by: 'Repacking', empty_returned: 12 },
-    { transaction_id: 'SC-010337-09', tanggal_keluar: '2026-10-10', gudang: 'MAIN', kode_barang: '010337', qty_keluar: 12, kondisi_keluar: 'OK', alasan_keluar: 'Repacking Fertilizer', pic: 'admin', requisition_no: '72024', phase: '', block: '', account_no: '', requested_by: '', approved_by: '', received_by: 'Repacking', empty_returned: 12 },
-    { transaction_id: 'SC-010337-10', tanggal_keluar: '2026-10-12', gudang: 'MAIN', kode_barang: '010337', qty_keluar: 2, kondisi_keluar: 'OK', alasan_keluar: '', pic: 'admin', requisition_no: '70333', phase: 'NS', block: 'B56', account_no: '', requested_by: '', approved_by: '', received_by: 'Field Team', empty_returned: 2 },
-    { transaction_id: 'SC-010337-11', tanggal_keluar: '2026-10-12', gudang: 'MAIN', kode_barang: '010337', qty_keluar: 40, kondisi_keluar: 'OK', alasan_keluar: 'BHB', pic: 'admin', requisition_no: '72122', phase: '', block: '', account_no: '', requested_by: '', approved_by: '', received_by: 'BHB', empty_returned: 40 },
-    { transaction_id: 'SC-010337-12', tanggal_keluar: '2026-10-13', gudang: 'MAIN', kode_barang: '010337', qty_keluar: 44, kondisi_keluar: 'OK', alasan_keluar: 'BHB', pic: 'admin', requisition_no: '71281', phase: '', block: '', account_no: '', requested_by: '', approved_by: '', received_by: 'BHB', empty_returned: 44 },
-    { transaction_id: 'SC-010337-13', tanggal_keluar: '2026-10-13', gudang: 'MAIN', kode_barang: '010337', qty_keluar: 93, kondisi_keluar: 'OK', alasan_keluar: '', pic: 'admin', requisition_no: '71279', phase: 'PH4', block: '2688', account_no: '', requested_by: '', approved_by: '', received_by: 'Field Team', empty_returned: 93 },
-    { transaction_id: 'SC-010337-14', tanggal_keluar: '2026-10-13', gudang: 'MAIN', kode_barang: '010337', qty_keluar: 93, kondisi_keluar: 'OK', alasan_keluar: '', pic: 'admin', requisition_no: '71280', phase: 'PH4', block: '2688', account_no: '', requested_by: '', approved_by: '', received_by: 'Field Team', empty_returned: 93 },
-    { transaction_id: 'SC-010337-15', tanggal_keluar: '2026-10-14', gudang: 'MAIN', kode_barang: '010337', qty_keluar: 168, kondisi_keluar: 'OK', alasan_keluar: '', pic: 'admin', requisition_no: '71282', phase: 'PH4', block: '2687', account_no: '', requested_by: '', approved_by: '', received_by: 'Field Team', empty_returned: 168 },
-    { transaction_id: 'SC-010337-16', tanggal_keluar: '2026-10-24', gudang: 'MAIN', kode_barang: '010337', qty_keluar: 87, kondisi_keluar: 'OK', alasan_keluar: '', pic: 'admin', requisition_no: '71288', phase: 'PH4', block: '2696', account_no: '', requested_by: '', approved_by: '', received_by: 'Field Team', empty_returned: 87 },
-    { transaction_id: 'SC-010337-17', tanggal_keluar: '2026-10-26', gudang: 'MAIN', kode_barang: '010337', qty_keluar: 87, kondisi_keluar: 'OK', alasan_keluar: '', pic: 'admin', requisition_no: '71289', phase: 'PH4', block: '2696', account_no: '', requested_by: '', approved_by: '', received_by: 'Field Team', empty_returned: 87 },
-    { transaction_id: 'SC-010337-18', tanggal_keluar: '2026-10-26', gudang: 'MAIN', kode_barang: '010337', qty_keluar: 3, kondisi_keluar: 'OK', alasan_keluar: '', pic: 'admin', requisition_no: '70334', phase: 'NS', block: 'B60', account_no: '', requested_by: '', approved_by: '', received_by: 'Field Team', empty_returned: 3 },
-    { transaction_id: 'SC-010337-19', tanggal_keluar: '2026-10-27', gudang: 'MAIN', kode_barang: '010337', qty_keluar: 30, kondisi_keluar: 'OK', alasan_keluar: '', pic: 'admin', requisition_no: '72127', phase: 'PH2', block: '2644', account_no: '', requested_by: '', approved_by: '', received_by: 'Field Team', empty_returned: 30 },
-    { transaction_id: 'SC-010337-20', tanggal_keluar: '2026-10-28', gudang: 'MAIN', kode_barang: '010337', qty_keluar: 132, kondisi_keluar: 'OK', alasan_keluar: '', pic: 'admin', requisition_no: '72128', phase: 'PH2', block: '2644', account_no: '', requested_by: '', approved_by: '', received_by: 'Field Team', empty_returned: 132 },
-    { transaction_id: 'SC-010337-21', tanggal_keluar: '2026-10-28', gudang: 'MAIN', kode_barang: '010337', qty_keluar: 55, kondisi_keluar: 'OK', alasan_keluar: 'BHB', pic: 'admin', requisition_no: '71283', phase: '', block: '', account_no: '', requested_by: '', approved_by: '', received_by: 'BHB', empty_returned: 55 },
-    { transaction_id: 'SC-010337-22', tanggal_keluar: '2026-10-28', gudang: 'MAIN', kode_barang: '010337', qty_keluar: 12, kondisi_keluar: 'OK', alasan_keluar: 'Repacking Fertilizer', pic: 'admin', requisition_no: '72018', phase: '', block: '', account_no: '', requested_by: '', approved_by: '', received_by: 'Repacking', empty_returned: 12 },
-    { transaction_id: 'SC-010337-23', tanggal_keluar: '2026-10-28', gudang: 'MAIN', kode_barang: '010337', qty_keluar: 12, kondisi_keluar: 'OK', alasan_keluar: 'Repacking Fertilizer', pic: 'admin', requisition_no: '72019', phase: '', block: '', account_no: '', requested_by: '', approved_by: '', received_by: 'Repacking', empty_returned: 12 }
-];
+const DEFAULT_PROFICOTE_OUTBOUND = [];
 
 const DEFAULT_OFFLINE_STORE = {
     warehouses: [
-        { code: 'MAIN', name: 'Main Warehouse', remarks: 'Default warehouse (existing data)', aktif: 1 },
+        { code: 'MAIN', name: 'Main Warehouse', remarks: 'Default warehouse', aktif: 1 },
         { code: 'G-BAJA', name: 'STORE 1', remarks: 'SEBELAH BENGKEL', aktif: 1 }
     ],
     items: [
         ...DEFAULT_FERTILIZER_ITEMS,
-        { kode_barang: 'SKU-001', nama_barang: 'Besi Baja Ringan', kategori: 'OTHER', satuan: 'btg', conv_factor: 0, conv_unit: '', min_stock_alert: 50, aktif: 1, balances: { MAIN: 31697 }, total: 31697 },
-        { kode_barang: 'SKU-002', nama_barang: 'Semen Gresik 50kg', kategori: 'OTHER', satuan: 'sak', conv_factor: 0, conv_unit: '', min_stock_alert: 20, aktif: 1, balances: { MAIN: 1214 }, total: 1214 },
-        { kode_barang: 'SKU-003', nama_barang: 'Cat Tembok Dulux 5L', kategori: 'OTHER', satuan: 'klg', conv_factor: 0, conv_unit: '', min_stock_alert: 10, aktif: 1, balances: { 'G-BAJA': 100, MAIN: 2456 }, total: 2556 },
-        { kode_barang: 'SKU-004', nama_barang: 'Paku Beton 5cm', kategori: 'OTHER', satuan: 'dus', conv_factor: 0, conv_unit: '', min_stock_alert: 15, aktif: 1, balances: { MAIN: 1659 }, total: 1659 },
-        { kode_barang: 'SKU-005', nama_barang: 'Kabel Supreme 3x2.5', kategori: 'OTHER', satuan: 'roll', conv_factor: 0, conv_unit: '', min_stock_alert: 5, aktif: 1, balances: { MAIN: 2056 }, total: 2056 },
-        { kode_barang: 'SKU-006', nama_barang: 'Lampu LED Philips 10W', kategori: 'OTHER', satuan: 'pcs', conv_factor: 0, conv_unit: '', min_stock_alert: 30, aktif: 1, balances: { MAIN: 82 }, total: 82 },
-        { kode_barang: 'SKU-007', nama_barang: 'Keramik 40x40 Putih', kategori: 'OTHER', satuan: 'dus', conv_factor: 0, conv_unit: '', min_stock_alert: 40, aktif: 1, balances: { MAIN: 281 }, total: 281 },
-        { kode_barang: 'SKU-008', nama_barang: 'Pipa PVC 1/2 Inch', kategori: 'OTHER', satuan: 'btg', conv_factor: 0, conv_unit: '', min_stock_alert: 50, aktif: 1, balances: { MAIN: 325 }, total: 325 },
-        { kode_barang: 'SKU-009', nama_barang: 'Gembok Kuningan Besar', kategori: 'OTHER', satuan: 'pcs', conv_factor: 0, conv_unit: '', min_stock_alert: 20, aktif: 1, balances: { MAIN: 103 }, total: 103 },
-        { kode_barang: 'SKU-010', nama_barang: 'Sarung Tangan Proyek', kategori: 'OTHER', satuan: 'psg', conv_factor: 0, conv_unit: '', min_stock_alert: 100, aktif: 1, balances: { MAIN: 281 }, total: 281 },
-        { kode_barang: 'SKU1233456', nama_barang: 'LUMUT', kategori: 'OTHER', satuan: 'pcs', conv_factor: 0, conv_unit: '', min_stock_alert: 0, aktif: 1, balances: { MAIN: 2500 }, total: 2500 },
-        { kode_barang: 'SKU99999', nama_barang: 'KANGKUNG', kategori: 'OTHER', satuan: 'pcs', conv_factor: 0, conv_unit: '', min_stock_alert: 1000, aktif: 1, balances: {}, total: 0 }
+        { kode_barang: 'SKU-001', nama_barang: 'Besi Baja Ringan', kategori: 'OTHER', satuan: 'btg', conv_factor: 0, conv_unit: '', min_stock_alert: 50, aktif: 1, balances: {}, total: 0 },
+        { kode_barang: 'SKU-002', nama_barang: 'Semen Gresik 50kg', kategori: 'OTHER', satuan: 'sak', conv_factor: 0, conv_unit: '', min_stock_alert: 20, aktif: 1, balances: {}, total: 0 },
+        { kode_barang: 'SKU-003', nama_barang: 'Cat Tembok Dulux 5L', kategori: 'OTHER', satuan: 'klg', conv_factor: 0, conv_unit: '', min_stock_alert: 10, aktif: 1, balances: {}, total: 0 },
+        { kode_barang: 'SKU-004', nama_barang: 'Paku Beton 5cm', kategori: 'OTHER', satuan: 'dus', conv_factor: 0, conv_unit: '', min_stock_alert: 15, aktif: 1, balances: {}, total: 0 },
+        { kode_barang: 'SKU-005', nama_barang: 'Kabel Supreme 3x2.5', kategori: 'OTHER', satuan: 'roll', conv_factor: 0, conv_unit: '', min_stock_alert: 5, aktif: 1, balances: {}, total: 0 },
+        { kode_barang: 'SKU-006', nama_barang: 'Lampu LED Philips 10W', kategori: 'OTHER', satuan: 'pcs', conv_factor: 0, conv_unit: '', min_stock_alert: 30, aktif: 1, balances: {}, total: 0 },
+        { kode_barang: 'SKU-007', nama_barang: 'Keramik 40x40 Putih', kategori: 'OTHER', satuan: 'dus', conv_factor: 0, conv_unit: '', min_stock_alert: 40, aktif: 1, balances: {}, total: 0 },
+        { kode_barang: 'SKU-008', nama_barang: 'Pipa PVC 1/2 Inch', kategori: 'OTHER', satuan: 'btg', conv_factor: 0, conv_unit: '', min_stock_alert: 50, aktif: 1, balances: {}, total: 0 },
+        { kode_barang: 'SKU-009', nama_barang: 'Gembok Kuningan Besar', kategori: 'OTHER', satuan: 'pcs', conv_factor: 0, conv_unit: '', min_stock_alert: 20, aktif: 1, balances: {}, total: 0 },
+        { kode_barang: 'SKU-010', nama_barang: 'Sarung Tangan Proyek', kategori: 'OTHER', satuan: 'psg', conv_factor: 0, conv_unit: '', min_stock_alert: 100, aktif: 1, balances: {}, total: 0 }
     ],
-    inbound: [], outbound: [...DEFAULT_PROFICOTE_OUTBOUND], closing_days: [], daily_closing: [], synced_at: '2026-11-05T13:35:00Z'
+    inbound: [], outbound: [], closing_days: [], daily_closing: [], stock_opname: [], synced_at: new Date().toISOString()
 };
 
 function getOfflineStore() {
@@ -1913,19 +1926,11 @@ function getOfflineStore() {
             const parsed = JSON.parse(raw);
             if (parsed && Array.isArray(parsed.warehouses) && parsed.warehouses.length) {
                 parsed.items = Array.isArray(parsed.items) ? parsed.items : [];
+                parsed.inbound = Array.isArray(parsed.inbound) ? parsed.inbound : [];
                 parsed.outbound = Array.isArray(parsed.outbound) ? parsed.outbound : [];
-                let dirty = false;
-                const existingCodes = new Set(parsed.items.map(i => i.kode_barang));
-                const missingFert = JSON.parse(JSON.stringify(DEFAULT_FERTILIZER_ITEMS)).filter(f => !existingCodes.has(f.kode_barang));
-                if (missingFert.length) {
-                    parsed.items = [...missingFert, ...parsed.items];
-                    dirty = true;
-                }
-                if (!parsed.outbound.some(o => o.kode_barang === '010337')) {
-                    parsed.outbound = [...parsed.outbound, ...JSON.parse(JSON.stringify(DEFAULT_PROFICOTE_OUTBOUND))];
-                    dirty = true;
-                }
-                if (dirty) saveOfflineStore(parsed);
+                parsed.stock_opname = Array.isArray(parsed.stock_opname) ? parsed.stock_opname : [];
+                parsed.closing_days = Array.isArray(parsed.closing_days) ? parsed.closing_days : [];
+                parsed.daily_closing = Array.isArray(parsed.daily_closing) ? parsed.daily_closing : [];
                 return parsed;
             }
         }
@@ -2013,6 +2018,23 @@ function offlineApiFallback(url, opts = {}) {
         Object.assign(it, { nama_barang: b.nama_barang || it.nama_barang, kategori: b.kategori || it.kategori, satuan: b.satuan || it.satuan, conv_factor: Number(b.conv_factor) || 0, conv_unit: b.conv_unit || '', min_stock_alert: Number(b.min_stock_alert) || 0, aktif: b.aktif !== undefined ? (b.aktif ? 1 : 0) : it.aktif });
         saveOfflineStore(st);
         return { status: 'success', message: 'Item updated.' };
+    }
+    if (p.startsWith('/api/stock/') && method === 'DELETE') {
+        const code = decodeURIComponent(p.split('/').pop());
+        const idx = st.items.findIndex(x => x.kode_barang === code);
+        if (idx === -1) throw new Error('Item not found.');
+        const it = st.items[idx];
+        const force = u.searchParams.get('force') === '1' || b.force;
+        if (!force && (it.total || 0) > 0) {
+            return { status: 'confirm', message: `Barang "${it.nama_barang}" masih memiliki stok (${it.total} ${it.satuan}). Tetap hapus?` };
+        }
+        st.items.splice(idx, 1);
+        if (force) {
+            st.inbound = (st.inbound || []).filter(r => r.kode_barang !== code);
+            st.outbound = (st.outbound || []).filter(r => r.kode_barang !== code);
+        }
+        saveOfflineStore(st);
+        return { status: 'success', message: `Barang "${it.nama_barang}" (${code}) berhasil dihapus.` };
     }
     if (p === '/api/stats') {
         const lowStock = st.items.filter(i => i.aktif !== 0 && i.min_stock_alert > 0 && (i.total || 0) <= i.min_stock_alert);
@@ -2252,19 +2274,27 @@ function offlineApiFallback(url, opts = {}) {
         return { status: 'success', data: { item: it, opening, rows, closing: running } };
     }
     if (p === '/api/sync/export') {
-        const from = u.searchParams.get('from') || today();
-        const to = u.searchParams.get('to') || from;
+        const allTime = u.searchParams.get('all_time') === '1' || u.searchParams.get('from') === 'ALL';
+        const from = allTime ? '1970-01-01' : (u.searchParams.get('from') || today());
+        const to = allTime ? '2099-12-31' : (u.searchParams.get('to') || from);
         const wh = u.searchParams.get('gudang') || 'ALL';
-        const inRows = st.inbound.filter(r => r.tanggal_masuk >= from && r.tanggal_masuk <= to && (wh === 'ALL' || r.gudang === wh));
-        const outRows = st.outbound.filter(r => r.tanggal_keluar >= from && r.tanggal_keluar <= to && (wh === 'ALL' || r.gudang === wh));
-        const clDays = (st.closing_days || []).filter(r => r.tanggal >= from && r.tanggal <= to && (wh === 'ALL' || r.gudang === wh));
-        const clDet = (st.daily_closing || []).filter(r => r.tanggal >= from && r.tanggal <= to && (wh === 'ALL' || r.gudang === wh));
-        const dates = [...new Set([...inRows.map(r => r.tanggal_masuk), ...outRows.map(r => r.tanggal_keluar), ...clDays.map(r => r.tanggal), from])].sort();
+        const typesStr = u.searchParams.get('types') || 'all';
+        const typeSet = new Set(typesStr === 'all' ? ['inbound', 'outbound', 'stock', 'opname', 'closing', 'warehouses'] : typesStr.split(',').map(s => s.trim().toLowerCase()));
+
+        const inRows = typeSet.has('inbound') ? (st.inbound || []).filter(r => r.tanggal_masuk >= from && r.tanggal_masuk <= to && (wh === 'ALL' || r.gudang === wh)) : [];
+        const outRows = typeSet.has('outbound') ? (st.outbound || []).filter(r => r.tanggal_keluar >= from && r.tanggal_keluar <= to && (wh === 'ALL' || r.gudang === wh)) : [];
+        const clDays = typeSet.has('closing') ? (st.closing_days || []).filter(r => r.tanggal >= from && r.tanggal <= to && (wh === 'ALL' || r.gudang === wh)) : [];
+        const clDet = typeSet.has('closing') ? (st.daily_closing || []).filter(r => r.tanggal >= from && r.tanggal <= to && (wh === 'ALL' || r.gudang === wh)) : [];
+        const opRows = typeSet.has('opname') ? (st.stock_opname || []).filter(r => r.tanggal >= from && r.tanggal <= to && (wh === 'ALL' || r.gudang === wh)) : [];
+        const whs = typeSet.has('warehouses') ? st.warehouses : [];
+        const items = typeSet.has('stock') ? st.items : [];
+
+        const dates = [...new Set([...inRows.map(r => r.tanggal_masuk), ...outRows.map(r => r.tanggal_keluar), ...clDays.map(r => r.tanggal), ...opRows.map(r => r.tanggal), allTime ? today() : from])].sort();
         return {
             status: 'success',
             data: {
-                meta: { format: 'GUDANGPRO_SYNC_V1', version: '3.1.0', exported_at: new Date().toISOString(), exported_by: localStorage.getItem('auth') || 'phone-field', from, to, gudang: wh, dates, checksum: 'FIELD-OFFLINE' },
-                warehouses: st.warehouses, items: st.items, inbound: inRows, outbound: outRows, closing_days: clDays, daily_closing: clDet
+                meta: { format: 'GUDANGPRO_SYNC_V1', version: '3.2.0', exported_at: new Date().toISOString(), exported_by: localStorage.getItem('auth') || 'phone-field', from: allTime ? 'ALL' : from, to: allTime ? 'ALL' : to, gudang: wh, types: Array.from(typeSet), dates, checksum: 'FIELD-OFFLINE' },
+                warehouses: whs, items, inbound: inRows, outbound: outRows, stock_opname: opRows, closing_days: clDays, daily_closing: clDet
             }
         };
     }
@@ -2897,6 +2927,20 @@ function clearOfflineFieldTx() {
     toast('Antrean offline berhasil dibersihkan.');
 }
 
+function resetAllLocalData() {
+    if (!confirm('PERINGATAN: Apakah Anda yakin ingin mengosongkan SEMUA transaksi dan mereset semua stok menjadi 0 di perangkat ini?')) return;
+    if (!confirm('Konfirmasi kedua: Tindakan ini akan mengosongkan riwayat transaksi dan stok lokal HP/Web. Lanjutkan?')) return;
+    localStorage.removeItem('gp_offline_store');
+    const fresh = JSON.parse(JSON.stringify(DEFAULT_OFFLINE_STORE));
+    saveOfflineStore(fresh);
+    closeModal('serverModal');
+    refreshBase().then(() => {
+        renderStock();
+        fetchStats();
+        toast('Semua stok dan transaksi di perangkat ini telah direset ke 0.');
+    });
+}
+
 function openModal(id) { $(id).classList.add('open'); }
 function closeModal(id) { $(id).classList.remove('open'); }
 
@@ -3090,6 +3134,7 @@ function renderStock() {
         const actionBtns = `<div style="display:flex;gap:.35rem;flex-wrap:wrap;" onclick="event.stopPropagation()">
             <button class="btn btn-primary btn-sm" onclick="openStockCard('${esc(i.kode_barang)}','${esc(targetWh)}')">Stock Card</button>
             <button class="btn btn-outline btn-sm admin-only" onclick="openItemModal(${idx})">Edit</button>
+            <button class="btn btn-outline btn-sm admin-only" style="color:#e03131;border-color:rgba(224,49,49,0.35);" title="Hapus Barang" onclick="deleteStockItem('${esc(i.kode_barang)}')">Hapus</button>
         </div>`;
 
         if (isSingleWH) {
@@ -3129,6 +3174,7 @@ function openItemModal(idx) {
     $('item-modal-title').innerText = editingItem ? 'Edit Item' : 'Register Item';
     $('it-code').disabled = !!editingItem;
     $('it-active-wrap').style.display = editingItem ? 'flex' : 'none';
+    if ($('it-del-btn')) $('it-del-btn').style.display = editingItem ? 'inline-flex' : 'none';
     if (editingItem) {
         const i = editingItem;
         $('it-code').value = i.kode_barang; $('it-name').value = i.nama_barang; $('it-cat').value = i.kategori;
@@ -3155,6 +3201,32 @@ async function saveItem(e, force = false) {
         }
         toast(r.message); closeModal('itemModal'); await refreshBase(); renderStock();
     } catch (err) { toast(err.message, true); }
+}
+
+async function deleteStockItem(code, force = false) {
+    const item = STOCK.find(x => x.kode_barang === code);
+    const name = item ? item.nama_barang : code;
+    if (!force) {
+        if (!confirm(`Hapus barang "${name}" (${code}) dari master data?`)) return;
+    }
+    try {
+        const r = await api('/api/stock/' + encodeURIComponent(code) + (force ? '?force=1' : ''), {
+            method: 'DELETE',
+            headers: JSONH
+        });
+        if (r.status === 'confirm') {
+            if (confirm(r.message + '\n\nTetap hapus barang ini beserta riwayatnya?')) {
+                return deleteStockItem(code, true);
+            }
+            return;
+        }
+        toast(r.message || 'Barang berhasil dihapus.');
+        if (editingItem && editingItem.kode_barang === code) closeModal('itemModal');
+        await refreshBase();
+        renderStock();
+    } catch (err) {
+        toast(err.message, true);
+    }
 }
 
 // ===================================================== warehouses
@@ -3992,34 +4064,78 @@ async function initSync() {
     await Promise.all([previewExportPackage(), loadBackups()]);
 }
 
+function getSelectedSyncTypes() {
+    const list = [];
+    if (!$('exp-chk-in') || $('exp-chk-in').checked) list.push('inbound');
+    if (!$('exp-chk-out') || $('exp-chk-out').checked) list.push('outbound');
+    if (!$('exp-chk-stock') || $('exp-chk-stock').checked) list.push('stock');
+    if (!$('exp-chk-opname') || $('exp-chk-opname').checked) list.push('opname');
+    if (!$('exp-chk-cl') || $('exp-chk-cl').checked) list.push('closing');
+    if (!$('exp-chk-wh') || $('exp-chk-wh').checked) list.push('warehouses');
+    return list.length === 6 ? 'all' : (list.length === 0 ? 'none' : list.join(','));
+}
+
+function setSyncExportTypes(mode) {
+    const setAll = (val) => {
+        ['exp-chk-in', 'exp-chk-out', 'exp-chk-stock', 'exp-chk-opname', 'exp-chk-cl', 'exp-chk-wh'].forEach(id => {
+            const el = $(id); if (el) el.checked = val;
+        });
+    };
+    if (mode === 'ALL') {
+        setAll(true);
+    } else if (mode === 'OUT') {
+        setAll(false);
+        if ($('exp-chk-out')) $('exp-chk-out').checked = true;
+    } else if (mode === 'IN') {
+        setAll(false);
+        if ($('exp-chk-in')) $('exp-chk-in').checked = true;
+    } else if (mode === 'STOCK') {
+        setAll(false);
+        if ($('exp-chk-stock')) $('exp-chk-stock').checked = true;
+        if ($('exp-chk-wh')) $('exp-chk-wh').checked = true;
+    }
+    previewExportPackage();
+}
+
 function setExportRange(daysBack, btn) {
     document.querySelectorAll('#tab-sync .filter-chip').forEach(b => b.classList.remove('active'));
     if (btn) btn.classList.add('active');
-    const end = new Date();
-    const start = new Date();
-    if (daysBack === 1) {
-        start.setDate(start.getDate() - 1);
-        end.setDate(end.getDate() - 1);
-    } else if (daysBack > 1) {
-        start.setDate(start.getDate() - (daysBack - 1));
+    if (daysBack === 'ALL') {
+        $('exp-from').value = '2020-01-01';
+        $('exp-to').value = today();
+        $('exp-from').dataset.allTime = '1';
+    } else {
+        $('exp-from').dataset.allTime = '0';
+        const end = new Date();
+        const start = new Date();
+        if (daysBack === 1) {
+            start.setDate(start.getDate() - 1);
+            end.setDate(end.getDate() - 1);
+        } else if (daysBack > 1) {
+            start.setDate(start.getDate() - (daysBack - 1));
+        }
+        $('exp-from').value = dstr(start);
+        $('exp-to').value = dstr(end);
     }
-    $('exp-from').value = dstr(start);
-    $('exp-to').value = dstr(end);
     previewExportPackage();
 }
 
 async function previewExportPackage() {
+    const isAllTime = $('exp-from') && $('exp-from').dataset.allTime === '1' ? '1' : '0';
     const from = $('exp-from').value || today();
     const to = $('exp-to').value || from;
     const wh = $('exp-wh').value || 'ALL';
+    const types = getSelectedSyncTypes();
     try {
-        const r = await api(`/api/sync/export?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}&gudang=${encodeURIComponent(wh)}`);
+        const r = await api(`/api/sync/export?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}&gudang=${encodeURIComponent(wh)}&types=${encodeURIComponent(types)}&all_time=${isAllTime}`);
         LAST_EXPORT_PKG = r.data;
-        $('exp-cnt-in').innerText = fmt(r.data.inbound.length);
-        $('exp-cnt-out').innerText = fmt(r.data.outbound.length);
-        $('exp-cnt-cl').innerText = fmt(r.data.closing_days.length);
-        $('exp-digest').innerText = r.data.meta.checksum || '—';
-        $('exp-dates-label').innerText = `${r.data.meta.dates.length} active date(s) in range`;
+        if ($('exp-cnt-in')) $('exp-cnt-in').innerText = fmt((r.data.inbound || []).length);
+        if ($('exp-cnt-out')) $('exp-cnt-out').innerText = fmt((r.data.outbound || []).length);
+        if ($('exp-cnt-stock')) $('exp-cnt-stock').innerText = fmt((r.data.items || []).length);
+        if ($('exp-cnt-op')) $('exp-cnt-op').innerText = fmt((r.data.stock_opname || []).length);
+        if ($('exp-cnt-cl')) $('exp-cnt-cl').innerText = fmt((r.data.closing_days || []).length);
+        if ($('exp-digest')) $('exp-digest').innerText = r.data.meta.checksum || '—';
+        if ($('exp-dates-label')) $('exp-dates-label').innerText = `${(r.data.meta.dates || []).length} active date(s) in range`;
     } catch (e) {
         toast(e.message, true);
     }
@@ -4029,9 +4145,11 @@ async function downloadSyncPackage() {
     await previewExportPackage();
     if (!LAST_EXPORT_PKG) return;
     const m = LAST_EXPORT_PKG.meta;
-    const rangeTag = m.from === m.to ? m.from : `${m.from}_to_${m.to}`;
+    const isAllTime = $('exp-from') && $('exp-from').dataset.allTime === '1';
+    const rangeTag = isAllTime ? 'ALL_TIME' : (m.from === m.to ? m.from : `${m.from}_to_${m.to}`);
     const whTag = m.gudang === 'ALL' ? 'ALL' : m.gudang;
-    const fileName = `GudangPro_Sync_${whTag}_${rangeTag}.gpsync.json`;
+    const typesTag = Array.isArray(m.types) ? (m.types.length === 6 ? 'FULL' : m.types.join('-').toUpperCase()) : 'DATA';
+    const fileName = `GudangPro_Sync_${whTag}_${typesTag}_${rangeTag}.gpsync.json`;
     const jsonStr = JSON.stringify(LAST_EXPORT_PKG, null, 2);
     if (window.AndroidBridge && typeof window.AndroidBridge.saveTextFile === 'function') {
         window.AndroidBridge.saveTextFile(fileName, jsonStr);

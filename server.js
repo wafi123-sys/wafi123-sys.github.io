@@ -544,6 +544,32 @@ app.put('/api/stock/:id', requireAuth, requireAdmin, async (req, res) => {
   } catch (error) { res.status(400).json({ status: 'error', message: error.message }); }
 });
 
+app.delete('/api/stock/:id', requireAuth, requireAdmin, async (req, res) => {
+  try {
+    const cur = await db.get('SELECT * FROM master_stock WHERE kode_barang = ?', [req.params.id]);
+    if (!cur) throw new Error('Barang tidak ditemukan.');
+    const force = req.query.force === '1' || req.body?.force;
+    const r = await db.get(`SELECT COALESCE(SUM(qty),0) AS t FROM (${MOVES_SQL}) WHERE kode_barang = ?`, [cur.kode_barang]);
+    const currentQty = round3(r.t);
+    if (!force && currentQty !== 0) {
+      return res.status(409).json({ status: 'confirm', message: `Barang "${cur.nama_barang}" masih memiliki stok aktif (${currentQty} ${cur.satuan}). Tetap hapus?` });
+    }
+    const inCount = (await db.get('SELECT COUNT(*) AS c FROM inbound_log WHERE kode_barang = ?', [cur.kode_barang])).c;
+    const outCount = (await db.get('SELECT COUNT(*) AS c FROM outbound_log WHERE kode_barang = ?', [cur.kode_barang])).c;
+    if (!force && (inCount > 0 || outCount > 0)) {
+      return res.status(409).json({ status: 'confirm', message: `Barang "${cur.nama_barang}" memiliki riwayat transaksi (${inCount} masuk, ${outCount} keluar). Jika dihapus, riwayat terkait akan ikut terhapus.` });
+    }
+    if (force) {
+      await db.run('DELETE FROM inbound_log WHERE kode_barang = ?', [cur.kode_barang]);
+      await db.run('DELETE FROM outbound_log WHERE kode_barang = ?', [cur.kode_barang]);
+      await db.run('DELETE FROM stock_opname WHERE kode_barang = ?', [cur.kode_barang]);
+    }
+    await db.run('DELETE FROM master_stock WHERE kode_barang = ?', [cur.kode_barang]);
+    scheduleCloudSnapshotSync();
+    res.json({ status: 'success', message: `Barang "${cur.nama_barang}" (${cur.kode_barang}) berhasil dihapus.` });
+  } catch (error) { res.status(400).json({ status: 'error', message: error.message }); }
+});
+
 // ---------------------------------------------------------------- inbound (receiving)
 app.get('/api/inbound', requireAuth, async (req, res) => {
   try {
@@ -906,6 +932,7 @@ function computeSyncDigest(payload) {
     items: (payload.items || []).length,
     inbound: (payload.inbound || []).map(x => [x.transaction_id, x.tanggal_masuk, x.qty_masuk]),
     outbound: (payload.outbound || []).map(x => [x.transaction_id, x.tanggal_keluar, x.qty_keluar, x.empty_returned]),
+    stock_opname: (payload.stock_opname || []).map(x => [x.tanggal, x.kode_barang, x.selisih]),
     daily_closing: (payload.daily_closing || []).map(x => [x.tanggal, x.gudang, x.kode_barang, x.physical])
   });
   return crypto.createHash('sha256').update(raw).digest('hex').slice(0, 16).toUpperCase();
@@ -913,43 +940,52 @@ function computeSyncDigest(payload) {
 
 app.get('/api/sync/export', requireAuth, async (req, res) => {
   try {
-    const from = validDate(req.query.from) ? req.query.from : todayStr();
-    const to = validDate(req.query.to) ? req.query.to : from;
-    if (from > to) throw new Error('Start date cannot be after end date.');
+    const allTime = req.query.all_time === '1' || req.query.all === '1' || req.query.from === 'ALL';
+    const from = allTime ? '1970-01-01' : (validDate(req.query.from) ? req.query.from : todayStr());
+    const to = allTime ? '2099-12-31' : (validDate(req.query.to) ? req.query.to : from);
+    if (!allTime && from > to) throw new Error('Start date cannot be after end date.');
     const gudang = req.query.gudang && req.query.gudang !== 'ALL' ? req.query.gudang : null;
+
+    // Component filter (types: comma-separated e.g. "inbound,outbound,stock,opname,closing,warehouses" or "all")
+    const typesStr = req.query.types || 'all';
+    const typeSet = new Set(typesStr === 'all' ? ['inbound', 'outbound', 'stock', 'opname', 'closing', 'warehouses'] : typesStr.split(',').map(s => s.trim().toLowerCase()));
 
     const whFilterIn = gudang ? ` AND COALESCE(gudang,'${DEFAULT_WH}') = ?` : '';
     const whArgs = gudang ? [from, to, gudang] : [from, to];
 
-    const warehouses = await db.all('SELECT code, name, remarks, aktif FROM warehouses ORDER BY code ASC');
-    const items = await db.all(`SELECT kode_barang, nama_barang, COALESCE(kategori,'OTHER') AS kategori, satuan, COALESCE(conv_factor,0) AS conv_factor, COALESCE(conv_unit,'') AS conv_unit, min_stock_alert, COALESCE(aktif,1) AS aktif FROM master_stock ORDER BY kode_barang ASC`);
-    const inbound = await db.all(`SELECT transaction_id, tanggal_masuk, COALESCE(gudang,'${DEFAULT_WH}') AS gudang, kode_barang, qty_masuk, pic, supplier, surat_jalan, lokasi, created_at FROM inbound_log WHERE tanggal_masuk BETWEEN ? AND ?${whFilterIn} ORDER BY tanggal_masuk ASC, created_at ASC`, whArgs);
-    const outbound = await db.all(`SELECT transaction_id, tanggal_keluar, COALESCE(gudang,'${DEFAULT_WH}') AS gudang, kode_barang, qty_keluar, kondisi_keluar, alasan_keluar, pic, lokasi, requisition_no, block, phase, account_no, requested_by, approved_by, received_by, empty_returned, created_at FROM outbound_log WHERE tanggal_keluar BETWEEN ? AND ?${whFilterIn} ORDER BY tanggal_keluar ASC, created_at ASC`, whArgs);
-    const closing_days = await db.all(`SELECT tanggal, gudang, closed_by, created_at FROM closing_days WHERE tanggal BETWEEN ? AND ?${gudang ? ' AND gudang = ?' : ''} ORDER BY tanggal ASC`, whArgs);
-    const daily_closing = await db.all(`SELECT tanggal, gudang, kode_barang, opening, qty_in, qty_out, adj, expected, physical, selisih, reason, pic, created_at FROM daily_closing WHERE tanggal BETWEEN ? AND ?${gudang ? ' AND gudang = ?' : ''} ORDER BY tanggal ASC, kode_barang ASC`, whArgs);
+    const warehouses = typeSet.has('warehouses') ? await db.all('SELECT code, name, remarks, aktif FROM warehouses ORDER BY code ASC') : [];
+    const items = typeSet.has('stock') ? await db.all(`SELECT kode_barang, nama_barang, COALESCE(kategori,'OTHER') AS kategori, satuan, COALESCE(conv_factor,0) AS conv_factor, COALESCE(conv_unit,'') AS conv_unit, min_stock_alert, COALESCE(aktif,1) AS aktif, qty_total FROM master_stock ORDER BY kode_barang ASC`) : [];
+    const inbound = typeSet.has('inbound') ? await db.all(`SELECT transaction_id, tanggal_masuk, COALESCE(gudang,'${DEFAULT_WH}') AS gudang, kode_barang, qty_masuk, pic, supplier, surat_jalan, lokasi, created_at FROM inbound_log WHERE tanggal_masuk BETWEEN ? AND ?${whFilterIn} ORDER BY tanggal_masuk ASC, created_at ASC`, whArgs) : [];
+    const outbound = typeSet.has('outbound') ? await db.all(`SELECT transaction_id, tanggal_keluar, COALESCE(gudang,'${DEFAULT_WH}') AS gudang, kode_barang, qty_keluar, kondisi_keluar, alasan_keluar, pic, lokasi, requisition_no, block, phase, account_no, requested_by, approved_by, received_by, empty_returned, created_at FROM outbound_log WHERE tanggal_keluar BETWEEN ? AND ?${whFilterIn} ORDER BY tanggal_keluar ASC, created_at ASC`, whArgs) : [];
+    const closing_days = typeSet.has('closing') ? await db.all(`SELECT tanggal, gudang, closed_by, created_at FROM closing_days WHERE tanggal BETWEEN ? AND ?${gudang ? ' AND gudang = ?' : ''} ORDER BY tanggal ASC`, whArgs) : [];
+    const daily_closing = typeSet.has('closing') ? await db.all(`SELECT tanggal, gudang, kode_barang, opening, qty_in, qty_out, adj, expected, physical, selisih, reason, pic, created_at FROM daily_closing WHERE tanggal BETWEEN ? AND ?${gudang ? ' AND gudang = ?' : ''} ORDER BY tanggal ASC, kode_barang ASC`, whArgs) : [];
+    const stock_opname = typeSet.has('opname') ? await db.all(`SELECT id, tanggal, COALESCE(gudang,'${DEFAULT_WH}') AS gudang, kode_barang, qty_fisik, selisih, alasan, pic, created_at FROM stock_opname WHERE tanggal BETWEEN ? AND ?${whFilterIn} ORDER BY tanggal ASC, created_at ASC`, whArgs) : [];
 
     const dateSet = new Set();
     inbound.forEach(r => dateSet.add(r.tanggal_masuk));
     outbound.forEach(r => dateSet.add(r.tanggal_keluar));
     closing_days.forEach(r => dateSet.add(r.tanggal));
-    if (dateSet.size === 0) dateSet.add(from);
+    stock_opname.forEach(r => dateSet.add(r.tanggal));
+    if (dateSet.size === 0) dateSet.add(allTime ? todayStr() : from);
     const dates = [...dateSet].sort();
 
     const pkg = {
       meta: {
         format: 'GUDANGPRO_SYNC_V1',
-        version: '3.1.0',
+        version: '3.2.0',
         exported_at: new Date().toISOString(),
         exported_by: req.user.username,
-        from,
-        to,
+        from: allTime ? 'ALL' : from,
+        to: allTime ? 'ALL' : to,
         gudang: gudang || 'ALL',
+        types: Array.from(typeSet),
         dates
       },
       warehouses,
       items,
       inbound,
       outbound,
+      stock_opname,
       closing_days,
       daily_closing
     };
@@ -1085,7 +1121,9 @@ app.post('/api/sync/inspect', requireAuth, async (req, res) => {
 app.post('/api/sync/import', requireAuth, async (req, res) => {
   try {
     const plan = await analyzeSyncPackage(req.body.package, req.body.selectedDates);
-    if (plan.selectedDates.length === 0) throw new Error('Select at least one date to import.');
+    if (plan.selectedDates.length === 0 && plan.items.length === 0 && plan.warehouses.length === 0) {
+      throw new Error('Tidak ada data atau tanggal yang dipilih untuk diimpor.');
+    }
 
     const backupFile = await createBackupSnapshot('pre_sync');
     const operations = [];
@@ -1172,6 +1210,22 @@ app.post('/api/sync/import', requireAuth, async (req, res) => {
       await db.run('INSERT OR REPLACE INTO closing_days (tanggal, gudang, closed_by) VALUES (?, ?, ?)',
         [c.tanggal, c.gudang, clean(c.closed_by, req.user.username)]);
       operations.push({ stage: 'CLOSING', kind: 'CLOSING', action: c.action === 'NEW' ? 'ADDED' : 'UPDATED', date: c.tanggal, code: c.gudang, label: `Daily Closing ${c.tanggal}`, detail: `${rowsForDay.length} item(s) verified, ${c.mismatches} diff(s)` });
+    }
+
+    // 6. Independent Stock Opname
+    if (Array.isArray(req.body.package?.stock_opname)) {
+      for (const op of req.body.package.stock_opname) {
+        if (plan.selectedDates.length > 0 && !plan.selectedDates.includes(op.tanggal)) continue;
+        const exists = await db.get('SELECT id FROM stock_opname WHERE tanggal = ? AND kode_barang = ? AND COALESCE(gudang, ?) = ? AND selisih = ?', [op.tanggal, op.kode_barang, DEFAULT_WH, op.gudang || DEFAULT_WH, op.selisih]);
+        if (!exists) {
+          await db.run(
+            `INSERT INTO stock_opname (tanggal, kode_barang, qty_sistem, qty_fisik, selisih, alasan, pic, gudang, source)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            [op.tanggal, op.kode_barang, op.qty_sistem || 0, op.qty_fisik || 0, op.selisih, clean(op.alasan, ''), clean(op.pic, 'sync'), clean(op.gudang, DEFAULT_WH), clean(op.source, 'MANUAL')]
+          );
+          operations.push({ stage: 'OPNAME', kind: 'ADJUSTMENT', action: 'ADDED', date: op.tanggal, code: op.kode_barang, label: `Opname ${op.kode_barang}`, detail: `Selisih: ${op.selisih}` });
+        }
+      }
     }
 
     await db.run(
