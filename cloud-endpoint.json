@@ -1,5 +1,8 @@
 {
-  "serverUrl": "https://associates-tiger-officers-misc.trycloudflare.com",
+  "serverUrl": "https://sure-tourist-connections-roster.trycloudflare.com",
+  "lanUrls": [
+    "http://10.214.23.42:3000"
+  ],
   "permanentWebUrl": "https://wafi123-sys.github.io",
-  "updatedAt": "2026-11-10T13:25:35.652Z"
+  "updatedAt": "2026-11-11T10:01:03.224Z"
 }

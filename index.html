@@ -815,10 +815,6 @@
                 <button type="button" class="btn btn-outline btn-sm" style="flex:1;justify-content:center;border-color:#0ca678;color:#087f5b;background:#e6fcf5;font-weight:700;" onclick="quickLogin('admin','admin123')">Masuk Cepat: Checker (Admin)</button>
                 <button type="button" class="btn btn-outline btn-sm" style="justify-content:center;" onclick="quickLogin('staff','staff123')">Staff</button>
             </div>
-            <button type="button" id="pwa-login-install" class="btn btn-outline" style="display:none; width:100%; justify-content:center; margin-top:0.75rem;" onclick="installPWA()">Install app</button>
-            <a id="https-jump-btn" href="#" style="display:none; width:100%; justify-content:center; margin-top:0.75rem; background:#0ca678; color:#fff; text-decoration:none; font-weight:600; padding:0.65rem 1rem; border-radius:6px; text-align:center; font-size:0.84rem;">
-                Buka Mode Mandiri (Tanpa Hotspot)
-            </a>
         </form>
     </div>
 </div>
@@ -879,10 +875,6 @@
             <svg class="nav-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
             <span class="nav-txt">Data Sync &amp; Backup</span><span class="nav-chev">›</span>
         </button>
-        <button class="nav-link" id="sidebar-phone-btn" style="margin-top:.5rem; color:#63e6be; background:rgba(4,42,52,0.28);" onclick="openPhoneModal()">
-            <svg class="nav-ico" viewBox="0 0 24 24" fill="none" stroke="#63e6be" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
-            <span class="nav-txt">Install on Phone (HP)</span><span class="nav-chev">›</span>
-        </button>
         <button id="pwa-install-btn" class="nav-link" style="display:none; margin-top:.35rem; color:#63e6be; background:rgba(4,42,52,0.45);" onclick="installPWA()"><span class="nav-txt">Install WebAPK Now</span><span class="nav-chev">›</span></button>
     </nav>
     <div class="sidebar-footer">
@@ -906,21 +898,13 @@
             <span class="erp-sys-title">Southwind Plantation • Warehouse Control</span>
         </div>
         <div class="erp-header-right">
-            <a href="/GudangPro.apk" id="header-apk-btn" download="GudangPro.apk" class="erp-pill" style="cursor:pointer;background:#0ca678;border-color:#63e6be;color:#fff;text-decoration:none;font-weight:700;">
-                <svg viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                <span>Download GudangPro.apk</span>
-            </a>
-            <div class="erp-pill" id="header-phone-btn" onclick="openPhoneModal()" style="cursor:pointer;background:rgba(99,230,190,0.2);border-color:rgba(99,230,190,0.45);">
-                <svg viewBox="0 0 24 24" fill="none" stroke="#63e6be" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
-                <span>Install to Phone (HP)</span>
-            </div>
             <div class="erp-pill" onclick="switchTab('warehouses')" style="cursor:pointer;">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
                 <span>Multi-Warehouse</span>
             </div>
-            <div class="erp-pill" id="engine-status-pill" onclick="switchTab('sync')" style="cursor:pointer;">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
-                <span id="engine-status-text">WAL Ledger Active</span>
+            <div class="erp-pill" id="engine-status-pill" onclick="openServerConfigModal()" style="cursor:pointer;" title="Klik untuk cek status &amp; sinkronisasi">
+                <span id="engine-status-dot" style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#40c057;margin-right:5px;"></span>
+                <span id="engine-status-text">Menghubungkan...</span>
             </div>
         </div>
     </header>
@@ -1607,49 +1591,51 @@
     </div>
 </div>
 
-<!-- MODAL: Install on Phone (HP) & Offline Field Mode -->
-<div class="modal-backdrop" id="phoneModal">
+<!-- MODAL: Server Connection & Sync Settings -->
+<div class="modal-backdrop" id="serverModal">
     <div class="modal-box wide">
         <div class="modal-head" style="background:linear-gradient(90deg,#0b7a8e,#075969);color:#fff;border-radius:12px 12px 0 0;display:flex;justify-content:space-between;align-items:center;">
-            <h2>Koneksi &amp; APK Android</h2>
+            <h2>Koneksi Server &amp; Sinkronisasi</h2>
+            <button type="button" class="btn btn-outline btn-sm" style="color:#fff;border-color:rgba(255,255,255,0.4);" onclick="closeModal('serverModal')">&times;</button>
         </div>
         <div class="modal-body">
-            <div style="background:#e6fcf5;border:1px solid #0ca678;border-radius:8px;padding:1rem;margin-bottom:1rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;">
+            <!-- Connection Status -->
+            <div style="background:var(--accent-soft);border:1px solid #99e9f2;border-radius:8px;padding:.85rem 1rem;margin-bottom:1rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem;">
                 <div>
-                    <div style="font-size:.85rem;font-weight:700;color:#087f5b;">File APK Android (GudangPro.apk)</div>
+                    <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--accent-text);">Status Koneksi Saat Ini</div>
+                    <div style="font-size:1rem;font-weight:700;color:#0b7285;display:flex;align-items:center;gap:.5rem;margin-top:.2rem;">
+                        <span id="modal-status-dot" style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#40c057;"></span>
+                        <span id="modal-status-text">Mengecek koneksi...</span>
+                    </div>
                 </div>
-                <a href="/GudangPro.apk" download="GudangPro.apk" class="btn btn-primary" style="background:#0ca678;border-color:#0ca678;text-decoration:none;white-space:nowrap;">Download GudangPro.apk</a>
-            </div>
-            <div id="phone-https-box" style="display:none;background:#e6fcf5;border:1px solid #63e6be;border-radius:8px;padding:1rem;margin-bottom:1rem;">
-                <div style="display:flex;align-items:center;justify-content:space-between;gap:.75rem;flex-wrap:wrap;">
-                    <a id="phone-https-url" href="#" target="_blank" class="cell-mono" style="font-size:1rem;font-weight:700;color:#087f5b;text-decoration:underline;word-break:break-all;">https://...</a>
-                    <a id="phone-https-btn" href="#" class="btn btn-primary btn-sm" style="background:#0ca678;border-color:#0ca678;text-decoration:none;">Buka Link</a>
-                </div>
+                <button type="button" class="btn btn-primary btn-sm" onclick="triggerManualSync()">Sinkronkan Sekarang</button>
             </div>
 
-            <div style="background:var(--accent-soft);border:1px solid #99e9f2;border-radius:8px;padding:1rem;margin-bottom:1rem;">
-                <div style="font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--accent-text);margin-bottom:.35rem;">Alamat LAN / Wi-Fi</div>
-                <div style="display:flex;align-items:center;justify-content:space-between;gap:.75rem;flex-wrap:wrap;">
-                    <span class="cell-mono" id="phone-lan-url" style="font-size:1.15rem;font-weight:700;color:#0b7285;">http://10.34.144.42:3000</span>
-                    <button type="button" class="btn btn-primary btn-sm" onclick="copyPhoneUrl()">Copy URL</button>
+            <!-- Server URL Configuration -->
+            <div style="background:#f8fafc;border:1px solid var(--border);border-radius:8px;padding:.85rem 1rem;margin-bottom:1rem;">
+                <label style="font-weight:700;font-size:.82rem;display:block;margin-bottom:.4rem;">Alamat Server / PC IP (Opsional):</label>
+                <div style="display:flex;gap:.5rem;flex-wrap:wrap;">
+                    <input type="text" id="cfg-server-url" placeholder="Contoh: http://10.214.23.42:3000" style="flex:1;min-width:200px;padding:.45rem .65rem;border:1px solid var(--border);border-radius:6px;font-family:monospace;font-size:.85rem;">
+                    <button type="button" class="btn btn-primary btn-sm" onclick="saveCustomServerUrl()">Simpan &amp; Tes</button>
+                    <button type="button" class="btn btn-outline btn-sm" onclick="resetServerUrl()">Otomatis</button>
                 </div>
-                <div class="cell-muted" id="phone-lan-list" style="margin-top:.35rem;font-size:.76rem;"></div>
-                <span id="phone-lan-url-inline" style="display:none;"></span>
+                <div class="cell-muted" id="cfg-detected-lan" style="font-size:.75rem;margin-top:.4rem;">Mendeteksi IP LAN server...</div>
             </div>
 
-            <div style="background:var(--bg-input);border:1px solid var(--border);border-radius:8px;padding:.85rem 1rem;display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap;">
+            <!-- Offline Pending Storage -->
+            <div style="background:#fff;border:1px solid var(--border);border-radius:8px;padding:.85rem 1rem;margin-bottom:1rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.75rem;">
                 <div>
-                    <div style="font-weight:600;font-size:.85rem;">Memori Lokal Perangkat</div>
-                    <div class="cell-muted" id="offline-cache-status" style="font-size:.76rem;">Checking local cache...</div>
+                    <div style="font-weight:700;font-size:.83rem;">Antrean Data Offline di Perangkat</div>
+                    <div class="cell-muted" id="cfg-pending-text" style="font-size:.76rem;">0 transaksi pending</div>
                 </div>
                 <div style="display:flex;gap:.5rem;">
-                    <button type="button" class="btn btn-outline btn-sm" onclick="clearOfflineFieldTx()">Reset Offline Log</button>
-                    <button type="button" class="btn btn-primary btn-sm" onclick="syncMasterToPhoneCache()">Sync Data</button>
+                    <button type="button" class="btn btn-outline btn-sm" onclick="clearOfflineFieldTx()">Hapus Cache</button>
+                    <a href="/GudangPro.apk" download="GudangPro.apk" class="btn btn-outline btn-sm" style="text-decoration:none;">Download APK</a>
                 </div>
             </div>
         </div>
         <div class="modal-foot">
-            <button type="button" class="btn btn-outline" onclick="closeModal('phoneModal')">Close</button>
+            <button type="button" class="btn btn-outline" onclick="closeModal('serverModal')">Tutup</button>
         </div>
     </div>
 </div>
@@ -1982,6 +1968,9 @@ function offlineApiFallback(url, opts = {}) {
         if (b.username === 'staff' && b.password === 'staff123') return { status: 'success', token: 'staff', role: 'STAFF' };
         throw new Error('Invalid username or password.');
     }
+    if (p === '/api/sync/status') {
+        return { status: 'success', data: { lastChange: Date.now(), activeCloudUrl: null, lanUrls: [], serverTime: Date.now() } };
+    }
     if (p === '/api/warehouses' && method === 'GET') return { status: 'success', data: st.warehouses };
     if (p === '/api/warehouses' && method === 'POST') {
         const code = String(b.code || '').trim().toUpperCase();
@@ -2071,12 +2060,15 @@ function offlineApiFallback(url, opts = {}) {
         const dt = b.tanggal_masuk || today();
         const locked = isOfflineDayLocked(st, wh, dt);
         if (locked) throw new Error(`Day ${dt} is locked (closed up to ${locked} for ${wh}). Reopen the day first.`);
-        const rec = { transaction_id: 'IN-HP-' + Date.now() + '-' + Math.random().toString(36).slice(2, 6), tanggal_masuk: dt, gudang: wh, kode_barang: b.kode_barang, qty_masuk: qty, supplier: b.supplier || '', surat_jalan: b.surat_jalan || '', lokasi: b.lokasi || '', pic: b.pic || localStorage.getItem('auth') || 'field', foto_bukti: b.foto_bukti || null, created_at: new Date().toISOString() };
-        st.inbound.unshift(rec);
-        const it = st.items.find(x => x.kode_barang === b.kode_barang);
-        if (it) { it.balances = it.balances || {}; it.balances[wh] = round3((it.balances[wh] || 0) + qty); it.total = round3((it.total || 0) + qty); }
-        saveOfflineStore(st);
-        return { status: 'success', message: 'Saved to Phone Offline Memory (ready to sync).' };
+        const txId = b.transaction_id || ('IN-HP-' + Date.now() + '-' + Math.random().toString(36).slice(2, 6));
+        const rec = { transaction_id: txId, tanggal_masuk: dt, gudang: wh, kode_barang: b.kode_barang, qty_masuk: qty, supplier: b.supplier || '', surat_jalan: b.surat_jalan || '', lokasi: b.lokasi || '', pic: b.pic || localStorage.getItem('auth') || 'field', foto_bukti: b.foto_bukti || null, created_at: new Date().toISOString(), _synced: false };
+        if (!st.inbound.some(x => x.transaction_id === txId)) {
+            st.inbound.unshift(rec);
+            const it = st.items.find(x => x.kode_barang === b.kode_barang);
+            if (it) { it.balances = it.balances || {}; it.balances[wh] = round3((it.balances[wh] || 0) + qty); it.total = round3((it.total || 0) + qty); }
+            saveOfflineStore(st);
+        }
+        return { status: 'success', message: 'Tersimpan di memori lokal HP (Offline).', transaction_id: txId };
     }
     if (p.startsWith('/api/inbound/') && method === 'DELETE') {
         const id = decodeURIComponent(p.split('/').pop());
@@ -2108,11 +2100,14 @@ function offlineApiFallback(url, opts = {}) {
         const it = st.items.find(x => x.kode_barang === b.kode_barang);
         const avail = it && it.balances ? (it.balances[wh] || 0) : 0;
         if (avail < qty) throw new Error(`Insufficient stock in ${wh}. Available: ${avail}`);
-        const rec = { transaction_id: 'OUT-HP-' + Date.now() + '-' + Math.random().toString(36).slice(2, 6), tanggal_keluar: dt, gudang: wh, kode_barang: b.kode_barang, qty_keluar: qty, kondisi_keluar: 'OK', alasan_keluar: b.alasan_keluar || '', pic: b.pic || localStorage.getItem('auth') || 'field', requisition_no: b.requisition_no || '', block: b.block || '', phase: b.phase || '', account_no: b.account_no || '', requested_by: b.requested_by || '', approved_by: b.approved_by || '', received_by: b.received_by || '', empty_returned: b.empty_returned !== undefined && b.empty_returned !== '' ? Number(b.empty_returned) : null, foto_bukti: b.foto_bukti || null, created_at: new Date().toISOString() };
-        st.outbound.unshift(rec);
-        if (it) { it.balances[wh] = round3((it.balances[wh] || 0) - qty); it.total = round3((it.total || 0) - qty); }
-        saveOfflineStore(st);
-        return { status: 'success', message: 'Issue saved to Phone Offline Memory (ready to sync).' };
+        const txId = b.transaction_id || ('OUT-HP-' + Date.now() + '-' + Math.random().toString(36).slice(2, 6));
+        const rec = { transaction_id: txId, tanggal_keluar: dt, gudang: wh, kode_barang: b.kode_barang, qty_keluar: qty, kondisi_keluar: 'OK', alasan_keluar: b.alasan_keluar || '', pic: b.pic || localStorage.getItem('auth') || 'field', requisition_no: b.requisition_no || '', block: b.block || '', phase: b.phase || '', account_no: b.account_no || '', requested_by: b.requested_by || '', approved_by: b.approved_by || '', received_by: b.received_by || '', empty_returned: b.empty_returned !== undefined && b.empty_returned !== '' ? Number(b.empty_returned) : null, foto_bukti: b.foto_bukti || null, created_at: new Date().toISOString(), _synced: false };
+        if (!st.outbound.some(x => x.transaction_id === txId)) {
+            st.outbound.unshift(rec);
+            if (it) { it.balances[wh] = round3((it.balances[wh] || 0) - qty); it.total = round3((it.total || 0) - qty); }
+            saveOfflineStore(st);
+        }
+        return { status: 'success', message: 'Issue tersimpan di memori lokal HP (Offline).', transaction_id: txId };
     }
     if (p.startsWith('/api/outbound/') && p.endsWith('/empty-bags') && method === 'PATCH') {
         const id = decodeURIComponent(p.split('/')[3]);
@@ -2507,55 +2502,273 @@ function offlineApiFallback(url, opts = {}) {
 }
 
 let AUTO_CLOUD_URL = (localStorage.getItem('gudangpro_auto_cloud_url') || '').trim().replace(/\/+$/, '');
-let _cloudDiscoveryPromise = null;
+let ACTIVE_SERVER_URL = (localStorage.getItem('gudangpro_active_server_url') || '').trim().replace(/\/+$/, '');
+let _discoveryEndpointData = null;
+let _isSyncingPending = false;
+let _lastKnownChange = 0;
+let _heartbeatInterval = null;
+let CURRENT_PHONE_URL = 'http://10.214.23.42:3000';
+let CURRENT_HTTPS_URL = '';
 
-async function discoverCloudServer(force = false) {
-    if (!force && _cloudDiscoveryPromise) return _cloudDiscoveryPromise;
-    _cloudDiscoveryPromise = (async () => {
-        const candidates = [
-            `https://raw.githubusercontent.com/wafi123-sys/wafi123-sys.github.io/main/cloud-endpoint.json?t=${Date.now()}`,
-            `https://wafi123-sys.github.io/cloud-endpoint.json?t=${Date.now()}`
-        ];
-        for (const u of candidates) {
-            try {
-                const r = await fetch(u, { cache: 'no-store' });
-                if (r.ok) {
-                    const j = await r.json();
-                    if (j && j.serverUrl && String(j.serverUrl).startsWith('https://')) {
+async function discoverEndpoints(force = false) {
+    if (!force && _discoveryEndpointData) return _discoveryEndpointData;
+    const candidates = [
+        `https://raw.githubusercontent.com/wafi123-sys/wafi123-sys.github.io/main/cloud-endpoint.json?t=${Date.now()}`,
+        `https://wafi123-sys.github.io/cloud-endpoint.json?t=${Date.now()}`
+    ];
+    for (const u of candidates) {
+        try {
+            const r = await fetch(u, { cache: 'no-store' });
+            if (r.ok) {
+                const j = await r.json();
+                if (j) {
+                    _discoveryEndpointData = j;
+                    if (j.serverUrl && String(j.serverUrl).startsWith('https://')) {
                         AUTO_CLOUD_URL = String(j.serverUrl).trim().replace(/\/+$/, '');
                         localStorage.setItem('gudangpro_auto_cloud_url', AUTO_CLOUD_URL);
-                        return AUTO_CLOUD_URL;
                     }
+                    return j;
                 }
-            } catch (e) {}
+            }
+        } catch (e) {}
+    }
+    return _discoveryEndpointData;
+}
+
+async function pingCandidate(url, timeoutMs = 1200) {
+    if (!url) return false;
+    try {
+        const controller = new AbortController();
+        const tid = setTimeout(() => controller.abort(), timeoutMs);
+        const target = url.replace(/\/+$/, '') + '/api/sync/status';
+        const res = await fetch(target, { method: 'GET', signal: controller.signal });
+        clearTimeout(tid);
+        return res.ok;
+    } catch (e) {
+        return false;
+    }
+}
+
+async function resolveBestServer(forceRefresh = false) {
+    const custom = (localStorage.getItem('gudangpro_server_url') || '').trim().replace(/\/+$/, '');
+    if (custom) return custom;
+
+    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+        return '';
+    }
+
+    if (!forceRefresh && ACTIVE_SERVER_URL) {
+        return ACTIVE_SERVER_URL;
+    }
+
+    const meta = await discoverEndpoints(forceRefresh);
+    const candidateList = [];
+
+    if (meta && Array.isArray(meta.lanUrls)) candidateList.push(...meta.lanUrls);
+    if (CURRENT_PHONE_URL && !candidateList.includes(CURRENT_PHONE_URL)) candidateList.push(CURRENT_PHONE_URL);
+    if (meta && meta.serverUrl && String(meta.serverUrl).startsWith('https://')) candidateList.push(meta.serverUrl);
+    if (AUTO_CLOUD_URL && !candidateList.includes(AUTO_CLOUD_URL)) candidateList.push(AUTO_CLOUD_URL);
+
+    for (const cand of candidateList) {
+        const ok = await pingCandidate(cand, 1100);
+        if (ok) {
+            ACTIVE_SERVER_URL = cand.replace(/\/+$/, '');
+            localStorage.setItem('gudangpro_active_server_url', ACTIVE_SERVER_URL);
+            return ACTIVE_SERVER_URL;
         }
-        return AUTO_CLOUD_URL;
-    })();
-    return _cloudDiscoveryPromise;
+    }
+
+    return ACTIVE_SERVER_URL || '';
+}
+
+function updateConnectionStatusBadge(state, serverTarget, serverData) {
+    const dot = $('engine-status-dot');
+    const txt = $('engine-status-text');
+    const pill = $('engine-status-pill');
+    const mDot = $('modal-status-dot');
+    const mTxt = $('modal-status-text');
+
+    if (state === 'online') {
+        IS_OFFLINE_FIELD_MODE = false;
+        if (dot) dot.style.background = '#40c057';
+        if (mDot) mDot.style.background = '#40c057';
+        if (pill) {
+            pill.style.background = 'rgba(4,42,52,0.18)';
+            pill.style.borderColor = 'rgba(99,230,190,0.35)';
+        }
+
+        let label = 'Online';
+        const target = serverTarget || ACTIVE_SERVER_URL || (window.location.origin || '');
+        if (target.includes('localhost') || target.includes('127.0.0.1')) {
+            label = 'Online (PC Local)';
+        } else if (target.includes('10.') || target.includes('192.168.') || target.includes('172.')) {
+            const m = target.match(/https?:\/\/([^/]+)/);
+            label = `Online (PC: ${m ? m[1] : 'LAN'})`;
+        } else if (target.includes('trycloudflare.com')) {
+            label = 'Online (Cloud)';
+        } else if (serverData && serverData.lanUrls && serverData.lanUrls.length) {
+            const m = serverData.lanUrls[0].match(/https?:\/\/([^/]+)/);
+            label = `Online (PC: ${m ? m[1] : 'LAN'})`;
+        }
+        if (txt) txt.innerText = label;
+        if (mTxt) mTxt.innerText = label;
+    } else {
+        IS_OFFLINE_FIELD_MODE = true;
+        if (dot) dot.style.background = '#fd7e14';
+        if (mDot) mDot.style.background = '#fd7e14';
+        if (pill) {
+            pill.style.background = 'rgba(240,140,0,0.22)';
+            pill.style.borderColor = 'rgba(255,212,59,0.55)';
+        }
+        const offlineLabel = 'Offline (Memori HP)';
+        if (txt) txt.innerText = offlineLabel;
+        if (mTxt) mTxt.innerText = offlineLabel;
+    }
+}
+
+async function syncPendingOfflineRecords() {
+    if (_isSyncingPending) return;
+    const st = getOfflineStore();
+    const pendingOut = (st.outbound || []).filter(x => x._synced === false);
+    const pendingIn = (st.inbound || []).filter(x => x._synced === false);
+    if (!pendingOut.length && !pendingIn.length) return;
+
+    _isSyncingPending = true;
+    let anySuccess = false;
+
+    for (const rec of pendingOut) {
+        try {
+            const payload = {
+                transaction_id: rec.transaction_id,
+                tanggal_keluar: rec.tanggal_keluar,
+                gudang: rec.gudang,
+                kode_barang: rec.kode_barang,
+                qty_keluar: rec.qty_keluar,
+                requisition_no: rec.requisition_no,
+                block: rec.block,
+                phase: rec.phase,
+                account_no: rec.account_no,
+                received_by: rec.received_by,
+                pic: rec.pic,
+                alasan_keluar: rec.alasan_keluar,
+                empty_returned: rec.empty_returned,
+                foto_bukti: rec.foto_bukti
+            };
+            const r = await api('/api/outbound', { method: 'POST', headers: JSONH, body: JSON.stringify(payload) });
+            if (r && r.status === 'success') {
+                rec._synced = true;
+                anySuccess = true;
+            }
+        } catch (e) {
+            break;
+        }
+    }
+
+    for (const rec of pendingIn) {
+        try {
+            const payload = {
+                transaction_id: rec.transaction_id,
+                tanggal_masuk: rec.tanggal_masuk,
+                gudang: rec.gudang,
+                kode_barang: rec.kode_barang,
+                qty_masuk: rec.qty_masuk,
+                supplier: rec.supplier,
+                surat_jalan: rec.surat_jalan,
+                lokasi: rec.lokasi,
+                pic: rec.pic,
+                foto_bukti: rec.foto_bukti
+            };
+            const r = await api('/api/inbound', { method: 'POST', headers: JSONH, body: JSON.stringify(payload) });
+            if (r && r.status === 'success') {
+                rec._synced = true;
+                anySuccess = true;
+            }
+        } catch (e) {
+            break;
+        }
+    }
+
+    if (anySuccess) {
+        saveOfflineStore(st);
+        await refreshBase();
+        const activePage = document.querySelector('.page.active');
+        if (activePage) {
+            const tabId = activePage.id.replace('tab-', '');
+            if (LOADERS[tabId]) LOADERS[tabId]();
+        }
+    }
+    _isSyncingPending = false;
+}
+
+async function liveSyncHeartbeat() {
+    try {
+        await syncPendingOfflineRecords();
+
+        const customServer = (localStorage.getItem('gudangpro_server_url') || '').trim().replace(/\/+$/, '');
+        let target = '/api/sync/status';
+        if (customServer) target = customServer + '/api/sync/status';
+        else if (ACTIVE_SERVER_URL) target = ACTIVE_SERVER_URL + '/api/sync/status';
+
+        const controller = new AbortController();
+        const tid = setTimeout(() => controller.abort(), 2200);
+        const res = await fetch(target, { signal: controller.signal });
+        clearTimeout(tid);
+
+        if (res.ok) {
+            const d = await res.json();
+            if (d && d.status === 'success' && d.data) {
+                updateConnectionStatusBadge('online', target, d.data);
+                if (_lastKnownChange && d.data.lastChange && d.data.lastChange !== _lastKnownChange) {
+                    _lastKnownChange = d.data.lastChange;
+                    await refreshBase();
+                    const activePage = document.querySelector('.page.active');
+                    if (activePage) {
+                        const tabId = activePage.id.replace('tab-', '');
+                        if (LOADERS[tabId]) LOADERS[tabId]();
+                    }
+                } else if (!_lastKnownChange && d.data.lastChange) {
+                    _lastKnownChange = d.data.lastChange;
+                }
+            }
+        } else {
+            updateConnectionStatusBadge('offline');
+        }
+    } catch (e) {
+        updateConnectionStatusBadge('offline');
+    }
+}
+
+function startLiveSyncHeartbeat() {
+    if (_heartbeatInterval) return;
+    liveSyncHeartbeat();
+    _heartbeatInterval = setInterval(liveSyncHeartbeat, 3500);
 }
 
 async function api(url, opts = {}) {
-    const customServer = (localStorage.getItem('gudangpro_server_url') || '').trim().replace(/\/+$/, '');
     const isLocalBundle = window.location.protocol === 'file:' || window.location.hostname.endsWith('.github.io') || window.GUDANGPRO_STANDALONE === true;
-    let baseServer = customServer;
-    if (isLocalBundle && !baseServer) {
-        baseServer = AUTO_CLOUD_URL || (await discoverCloudServer(false));
-    }
+    let baseServer = await resolveBestServer(false);
+
     if (isLocalBundle && !baseServer) {
         return offlineApiFallback(url, opts);
     }
+
     const buildTarget = (srv) => (srv && url.startsWith('/')) ? (srv + url) : url;
     opts.headers = Object.assign({}, opts.headers || {});
     const tk = localStorage.getItem('auth');
     if (tk) opts.headers['Authorization'] = tk;
+
     let res;
     try {
         res = await fetch(buildTarget(baseServer), opts);
     } catch (netErr) {
-        if (isLocalBundle && !customServer) {
-            const refreshed = await discoverCloudServer(true);
-            if (refreshed && refreshed !== baseServer) {
-                try { res = await fetch(buildTarget(refreshed), opts); } catch (e2) { return offlineApiFallback(url, opts); }
+        if (isLocalBundle) {
+            baseServer = await resolveBestServer(true);
+            if (baseServer) {
+                try {
+                    res = await fetch(buildTarget(baseServer), opts);
+                } catch (netErr2) {
+                    return offlineApiFallback(url, opts);
+                }
             } else {
                 return offlineApiFallback(url, opts);
             }
@@ -2563,6 +2776,7 @@ async function api(url, opts = {}) {
             return offlineApiFallback(url, opts);
         }
     }
+
     if (res.status === 401 && url !== '/api/login') {
         if (isLocalBundle) {
             opts.headers['Authorization'] = 'checker';
@@ -2571,26 +2785,15 @@ async function api(url, opts = {}) {
             logout(); throw new Error('Session expired');
         }
     }
+
     let data = {};
     try { data = await res.json(); } catch (e) {}
-    if ((data && data.status === 'error' && String(data.message || '').includes('Offline')) || res.status === 404 || res.status === 405 || res.status >= 500) {
-        if (isLocalBundle && !customServer) {
-            const refreshed = await discoverCloudServer(true);
-            if (refreshed && refreshed !== baseServer) {
-                try {
-                    res = await fetch(buildTarget(refreshed), opts);
-                    data = await res.json();
-                } catch (e3) {
-                    return offlineApiFallback(url, opts);
-                }
-            }
-        }
-        if (!res.ok || (data && data.status === 'error' && String(data.message || '').includes('Offline'))) {
-            return offlineApiFallback(url, opts);
-        }
+
+    if (!res.ok || (data && data.status === 'error' && String(data.message || '').includes('Offline'))) {
+        return offlineApiFallback(url, opts);
     }
-    setFieldModeBadge(false);
-    if (!res.ok && res.status !== 409) throw new Error(data.message || ('Error ' + res.status));
+
+    updateConnectionStatusBadge('online', baseServer);
     return data;
 }
 
@@ -2599,8 +2802,6 @@ function toggleMobileNav(force) {
     else document.body.classList.toggle('mobile-nav-open');
 }
 
-let CURRENT_PHONE_URL = 'http://10.34.144.42:3000';
-let CURRENT_HTTPS_URL = '';
 async function fetchNetworkUrls() {
     if (window.location.protocol === 'file:' || window.GUDANGPRO_STANDALONE === true) return;
     try {
@@ -2609,73 +2810,91 @@ async function fetchNetworkUrls() {
         if (d && d.data) {
             if (d.data.urls && d.data.urls.length) {
                 CURRENT_PHONE_URL = d.data.urls[0].url;
-                if ($('phone-lan-url')) $('phone-lan-url').innerText = CURRENT_PHONE_URL;
-                if ($('phone-lan-url-inline')) $('phone-lan-url-inline').innerText = CURRENT_PHONE_URL;
-                if ($('phone-lan-list')) $('phone-lan-list').innerText = 'Detected Wi-Fi / LAN: ' + d.data.urls.map(u => `${u.url} (${u.interface})`).join(' • ');
+                if ($('cfg-detected-lan')) $('cfg-detected-lan').innerText = 'Detected PC Wi-Fi: ' + d.data.urls.map(u => `${u.url} (${u.interface})`).join(' • ');
             }
             if (d.data.httpsUrl) {
                 CURRENT_HTTPS_URL = d.data.httpsUrl;
-                if ($('phone-https-box')) $('phone-https-box').style.display = 'block';
-                if ($('phone-https-url')) { $('phone-https-url').innerText = CURRENT_HTTPS_URL; $('phone-https-url').href = CURRENT_HTTPS_URL; }
-                if ($('phone-https-btn')) $('phone-https-btn').href = CURRENT_HTTPS_URL;
-                if (location.protocol === 'http:' && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') {
-                    if ($('https-jump-btn')) {
-                        $('https-jump-btn').href = CURRENT_HTTPS_URL;
-                        $('https-jump-btn').style.display = 'inline-flex';
-                    }
-                    let bar = $('https-top-banner');
-                    if (!bar) {
-                        bar = document.createElement('a');
-                        bar.id = 'https-top-banner';
-                        bar.href = CURRENT_HTTPS_URL;
-                        bar.style.cssText = 'position:fixed;bottom:14px;left:14px;right:14px;z-index:9999;background:#087f5b;color:#fff;padding:12px 16px;border-radius:10px;box-shadow:0 10px 25px rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:space-between;gap:10px;text-decoration:none;font-weight:700;font-size:0.86rem;border:2px solid #63e6be;';
-                        bar.innerHTML = '<span>Mode Mandiri Offline</span><span style="background:#fff;color:#087f5b;padding:4px 10px;border-radius:6px;font-size:0.78rem;white-space:nowrap;">Buka</span>';
-                        document.body.appendChild(bar);
-                    } else {
-                        bar.href = CURRENT_HTTPS_URL;
-                    }
-                }
             }
         }
     } catch (e) {}
 }
-async function openPhoneModal() {
-    openModal('phoneModal');
-    updateOfflineCacheStatusText();
-    await fetchNetworkUrls();
-}
-fetchNetworkUrls();
-function copyPhoneUrl() {
-    navigator.clipboard.writeText(CURRENT_PHONE_URL).then(() => toast('Copied: ' + CURRENT_PHONE_URL)).catch(() => toast(CURRENT_PHONE_URL));
-}
-function updateOfflineCacheStatusText() {
+
+function updateServerModalInfo() {
     const st = getOfflineStore();
-    const el = $('offline-cache-status');
-    if (!el) return;
-    const txCount = (st.inbound ? st.inbound.length : 0) + (st.outbound ? st.outbound.length : 0);
-    el.innerText = st.synced_at
-        ? `Cached ${st.warehouses.length} warehouse(s), ${st.items.length} item(s) • ${txCount} field transaction(s) stored (${st.synced_at.slice(0, 16).replace('T', ' ')})`
-        : 'Not synced yet. Click "Sync Data ke Memori HP" before going to the field.';
+    const pendingOut = (st.outbound || []).filter(x => x._synced === false).length;
+    const pendingIn = (st.inbound || []).filter(x => x._synced === false).length;
+    const totalPending = pendingOut + pendingIn;
+
+    if ($('cfg-pending-text')) {
+        $('cfg-pending-text').innerText = totalPending > 0
+            ? `${totalPending} transaksi pending (${pendingOut} keluar, ${pendingIn} masuk)`
+            : 'Semua data tersinkronisasi dengan server.';
+    }
+    if ($('cfg-server-url')) {
+        $('cfg-server-url').value = localStorage.getItem('gudangpro_server_url') || ACTIVE_SERVER_URL || '';
+    }
 }
-async function syncMasterToPhoneCache() {
-    try {
+
+function openServerConfigModal() {
+    updateServerModalInfo();
+    fetchNetworkUrls();
+    openModal('serverModal');
+}
+const openPhoneModal = openServerConfigModal;
+
+async function saveCustomServerUrl() {
+    const val = ($('cfg-server-url').value || '').trim().replace(/\/+$/, '');
+    if (!val) {
+        resetServerUrl();
+        return;
+    }
+    toast('Mengetes koneksi ke ' + val + '...');
+    const ok = await pingCandidate(val, 2000);
+    if (ok) {
+        localStorage.setItem('gudangpro_server_url', val);
+        ACTIVE_SERVER_URL = val;
+        localStorage.setItem('gudangpro_active_server_url', val);
+        updateConnectionStatusBadge('online', val);
+        toast('Server terhubung & tersimpan: ' + val);
+        await syncPendingOfflineRecords();
         await refreshBase();
-        const st = getOfflineStore();
-        st.warehouses = WH;
-        st.items = STOCK;
-        st.synced_at = new Date().toISOString();
-        saveOfflineStore(st);
-        updateOfflineCacheStatusText();
-        toast('Data gudang & stok berhasil disimpan ke memori HP!');
-    } catch (e) { toast(e.message, true); }
+    } else {
+        toast('Gagal terhubung ke ' + val + '. Periksa IP / Wi-Fi.', true);
+    }
+    updateServerModalInfo();
 }
+
+function resetServerUrl() {
+    localStorage.removeItem('gudangpro_server_url');
+    localStorage.removeItem('gudangpro_active_server_url');
+    ACTIVE_SERVER_URL = '';
+    resolveBestServer(true).then(srv => {
+        toast(srv ? 'Server otomatis: ' + srv : 'Mode offline aktif.');
+        updateServerModalInfo();
+    });
+}
+
+async function triggerManualSync() {
+    toast('Menjalankan sinkronisasi...');
+    await syncPendingOfflineRecords();
+    await refreshBase();
+    const activePage = document.querySelector('.page.active');
+    if (activePage) {
+        const tabId = activePage.id.replace('tab-', '');
+        if (LOADERS[tabId]) LOADERS[tabId]();
+    }
+    updateServerModalInfo();
+    toast('Sinkronisasi selesai!');
+}
+
 function clearOfflineFieldTx() {
+    if (!confirm('Hapus transaksi pending di memori lokal?')) return;
     const st = getOfflineStore();
-    st.inbound = [];
-    st.outbound = [];
+    st.inbound = (st.inbound || []).filter(x => x._synced !== false);
+    st.outbound = (st.outbound || []).filter(x => x._synced !== false);
     saveOfflineStore(st);
-    updateOfflineCacheStatusText();
-    toast('Offline field transactions cleared.');
+    updateServerModalInfo();
+    toast('Antrean offline berhasil dibersihkan.');
 }
 
 function openModal(id) { $(id).classList.add('open'); }
@@ -2698,12 +2917,6 @@ function quickLogin(u, p) {
 }
 function logout() { localStorage.removeItem('auth'); localStorage.removeItem('role'); location.reload(); }
 function checkAuth() {
-    if (window.AndroidBridge || window.location.protocol === 'file:') {
-        if ($('sidebar-phone-btn')) $('sidebar-phone-btn').style.display = 'none';
-        if ($('header-apk-btn')) $('header-apk-btn').style.display = 'none';
-        if ($('header-phone-btn')) $('header-phone-btn').style.display = 'none';
-        setFieldModeBadge(true);
-    }
     currentUser = localStorage.getItem('auth');
     currentRole = localStorage.getItem('role');
     if (currentUser) {
@@ -2711,6 +2924,7 @@ function checkAuth() {
         $('role-badge').innerText = currentRole;
         document.body.classList.toggle('is-staff', currentRole !== 'ADMIN');
         init();
+        startLiveSyncHeartbeat();
     }
 }
 
@@ -2758,6 +2972,7 @@ async function refreshBase() {
 async function init() {
     try { await refreshBase(); } catch (e) { toast(e.message, true); }
     if (!handleHash()) switchTab('dashboard');
+    startLiveSyncHeartbeat();
 }
 function fillSelects() {
     document.querySelectorAll('select.wh-select').forEach(s => {
@@ -3040,27 +3255,115 @@ function onInItem() {
 async function loadReceiving() {
     if (!$('in-date').value) $('in-date').value = today();
     if (!$('in-pic').value) $('in-pic').value = currentUser || '';
+    const st = getOfflineStore();
     try {
-        INS = (await api('/api/inbound')).data;
-        $('in-body').innerHTML = INS.length ? INS.map((r, i) => `<tr><td>${esc(r.tanggal_masuk)}</td><td>${esc(whName(r.gudang))}</td>
+        const res = await api('/api/inbound');
+        if (res && res.data && Array.isArray(res.data)) {
+            const pending = (st.inbound || []).filter(x => x._synced === false);
+            const serverIds = new Set(res.data.map(x => x.transaction_id));
+            const merged = [
+                ...pending.filter(x => !serverIds.has(x.transaction_id)),
+                ...res.data
+            ];
+            st.inbound = merged;
+            saveOfflineStore(st);
+            INS = merged;
+        } else {
+            INS = st.inbound || [];
+        }
+    } catch (e) {
+        INS = st.inbound || [];
+    }
+    $('in-body').innerHTML = INS.length ? INS.map((r, i) => {
+        const syncBadge = r._synced === false ? ' <span class="tag tag-amber" style="font-size:.65rem;padding:1px 5px;" title="Menunggu sinkronisasi ke server PC">Pending Sync</span>' : '';
+        return `<tr><td>${esc(r.tanggal_masuk)}${syncBadge}</td><td>${esc(whName(r.gudang))}</td>
             <td class="cell-bold">${esc(r.nama_barang)}<div class="cell-muted cell-mono">${esc(r.kode_barang)}</div></td>
             <td class="num">${fmt(r.qty_masuk)} ${esc(r.satuan)}</td><td>${esc(r.supplier)}</td><td>${esc(r.surat_jalan)}</td><td>${esc(r.pic)}</td>
             <td>${r.foto_bukti ? `<a href="#" onclick="viewPhoto('${esc(r.foto_bukti)}');return false;"><img class="thumb" src="${esc(r.foto_bukti)}"></a>` : '<span class="no-img">-</span>'}</td>
-            <td class="admin-only"><button class="btn btn-destructive btn-sm" onclick="delTrx('inbound', ${i})">Cancel</button></td></tr>`).join('')
-            : '<tr><td colspan="9" class="cell-muted">No receiving recorded yet.</td></tr>';
-    } catch (e) { toast(e.message, true); }
+            <td class="admin-only"><button class="btn btn-destructive btn-sm" onclick="delTrx('inbound', ${i})">Cancel</button></td></tr>`;
+    }).join('') : '<tr><td colspan="9" class="cell-muted">No receiving recorded yet.</td></tr>';
 }
 async function submitIn(e) {
     e.preventDefault();
     const btn = e.submitter; if (btn) btn.disabled = true;
     try {
+        const itemCode = $('in-item').value;
+        const it = itemOf(itemCode);
+        const qty = parseFloat($('in-qty').value) || 0;
+        if (qty <= 0) throw new Error('Quantity must be greater than 0.');
+        const wh = $('in-wh').value || 'MAIN';
+        const dt = $('in-date').value || today();
+        const txId = 'IN-' + Date.now().toString(36).toUpperCase() + '-' + Math.random().toString(36).substring(2, 6).toUpperCase();
+
         const opts = await buildFormSubmitOptions($('in-form'));
-        const r = await api('/api/inbound', opts);
-        toast(r.message);
+        let photoData = null;
+        if (opts.body instanceof FormData) {
+            opts.body.append('transaction_id', txId);
+        } else if (typeof opts.body === 'string') {
+            const bObj = JSON.parse(opts.body);
+            bObj.transaction_id = txId;
+            photoData = bObj.foto_bukti || null;
+            opts.body = JSON.stringify(bObj);
+        }
+
+        const localRec = {
+            transaction_id: txId,
+            tanggal_masuk: dt,
+            gudang: wh,
+            kode_barang: itemCode,
+            nama_barang: it ? it.nama_barang : itemCode,
+            satuan: it ? it.satuan : 'bag',
+            kategori: it ? it.kategori : 'OTHER',
+            qty_masuk: qty,
+            supplier: ($('in-sup').value || '').trim(),
+            surat_jalan: ($('in-sj').value || '').trim(),
+            lokasi: ($('in-loc').value || '').trim(),
+            pic: ($('in-pic').value || currentUser || 'checker').trim(),
+            foto_bukti: photoData,
+            created_at: new Date().toISOString().replace('T', ' ').slice(0, 19),
+            _synced: false
+        };
+
+        const st = getOfflineStore();
+        st.inbound = st.inbound || [];
+        if (!st.inbound.some(x => x.transaction_id === txId)) {
+            st.inbound.unshift(localRec);
+            const targetItem = st.items.find(x => x.kode_barang === itemCode);
+            if (targetItem) {
+                targetItem.balances = targetItem.balances || {};
+                targetItem.balances[wh] = round3((targetItem.balances[wh] || 0) + qty);
+                targetItem.total = round3((targetItem.total || 0) + qty);
+            }
+            saveOfflineStore(st);
+        }
+
+        let serverOk = false;
+        try {
+            const r = await api('/api/inbound', opts);
+            serverOk = true;
+            toast(r.message || 'Penerimaan barang berhasil disimpan.');
+        } catch (apiErr) {
+            console.warn('[Inbound] Saved locally, server dispatch error:', apiErr);
+            toast('Disimpan di memori HP (akan disinkronkan saat terhubung).');
+        }
+
+        if (serverOk) {
+            const currentSt = getOfflineStore();
+            const rec = (currentSt.inbound || []).find(x => x.transaction_id === txId);
+            if (rec) {
+                rec._synced = true;
+                saveOfflineStore(currentSt);
+            }
+        }
+
         const d = $('in-date').value, w = $('in-wh').value, p = $('in-pic').value;
         $('in-form').reset(); $('in-date').value = d; $('in-wh').value = w; $('in-pic').value = p;
-        await refreshBase(); onInItem(); loadReceiving();
-    } catch (err) { toast(err.message, true); }
+        await refreshBase();
+        onInItem();
+        await loadReceiving();
+    } catch (err) {
+        toast(err.message, true);
+    }
     if (btn) btn.disabled = false;
 }
 
@@ -3082,35 +3385,125 @@ function onOutItem() {
 async function loadIssuing() {
     if (!$('out-date').value) $('out-date').value = today();
     if (!$('out-pic').value) $('out-pic').value = currentUser || '';
+    const st = getOfflineStore();
     try {
-        OUTS = (await api('/api/outbound')).data;
-        $('out-body').innerHTML = OUTS.length ? OUTS.map((r, i) => {
-            let eb = '<span class="cell-muted">-</span>';
-            if (r.kategori === 'FERTILIZER') {
-                if (r.empty_returned === null || r.empty_returned === undefined) eb = '<span class="tag tag-amber">Pending</span>';
-                else { const d = round3(r.qty_keluar - r.empty_returned); eb = d === 0 ? `<span class="tag tag-green">${fmt(r.empty_returned)} OK</span>` : `<span class="tag tag-red">${fmt(r.empty_returned)} (${d > 0 ? 'missing ' + fmt(d) : 'extra ' + fmt(-d)})</span>`; }
-            }
-            const photoLink = r.foto_bukti ? ` <a href="#" onclick="viewPhoto('${esc(r.foto_bukti)}');return false;" title="Lihat Foto Bukti">[Foto]</a>` : '';
-            return `<tr><td>${esc(r.tanggal_keluar)}</td><td class="cell-mono">${esc(r.requisition_no)}${photoLink}</td><td>${esc(whName(r.gudang))}</td>
-                <td class="cell-bold">${esc(r.nama_barang)}<div class="cell-muted cell-mono">${esc(r.kode_barang)}</div></td>
-                <td class="num">${fmt(r.qty_keluar)} ${esc(r.satuan)}</td><td>${esc(r.block)} / ${esc(r.phase)}</td><td>${esc(r.account_no)}</td>
-                <td>${esc(r.received_by)}</td><td>${eb}</td><td>${esc(r.pic)}</td>
-                <td class="admin-only"><button class="btn btn-destructive btn-sm" onclick="delTrx('outbound', ${i})">Cancel</button></td></tr>`;
-        }).join('') : '<tr><td colspan="11" class="cell-muted">No issues recorded yet.</td></tr>';
-    } catch (e) { toast(e.message, true); }
+        const res = await api('/api/outbound');
+        if (res && res.data && Array.isArray(res.data)) {
+            const pending = (st.outbound || []).filter(x => x._synced === false);
+            const serverIds = new Set(res.data.map(x => x.transaction_id));
+            const merged = [
+                ...pending.filter(x => !serverIds.has(x.transaction_id)),
+                ...res.data
+            ];
+            st.outbound = merged;
+            saveOfflineStore(st);
+            OUTS = merged;
+        } else {
+            OUTS = st.outbound || [];
+        }
+    } catch (e) {
+        OUTS = st.outbound || [];
+    }
+    $('out-body').innerHTML = OUTS.length ? OUTS.map((r, i) => {
+        let eb = '<span class="cell-muted">-</span>';
+        if (r.kategori === 'FERTILIZER') {
+            if (r.empty_returned === null || r.empty_returned === undefined) eb = '<span class="tag tag-amber">Pending</span>';
+            else { const d = round3(r.qty_keluar - r.empty_returned); eb = d === 0 ? `<span class="tag tag-green">${fmt(r.empty_returned)} OK</span>` : `<span class="tag tag-red">${fmt(r.empty_returned)} (${d > 0 ? 'missing ' + fmt(d) : 'extra ' + fmt(-d)})</span>`; }
+        }
+        const photoLink = r.foto_bukti ? ` <a href="#" onclick="viewPhoto('${esc(r.foto_bukti)}');return false;" title="Lihat Foto Bukti">[Foto]</a>` : '';
+        const syncBadge = r._synced === false ? ' <span class="tag tag-amber" style="font-size:.65rem;padding:1px 5px;" title="Menunggu sinkronisasi ke server PC">Pending Sync</span>' : '';
+        return `<tr><td>${esc(r.tanggal_keluar)}${syncBadge}</td><td class="cell-mono">${esc(r.requisition_no)}${photoLink}</td><td>${esc(whName(r.gudang))}</td>
+            <td class="cell-bold">${esc(r.nama_barang)}<div class="cell-muted cell-mono">${esc(r.kode_barang)}</div></td>
+            <td class="num">${fmt(r.qty_keluar)} ${esc(r.satuan)}</td><td>${esc(r.block)} / ${esc(r.phase)}</td><td>${esc(r.account_no)}</td>
+            <td>${esc(r.received_by)}</td><td>${eb}</td><td>${esc(r.pic)}</td>
+            <td class="admin-only"><button class="btn btn-destructive btn-sm" onclick="delTrx('outbound', ${i})">Cancel</button></td></tr>`;
+    }).join('') : '<tr><td colspan="11" class="cell-muted">No issues recorded yet.</td></tr>';
 }
 async function submitOut(e) {
     e.preventDefault();
     const btn = e.submitter; if (btn) btn.disabled = true;
     try {
-        const it = itemOf($('out-item').value);
+        const itemCode = $('out-item').value;
+        const it = itemOf(itemCode);
+        const qty = parseFloat($('out-qty').value) || 0;
+        if (qty <= 0) throw new Error('Quantity must be greater than 0.');
+        const wh = $('out-wh').value || 'MAIN';
+        const dt = $('out-date').value || today();
+        const txId = 'OUT-' + Date.now().toString(36).toUpperCase() + '-' + Math.random().toString(36).substring(2, 6).toUpperCase();
+
         const opts = await buildFormSubmitOptions($('out-form'));
-        const r = await api('/api/outbound', opts);
-        toast(r.message);
+        let photoData = null;
+        if (opts.body instanceof FormData) {
+            opts.body.append('transaction_id', txId);
+        } else if (typeof opts.body === 'string') {
+            const bObj = JSON.parse(opts.body);
+            bObj.transaction_id = txId;
+            photoData = bObj.foto_bukti || null;
+            opts.body = JSON.stringify(bObj);
+        }
+
+        const localRec = {
+            transaction_id: txId,
+            tanggal_keluar: dt,
+            gudang: wh,
+            kode_barang: itemCode,
+            nama_barang: it ? it.nama_barang : itemCode,
+            satuan: it ? it.satuan : 'bag',
+            kategori: it ? it.kategori : 'OTHER',
+            qty_keluar: qty,
+            requisition_no: ($('out-req').value || '').trim(),
+            block: ($('out-block').value || '').trim(),
+            phase: ($('out-phase').value || '').trim(),
+            account_no: ($('out-acc').value || '').trim(),
+            received_by: ($('out-recv').value || '').trim(),
+            pic: ($('out-pic').value || currentUser || 'checker').trim(),
+            alasan_keluar: ($('out-notes').value || '').trim(),
+            empty_returned: ($('out-empty').value !== '' ? parseFloat($('out-empty').value) : null),
+            foto_bukti: photoData,
+            created_at: new Date().toISOString().replace('T', ' ').slice(0, 19),
+            _synced: false
+        };
+
+        const st = getOfflineStore();
+        st.outbound = st.outbound || [];
+        if (!st.outbound.some(x => x.transaction_id === txId)) {
+            st.outbound.unshift(localRec);
+            const targetItem = st.items.find(x => x.kode_barang === itemCode);
+            if (targetItem) {
+                targetItem.balances = targetItem.balances || {};
+                targetItem.balances[wh] = round3((targetItem.balances[wh] || 0) - qty);
+                targetItem.total = round3((targetItem.total || 0) - qty);
+            }
+            saveOfflineStore(st);
+        }
+
+        let serverOk = false;
+        try {
+            const r = await api('/api/outbound', opts);
+            serverOk = true;
+            toast(r.message || 'Pengeluaran barang berhasil disimpan.');
+        } catch (apiErr) {
+            console.warn('[Outbound] Saved locally, server dispatch error:', apiErr);
+            toast('Disimpan di memori HP (akan disinkronkan saat terhubung).');
+        }
+
+        if (serverOk) {
+            const currentSt = getOfflineStore();
+            const rec = (currentSt.outbound || []).find(x => x.transaction_id === txId);
+            if (rec) {
+                rec._synced = true;
+                saveOfflineStore(currentSt);
+            }
+        }
+
         const d = $('out-date').value, w = $('out-wh').value, p = $('out-pic').value;
         $('out-form').reset(); $('out-date').value = d; $('out-wh').value = w; $('out-pic').value = p;
-        await refreshBase(); onOutItem(); loadIssuing();
-    } catch (err) { toast(err.message, true); }
+        await refreshBase();
+        onOutItem();
+        await loadIssuing();
+    } catch (err) {
+        toast(err.message, true);
+    }
     if (btn) btn.disabled = false;
 }
 async function delTrx(kind, i) {
@@ -3433,8 +3826,11 @@ async function submitScQuickTx(e) {
     const btn = $('sc-qf-submit');
     if (btn) btn.disabled = true;
     try {
+        const it = itemOf(currentScCode);
         if (kind === 'IN') {
+            const txId = 'IN-' + Date.now().toString(36).toUpperCase() + '-' + Math.random().toString(36).substring(2, 6).toUpperCase();
             const payload = {
+                transaction_id: txId,
                 tanggal_masuk: dt,
                 gudang: wh,
                 kode_barang: currentScCode,
@@ -3444,11 +3840,44 @@ async function submitScQuickTx(e) {
                 lokasi: ($('sc-qf-loc').value || '').trim(),
                 pic: currentUser || 'checker'
             };
-            const r = await api('/api/inbound', { method: 'POST', headers: JSONH, body: JSON.stringify(payload) });
-            toast(r.message || 'Barang Masuk berhasil dicatat ke Stock Card!');
+            const localRec = Object.assign({}, payload, {
+                nama_barang: it ? it.nama_barang : currentScCode,
+                satuan: it ? it.satuan : 'bag',
+                kategori: it ? it.kategori : 'OTHER',
+                foto_bukti: null,
+                created_at: new Date().toISOString().replace('T', ' ').slice(0, 19),
+                _synced: false
+            });
+            const st = getOfflineStore();
+            st.inbound = st.inbound || [];
+            if (!st.inbound.some(x => x.transaction_id === txId)) {
+                st.inbound.unshift(localRec);
+                const targetItem = st.items.find(x => x.kode_barang === currentScCode);
+                if (targetItem) {
+                    targetItem.balances = targetItem.balances || {};
+                    targetItem.balances[wh] = round3((targetItem.balances[wh] || 0) + qty);
+                    targetItem.total = round3((targetItem.total || 0) + qty);
+                }
+                saveOfflineStore(st);
+            }
+            let serverOk = false;
+            try {
+                const r = await api('/api/inbound', { method: 'POST', headers: JSONH, body: JSON.stringify(payload) });
+                serverOk = true;
+                toast(r.message || 'Barang Masuk berhasil dicatat ke Stock Card!');
+            } catch (err) {
+                toast('Tersimpan di memori HP (akan disinkronkan saat terhubung).');
+            }
+            if (serverOk) {
+                const curSt = getOfflineStore();
+                const found = (curSt.inbound || []).find(x => x.transaction_id === txId);
+                if (found) { found._synced = true; saveOfflineStore(curSt); }
+            }
         } else {
+            const txId = 'OUT-' + Date.now().toString(36).toUpperCase() + '-' + Math.random().toString(36).substring(2, 6).toUpperCase();
             const reqNo = ($('sc-qf-req').value || '').trim() || ('REQ-' + Date.now().toString().slice(-5));
             const payload = {
+                transaction_id: txId,
                 tanggal_keluar: dt,
                 gudang: wh,
                 kode_barang: currentScCode,
@@ -3460,8 +3889,40 @@ async function submitScQuickTx(e) {
                 received_by: currentUser || 'Field',
                 pic: currentUser || 'checker'
             };
-            const r = await api('/api/outbound', { method: 'POST', headers: JSONH, body: JSON.stringify(payload) });
-            toast(r.message || 'Barang Keluar berhasil dicatat ke Stock Card!');
+            const localRec = Object.assign({}, payload, {
+                nama_barang: it ? it.nama_barang : currentScCode,
+                satuan: it ? it.satuan : 'bag',
+                kategori: it ? it.kategori : 'OTHER',
+                empty_returned: null,
+                foto_bukti: null,
+                created_at: new Date().toISOString().replace('T', ' ').slice(0, 19),
+                _synced: false
+            });
+            const st = getOfflineStore();
+            st.outbound = st.outbound || [];
+            if (!st.outbound.some(x => x.transaction_id === txId)) {
+                st.outbound.unshift(localRec);
+                const targetItem = st.items.find(x => x.kode_barang === currentScCode);
+                if (targetItem) {
+                    targetItem.balances = targetItem.balances || {};
+                    targetItem.balances[wh] = round3((targetItem.balances[wh] || 0) - qty);
+                    targetItem.total = round3((targetItem.total || 0) - qty);
+                }
+                saveOfflineStore(st);
+            }
+            let serverOk = false;
+            try {
+                const r = await api('/api/outbound', { method: 'POST', headers: JSONH, body: JSON.stringify(payload) });
+                serverOk = true;
+                toast(r.message || 'Barang Keluar berhasil dicatat ke Stock Card!');
+            } catch (err) {
+                toast('Tersimpan di memori HP (akan disinkronkan saat terhubung).');
+            }
+            if (serverOk) {
+                const curSt = getOfflineStore();
+                const found = (curSt.outbound || []).find(x => x.transaction_id === txId);
+                if (found) { found._synced = true; saveOfflineStore(curSt); }
+            }
         }
         toggleScQuickForm(null);
         await refreshBase();
