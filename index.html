@@ -796,14 +796,206 @@
             .paper-sc-company { font-size: .95rem; }
             .paper-sc-meta { grid-template-columns: 1fr; gap: .25rem; font-size: .8rem; }
             table.paper-sc-table th, table.paper-sc-table td { padding: .3rem .38rem; font-size: .74rem; }
-            .paper-sc-footer-note {
-                margin-top: 3mm !important;
+        }
+
+        /* ========================================================
+           EXECUTIVE A4 PRINT STYLING - ZERO SLOP, 1 SINGLE PAGE
+           ======================================================== */
+        @media print {
+            @page {
+                size: A4 portrait;
+                margin: 6mm 8mm 6mm 8mm;
+            }
+            html, body {
+                width: 100% !important;
+                height: auto !important;
+                min-height: 0 !important;
+                overflow: visible !important;
+                background: #ffffff !important;
+                color: #000000 !important;
+                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            /* Strict UI Hiding: Hide toolbars, headers, sidebars, buttons, inputs */
+            .sidebar, .erp-header, .topbar, .no-print, #login-screen, .toast-container,
+            .mobile-bottom-nav, .modal-head, .sc-modal-toolbar, #sc-quick-form,
+            .sc-quick-actions, button, select, input, textarea, .form-field, .dropzone,
+            #gudangpro-print-iframe, .modal-backdrop:not(#stockCardModal) {
+                display: none !important;
+                visibility: hidden !important;
+                height: 0 !important;
+                width: 0 !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                border: none !important;
+            }
+
+            /* Modal Backdrop Reset for Print */
+            #stockCardModal {
+                display: none !important;
+            }
+            #stockCardModal.open,
+            body.printing-stockcard #stockCardModal {
+                position: static !important;
+                inset: auto !important;
+                display: block !important;
+                width: 100% !important;
+                height: auto !important;
+                background: #ffffff !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                opacity: 1 !important;
+                overflow: visible !important;
+                box-shadow: none !important;
+                backdrop-filter: none !important;
+                z-index: auto !important;
+            }
+            #stockCardModal .modal-box {
+                position: static !important;
+                transform: none !important;
+                max-width: 100% !important;
+                width: 100% !important;
+                max-height: none !important;
+                height: auto !important;
+                overflow: visible !important;
+                border: none !important;
+                box-shadow: none !important;
+                background: #ffffff !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+            #stockCardModal .modal-body {
+                padding: 0 !important;
+                margin: 0 !important;
+                background: #ffffff !important;
+                overflow: visible !important;
+                max-height: none !important;
+                height: auto !important;
+            }
+
+            /* When printing stock card (modal or body flag), HIDE ALL OTHER PAGES */
+            body.printing-stockcard .page,
+            body.sc-modal-open .page,
+            body:has(#stockCardModal.open) .page,
+            #stockCardModal.open ~ * .page {
+                display: none !important;
+                visibility: hidden !important;
+                height: 0 !important;
+            }
+
+            /* When printing bin card tab without modal open */
+            body:not(.printing-stockcard):not(.sc-modal-open):not(:has(#stockCardModal.open)) .page:not(#tab-bincard) {
+                display: none !important;
+            }
+            body:not(.printing-stockcard):not(.sc-modal-open):not(:has(#stockCardModal.open)) #tab-bincard.active {
+                display: block !important;
+                overflow: visible !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+            body:not(.printing-stockcard):not(.sc-modal-open):not(:has(#stockCardModal.open)) #tab-bincard .panel {
+                border: none !important;
+                box-shadow: none !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                background: transparent !important;
+            }
+
+            /* The Authentic Southwind Plantation Ledger Sheet */
+            .paper-stockcard {
+                width: 100% !important;
+                max-width: 194mm !important;
+                margin: 0 auto !important;
+                border: 2px solid #000000 !important;
+                box-shadow: none !important;
+                padding: 4.5mm 5.5mm !important;
+                background: #ffffff !important;
+                page-break-inside: avoid !important;
+                break-inside: avoid !important;
+                page-break-after: avoid !important;
+                break-after: avoid !important;
+                display: block !important;
+            }
+            .paper-sc-company {
+                text-align: center !important;
+                font-size: 13pt !important;
+                font-weight: 800 !important;
+                letter-spacing: .05em !important;
+                text-transform: uppercase !important;
+                color: #000000 !important;
+                margin-bottom: 3.5mm !important;
+            }
+            .paper-sc-meta {
                 display: flex !important;
-                justify-content: space-between !important;
-                font-size: 6.8pt !important;
-                color: #444444 !important;
-                border-top: 1px solid #000000 !important;
-                padding-top: 2px !important;
+                flex-direction: column !important;
+                gap: 1.2mm !important;
+                margin-bottom: 3mm !important;
+                font-size: 8.8pt !important;
+            }
+            .paper-sc-field {
+                display: flex !important;
+                align-items: baseline !important;
+                gap: 2mm !important;
+                margin-bottom: 0.6mm !important;
+            }
+            .paper-sc-field b {
+                min-width: 65px !important;
+                color: #000000 !important;
+                font-weight: 700 !important;
+            }
+            .paper-sc-line {
+                flex: 1 !important;
+                border-bottom: 1.5px solid #000000 !important;
+                padding: 0 2mm 0.5mm 2mm !important;
+                font-weight: 700 !important;
+                min-height: 4mm !important;
+                color: #000000 !important;
+            }
+            .paper-sc-code-red {
+                font-family: "Courier New", Courier, monospace !important;
+                font-size: 11pt !important;
+                font-weight: 800 !important;
+                color: #c92a2a !important;
+                display: inline-block !important;
+            }
+            .paper-sc-table-wrap {
+                overflow: visible !important;
+                width: 100% !important;
+            }
+            table.paper-sc-table {
+                width: 100% !important;
+                border-collapse: collapse !important;
+                border: 2px solid #000000 !important;
+                font-size: 7.5pt !important;
+                background: #ffffff !important;
+                page-break-inside: avoid !important;
+                break-inside: avoid !important;
+            }
+            table.paper-sc-table th, table.paper-sc-table td {
+                border: 1px solid #000000 !important;
+                padding: 2.8px 4px !important;
+                color: #000000 !important;
+                line-height: 1.15 !important;
+            }
+            table.paper-sc-table thead th {
+                background: #ece8dc !important;
+                color: #000000 !important;
+                font-weight: 800 !important;
+                text-align: center !important;
+                font-size: 7.2pt !important;
+            }
+            table.paper-sc-table tbody tr.sc-bf-row td {
+                background: #f5f2e9 !important;
+                font-weight: 800 !important;
+                border-bottom: 1.5px solid #000000 !important;
+            }
+            table.paper-sc-table tbody tr.sc-empty-row td {
+                height: 15px !important;
+                border: 1px solid #cccccc !important;
             }
         }
         </style>
@@ -1971,7 +2163,7 @@ function setFieldModeBadge(offline) {
 }
 
 const DEFAULT_FERTILIZER_ITEMS = [
-    { kode_barang: '010337', nama_barang: 'PROFICOTE (CRF) / SK cote', kategori: 'FERTILIZER', satuan: 'bag', conv_factor: 25, conv_unit: 'kg', min_stock_alert: 100, aktif: 1, balances: {}, total: 0 },
+    { kode_barang: '010337', nama_barang: 'PROFICOTE (CRF)', kategori: 'FERTILIZER', satuan: 'bag', conv_factor: 25, conv_unit: 'kg', min_stock_alert: 100, aktif: 1, balances: {}, total: 0 },
     { kode_barang: 'CPD-45B', nama_barang: 'Compound 45B', kategori: 'FERTILIZER', satuan: 'bag', conv_factor: 50, conv_unit: 'kg', min_stock_alert: 50, aktif: 1, balances: {}, total: 0 },
     { kode_barang: 'CPD-55', nama_barang: 'Compound 55', kategori: 'FERTILIZER', satuan: 'bag', conv_factor: 50, conv_unit: 'kg', min_stock_alert: 50, aktif: 1, balances: {}, total: 0 },
     { kode_barang: 'NK-MIX', nama_barang: 'NK MIX', kategori: 'FERTILIZER', satuan: 'bag', conv_factor: 50, conv_unit: 'kg', min_stock_alert: 50, aktif: 1, balances: {}, total: 0 },
@@ -4094,7 +4286,8 @@ function splitItemTitle(nama, kat) {
 
 function renderPaperStockCard(d, whCode, ids) {
     const it = d.item;
-    if ($(ids.item)) $(ids.item).innerText = it.nama_barang || '-';
+    const _cleanItemName = (it.nama_barang || '').split('/')[0].trim();
+    if ($(ids.item)) $(ids.item).innerText = _cleanItemName || it.nama_barang || '-';
     if ($(ids.code)) $(ids.code).innerText = it.kode_barang;
     if ($(ids.sheet)) $(ids.sheet).innerText = `1 (${whCode === 'ALL' ? T('lbl_all_wh') : whName(whCode)})`;
     const uom = `${it.satuan}${it.conv_factor > 0 && it.conv_unit ? ' (@ ' + it.conv_factor + ' ' + it.conv_unit + ')' : ''}`;
@@ -4147,7 +4340,7 @@ function initBinCard() {
     loadBinCard();
 }
 
-// 100% ISOLATED IFRAME PRINTING FOR STOCK CARD (No modals, toolbars, buttons, or scrollbars bleed!)
+// 100% BULLETPROOF DIRECT PRINTING FOR STOCK CARD (A4 Single Page, No Toolbars!)
 async function printStockCard(customCode, customWh) {
     const code = customCode || currentScCode || ($('bc-item') && $('bc-item').value) || (STOCK[0] && STOCK[0].kode_barang);
     if (!code) {
@@ -4155,247 +4348,22 @@ async function printStockCard(customCode, customWh) {
         return;
     }
 
-    let d = (currentScData && currentScData.item && currentScData.item.kode_barang === code) ? currentScData : null;
-    const wh = customWh || ($('sc-modal-wh') && $('sc-modal-wh').value) || ($('bc-wh') && $('bc-wh').value) || 'ALL';
-    
-    if (!d) {
-        try {
-            const res = await api(`/api/bincard?kode_barang=${encodeURIComponent(code)}&gudang=${encodeURIComponent(wh)}`);
-            if (res && res.data) d = res.data;
-        } catch (e) {
-            console.warn('Fallback loading bincard for print:', e);
-        }
+    const modalOpen = $('stockCardModal') && $('stockCardModal').classList.contains('open');
+    const bcActive = $('tab-bincard') && $('tab-bincard').classList.contains('active');
+    if (!modalOpen && !bcActive) {
+        await openStockCard(code, customWh);
     }
-    if (!d) d = { opening: 0, rows: [] };
-    const it = (d && d.item) ? d.item : (STOCK.find(i => i.kode_barang === code) || { kode_barang: code, nama_barang: 'Stock Item', satuan: 'unit', kategori: 'General' });
 
-    // In Android WebView APK: use native Android printPage
+    document.body.classList.add('printing-stockcard');
+    const cleanUp = () => document.body.classList.remove('printing-stockcard');
+    window.addEventListener('afterprint', cleanUp, { once: true });
+
     if (window.AndroidBridge && typeof window.AndroidBridge.printPage === 'function') {
-        document.body.classList.add('printing-stockcard');
-        const cleanUp = () => document.body.classList.remove('printing-stockcard');
-        window.addEventListener('afterprint', cleanUp, { once: true });
         window.AndroidBridge.printPage();
         setTimeout(cleanUp, 2500);
-        return;
-    }
-
-    // In Web Browsers: Pure Isolated Iframe Printing
-    const names = splitItemTitle(it.nama_barang, it.kategori);
-    const whLabel = wh === 'ALL' ? T('lbl_all_wh') : whName(wh);
-    const uom = `${it.satuan}${it.conv_factor > 0 && it.conv_unit ? ' (@ ' + it.conv_factor + ' ' + it.conv_unit + ')' : ''}`;
-    const printDate = new Date().toLocaleString(currentLang === 'id' ? 'id-ID' : (currentLang === 'ms' ? 'ms-MY' : 'en-GB'), { dateStyle: 'medium', timeStyle: 'short' });
-
-    let rowsHtml = `
-        <tr class="sc-bf-row">
-            <td style="text-align:center;">-</td>
-            <td style="text-align:center;font-weight:800;letter-spacing:.04em;">${esc(T('sc_bf'))}</td>
-            <td style="text-align:center;">-</td>
-            <td style="text-align:center;">-</td>
-            <td style="text-align:right;">-</td>
-            <td style="text-align:right;">-</td>
-            <td style="text-align:right;font-weight:800;">${fmt(d.opening)}</td>
-            <td style="text-align:center;">${esc(T('sc_bf_sub'))}</td>
-        </tr>
-    `;
-
-    (d.rows || []).forEach(r => {
-        const isIn = r.kind === 'IN';
-        const isOut = r.kind === 'OUT';
-        const isAdj = r.kind === 'ADJ';
-        const recVal = isIn ? fmt(r.qty) : (isAdj && r.qty > 0 ? '+' + fmt(r.qty) : '-');
-        const issVal = isOut ? fmt(-r.qty) : (isAdj && r.qty < 0 ? fmt(-r.qty) : '-');
-        const reqNo = isAdj ? 'ADJ-CLOSING' : (r.requisition_no || '-');
-        rowsHtml += `
-            <tr>
-                <td style="text-align:center;font-weight:600;">${esc(fmtScDate(r.tanggal))}</td>
-                <td>${esc(r.supplier || '-')}</td>
-                <td style="text-align:center;">${esc(r.do_no || '-')}</td>
-                <td style="text-align:center;font-weight:600;">${esc(reqNo)}</td>
-                <td style="text-align:right;color:#087f5b;font-weight:700;">${recVal}</td>
-                <td style="text-align:right;color:#c92a2a;font-weight:700;">${issVal}</td>
-                <td style="text-align:right;font-weight:800;">${fmt(r.balance)}</td>
-                <td>${esc(r.allocation || '-')}</td>
-            </tr>
-        `;
-    });
-
-    const minRows = 14;
-    const remaining = Math.max(2, minRows - (d.rows ? d.rows.length : 0));
-    for (let k = 0; k < remaining; k++) {
-        rowsHtml += `<tr class="sc-empty-row"><td>&nbsp;</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>`;
-    }
-
-    const printDoc = `<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8">
-    <title>Stock Card - ${esc(it.kode_barang)} - ${esc(it.nama_barang || '')}</title>
-    <style>
-        @page {
-            size: A4 portrait;
-            margin: 8mm 8mm 8mm 8mm;
-        }
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            -webkit-print-color-adjust: exact !important;
-            print-color-adjust: exact !important;
-        }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            color: #111111;
-            background: #ffffff;
-            font-size: 8.5pt;
-            line-height: 1.25;
-            padding: 0;
-        }
-        .paper-stockcard {
-            width: 100%;
-            max-width: 194mm;
-            margin: 0 auto;
-            border: 2px solid #000000;
-            padding: 6mm 7mm;
-            background: #ffffff;
-        }
-        .paper-sc-company {
-            text-align: center;
-            font-size: 13pt;
-            font-weight: 800;
-            letter-spacing: 0.05em;
-            text-transform: uppercase;
-            margin-bottom: 4mm;
-            color: #000000;
-        }
-        .paper-sc-meta {
-            display: flex;
-            flex-direction: column;
-            gap: 1.5mm;
-            margin-bottom: 3.5mm;
-            font-size: 9pt;
-        }
-        .paper-sc-field {
-            display: flex;
-            align-items: baseline;
-            gap: 2mm;
-            margin-bottom: 1mm;
-        }
-        .paper-sc-field b {
-            min-width: 65px;
-            color: #000000;
-            font-weight: 700;
-        }
-        .paper-sc-line {
-            flex: 1;
-            border-bottom: 1.5px solid #000000;
-            padding: 0 2mm 0.5mm 2mm;
-            font-weight: 700;
-            min-height: 4mm;
-            color: #000000;
-        }
-        .paper-sc-code-red {
-            font-family: "Courier New", Courier, monospace;
-            font-size: 11pt;
-            font-weight: 800;
-            color: #c92a2a;
-            display: inline-block;
-        }
-        table.paper-sc-table {
-            width: 100%;
-            border-collapse: collapse;
-            border: 2px solid #000000;
-            font-size: 8pt;
-            background: #ffffff;
-        }
-        table.paper-sc-table th, table.paper-sc-table td {
-            border: 1px solid #000000;
-            padding: 3.5px 5px;
-            color: #000000;
-            line-height: 1.2;
-        }
-        table.paper-sc-table thead th {
-            background: #ece8dc !important;
-            color: #000000 !important;
-            font-weight: 800;
-            text-align: center;
-            font-size: 7.5pt;
-        }
-        table.paper-sc-table tbody tr.sc-bf-row td {
-            background: #f5f2e9 !important;
-            font-weight: 800;
-            border-bottom: 1.5px solid #000000;
-        }
-        table.paper-sc-table tbody tr.sc-empty-row td {
-            height: 18px;
-            border: 1px solid #cccccc;
-        }
-    </style>
-</head>
-<body>
-    <div class="paper-stockcard">
-        <div class="paper-sc-company">${esc(T('sc_company'))}</div>
-        <div class="paper-sc-meta">
-            <div class="paper-sc-field"><b>${esc(T('sc_lbl_item'))}</b><span class="paper-sc-line">${esc(it.nama_barang || '')}</span></div>
-            <div class="paper-sc-field"><b>${esc(T('sc_lbl_code'))}</b><span class="paper-sc-line"><span class="paper-sc-code-red">${esc(it.kode_barang)}</span></span></div>
-            <div class="paper-sc-field"><b>${esc(T('sc_lbl_sheet'))}</b><span class="paper-sc-line">1 (${esc(whLabel)})</span></div>
-            <div class="paper-sc-field"><b>${esc(T('sc_lbl_unit'))}</b><span class="paper-sc-line">${esc(uom)}</span></div>
-        </div>
-        <table class="paper-sc-table">
-            <thead>
-                <tr>
-                    <th rowspan="2" style="width:70px;">${esc(T('sc_th_date'))}</th>
-                    <th colspan="2">${esc(T('sc_th_receipt'))}</th>
-                    <th colspan="1">${esc(T('sc_th_issue'))}</th>
-                    <th colspan="3">${esc(T('sc_th_qty'))}</th>
-                    <th rowspan="2" style="min-width:110px;">${esc(T('sc_th_alloc'))}</th>
-                </tr>
-                <tr>
-                    <th>${esc(T('sc_th_supp'))}</th>
-                    <th style="width:75px;">${esc(T('sc_th_do'))}</th>
-                    <th style="width:85px;">${esc(T('sc_th_req'))}</th>
-                    <th style="width:65px;">${esc(T('sc_th_rec_val'))}</th>
-                    <th style="width:65px;">${esc(T('sc_th_iss_val'))}</th>
-                    <th style="width:75px;">${esc(T('sc_th_bal_val'))}</th>
-                </tr>
-            </thead>
-            <tbody>
-                ${rowsHtml}
-            </tbody>
-        </table>
-    </div>
-</body>
-</html>`;
-    let pframe = document.getElementById('gudangpro-print-iframe');
-    if (pframe) {
-        pframe.remove();
-    }
-    pframe = document.createElement('iframe');
-    pframe.id = 'gudangpro-print-iframe';
-    pframe.style.position = 'fixed';
-    pframe.style.left = '-9999px';
-    pframe.style.top = '-9999px';
-    pframe.style.width = '210mm';
-    pframe.style.height = '297mm';
-    pframe.style.border = 'none';
-    pframe.style.opacity = '0.01';
-    pframe.style.pointerEvents = 'none';
-    document.body.appendChild(pframe);
-
-    try {
-        const frameDoc = pframe.contentWindow.document;
-        frameDoc.open();
-        frameDoc.write(printDoc);
-        frameDoc.close();
-
-        setTimeout(() => {
-            pframe.contentWindow.focus();
-            pframe.contentWindow.print();
-        }, 200);
-    } catch (err) {
-        console.error('Iframe print error', err);
-        document.body.classList.add('printing-stockcard');
+    } else {
         window.print();
-        setTimeout(() => document.body.classList.remove('printing-stockcard'), 2000);
+        setTimeout(cleanUp, 1500);
     }
 }
 
@@ -5159,7 +5127,7 @@ if ('serviceWorker' in navigator && window.location.protocol !== 'file:' && !win
         navigator.serviceWorker.getRegistrations().then(regs => regs.forEach(r => r.unregister())).catch(() => {});
         if (window.caches) caches.keys().then(keys => keys.forEach(k => caches.delete(k))).catch(() => {});
     } else {
-        window.addEventListener('load', () => { navigator.serviceWorker.register('/sw.js?v=5.5').then(reg => { reg.update().catch(() => {}); }).catch(err => console.warn('SW registration failed:', err)); });
+        window.addEventListener('load', () => { navigator.serviceWorker.register('/sw.js?v=5.6').then(reg => { reg.update().catch(() => {}); }).catch(err => console.warn('SW registration failed:', err)); });
     }
 }
 window.addEventListener('keydown', (e) => {
