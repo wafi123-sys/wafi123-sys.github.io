@@ -1,4 +1,4 @@
-const CACHE_NAME = 'gudangpro-v5.1';
+const CACHE_NAME = 'gudangpro-v5.2';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
@@ -52,11 +52,17 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// Fetch handler: Network-First for Navigation (always show latest web app), Cache-First for static assets
+// Fetch handler
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
 
-  // 1. API and dynamic routes: Network first, fall back to offline JSON marker
+  // 1. CRITICAL: NEVER intercept APK file downloads!
+  // Allowing browser and Android Download Manager to stream/save APK files natively
+  if (url.pathname.endsWith('.apk') || url.pathname.includes('.apk')) {
+    return; // Pass through to native browser network engine
+  }
+
+  // 2. API and dynamic routes: Network first, fall back to offline JSON marker
   if (url.pathname.startsWith('/api/') || url.pathname.startsWith('/uploads/')) {
     event.respondWith(
       fetch(event.request)
@@ -85,7 +91,7 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // 2. Navigation / HTML pages: Network-First with offline cache fallback
+  // 3. Navigation / HTML pages: Network-First with offline cache fallback
   if (event.request.mode === 'navigate') {
     event.respondWith(
       fetch(event.request)
@@ -105,7 +111,7 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // 3. Static assets: Cache-First with background revalidation
+  // 4. Static assets: Cache-First with background revalidation
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
       if (cachedResponse) return cachedResponse;

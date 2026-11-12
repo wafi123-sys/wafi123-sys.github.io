@@ -106,6 +106,7 @@ jobs:
           import android.webkit.WebSettings;
           import android.webkit.WebView;
           import android.webkit.WebViewClient;
+          import android.webkit.DownloadListener;
           import android.widget.Toast;
           import java.io.ByteArrayOutputStream;
           import java.io.File;
@@ -185,6 +186,18 @@ jobs:
                   s.setCacheMode(WebSettings.LOAD_DEFAULT);
 
                   webView.setWebViewClient(new WebViewClient());
+                  webView.setDownloadListener(new DownloadListener() {
+                      @Override
+                      public void onDownloadStart(String url, String userAgent, String contentDisposition, String mimeType, long contentLength) {
+                          try {
+                              Intent intent = new Intent(Intent.ACTION_VIEW);
+                              intent.setData(Uri.parse(url));
+                              startActivity(intent);
+                          } catch (Exception e) {
+                              Toast.makeText(MainActivity.this, "Gagal membuka link unduhan: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                          }
+                      }
+                  });
                   webView.setWebChromeClient(new WebChromeClient() {
                       @Override
                       public void onPermissionRequest(final PermissionRequest request) {
@@ -402,6 +415,7 @@ jobs:
         with:
           name: GudangPro-Offline-APK
           path: GudangPro-Offline.apk
+
 
 
 

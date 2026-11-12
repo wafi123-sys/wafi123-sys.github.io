@@ -1059,10 +1059,10 @@
             <svg class="nav-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
             <span class="nav-txt">Data Sync &amp; Backup</span><span class="nav-chev">›</span>
         </button>
-        <a href="GudangPro-v5.0-Offline.apk" download="GudangPro-v5.0-Offline.apk" class="nav-link sidebar-apk-download" style="color:#63e6be;text-decoration:none;margin-top:.4rem;background:rgba(12,166,120,0.18);border:1px solid rgba(12,166,120,0.4);border-radius:6px;font-weight:700;" title="Download Offline APK">
+        <button type="button" class="nav-link sidebar-apk-download" onclick="openApkDownloadModal()" style="color:#63e6be;margin-top:.4rem;background:rgba(12,166,120,0.18);border:1px solid rgba(12,166,120,0.4);border-radius:6px;font-weight:700;width:100%;text-align:left;" title="Download Offline APK">
             <svg class="nav-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
             <span class="nav-txt">Download APK v5.0 (HP)</span><span class="nav-chev">›</span>
-        </a>
+        </button>
         <button id="pwa-install-btn"  class="nav-link" style="display:none; margin-top:.35rem; color:#63e6be; background:rgba(4,42,52,0.45);" onclick="installPWA()"><span class="nav-txt">Install WebAPK Now</span><span class="nav-chev">›</span></button>
     </nav>
     <div class="sidebar-footer">
@@ -1086,10 +1086,10 @@
             <span class="erp-sys-title">Southwind Plantation &bull; Warehouse Control <span class="tag tag-green" style="font-size:.65rem;padding:1px 6px;margin-left:6px;vertical-align:middle;">v5.0</span></span>
         </div>
         <div class="erp-header-right">
-            <a href="GudangPro-v5.0-Offline.apk" download="GudangPro-v5.0-Offline.apk" class="erp-pill" style="cursor:pointer;background:#0ca678;color:#fff;text-decoration:none;font-weight:700;display:inline-flex;align-items:center;gap:5px;" title="Unduh APK GudangPro Offline untuk HP Android">
+            <button type="button" class="erp-pill" onclick="openApkDownloadModal()" style="cursor:pointer;background:#0ca678;color:#fff;font-weight:700;display:inline-flex;align-items:center;gap:5px;border:none;" title="Unduh APK GudangPro Offline untuk HP Android">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                 <span>Unduh APK v5.0</span>
-            </a>
+            </button>
             <div class="erp-pill" onclick="switchTab('warehouses')" style="cursor:pointer;">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
                 <span>Multi-Warehouse</span>
@@ -1898,7 +1898,7 @@
                 </div>
                 <div style="display:flex;gap:.5rem;">
                     <button type="button" class="btn btn-outline btn-sm" onclick="clearOfflineFieldTx()">Hapus Cache</button>
-                    <a href="GudangPro-v5.0-Offline.apk" download="GudangPro-v5.0-Offline.apk" class="btn btn-primary btn-sm" style="text-decoration:none;">Download APK Offline</a>
+                    <button type="button" class="btn btn-primary btn-sm" onclick="openApkDownloadModal()">Download APK Offline</button>
                 </div>
             </div>
 
@@ -2199,6 +2199,70 @@
                     <span id="sc-m-printed-note">Halaman 1 dari 1</span>
                 </div>
             </div>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL: Download APK & Panduan Instalasi -->
+<div class="modal-backdrop" id="apkDownloadModal" onclick="if(event.target===this) closeModal('apkDownloadModal')">
+    <div class="modal-box" style="max-width:560px;width:95vw;padding:0;overflow:hidden;border-radius:12px;border:1.5px solid var(--border);box-shadow:0 12px 36px rgba(0,0,0,0.25);">
+        <div class="modal-head" style="background:#042a34;color:#fff;padding:1rem 1.25rem;display:flex;justify-content:space-between;align-items:center;">
+            <div style="display:flex;align-items:center;gap:.6rem;">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#63e6be" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                <div>
+                    <div style="font-weight:800;font-size:1.05rem;line-height:1.2;">Unduh GudangPro APK Android</div>
+                    <div style="font-size:.75rem;color:#adb5bd;">Versi 5.0 (Build Resmi 2026 &bull; 100% Offline)</div>
+                </div>
+            </div>
+            <button type="button" class="btn btn-outline btn-sm" onclick="closeModal('apkDownloadModal')" style="color:#fff;border-color:rgba(255,255,255,0.3);padding:.25rem .5rem;">&times;</button>
+        </div>
+        <div class="modal-body" style="padding:1.2rem;background:#f8fafc;max-height:75vh;overflow-y:auto;">
+            <!-- File Info Card -->
+            <div style="background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:.85rem 1rem;margin-bottom:1rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.5rem;">
+                <div>
+                    <div style="font-weight:800;font-size:.9rem;color:#0f172a;">GudangPro-v5.0-Offline.apk</div>
+                    <div style="font-size:.76rem;color:#64748b;margin-top:2px;">Ukuran: <b>18.94 MB</b> &bull; Paket APK Lengkap dengan AI Model Offline</div>
+                </div>
+                <span class="tag tag-green" style="font-weight:700;">Build Siap Pakai</span>
+            </div>
+
+            <!-- Direct Download Buttons -->
+            <div style="display:flex;flex-direction:column;gap:.65rem;margin-bottom:1.15rem;">
+                <a href="https://github.com/wafi123-sys/wafi123-sys.github.io/releases/download/v5.0/GudangPro-v5.0-Offline.apk" target="_blank" rel="noopener noreferrer" class="btn btn-primary" style="background:#0ca678;border-color:#0ca678;padding:.8rem 1rem;font-size:.95rem;font-weight:800;text-decoration:none;display:flex;align-items:center;justify-content:center;gap:.6rem;box-shadow:0 4px 12px rgba(12,166,120,0.3);border-radius:8px;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                    <span>Unduh APK via Server CDN GitHub (Paling Cepat &amp; Stabil)</span>
+                </a>
+                <a href="GudangPro-v5.0-Offline.apk" download="GudangPro-v5.0-Offline.apk" target="_blank" rel="noopener noreferrer" class="btn btn-outline" style="padding:.65rem 1rem;font-size:.85rem;font-weight:700;text-decoration:none;display:flex;align-items:center;justify-content:center;gap:.5rem;border-radius:8px;background:#fff;">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                    <span>Unduh Langsung dari Web Server (Mirror / Jalur Cadangan)</span>
+                </a>
+            </div>
+
+            <!-- Panduan Anti-Ngebug / Solusi Peringatan Browser -->
+            <div style="background:#fff9db;border:1px solid #ffe066;border-radius:8px;padding:.85rem 1rem;font-size:.8rem;color:#5c4700;margin-bottom:1rem;">
+                <div style="font-weight:800;font-size:.85rem;margin-bottom:.35rem;display:flex;align-items:center;gap:.4rem;">
+                    <span>⚠️ PENTING SAAT MENGUNDUH DI HP:</span>
+                </div>
+                <ul style="margin:0;padding-left:1.2rem;line-height:1.45;">
+                    <li>Jika Chrome / browser HP menampilkan <b>"File ini mungkin berbahaya" (File might be harmful)</b>, tekan <b>"Tetap Download" / "Download Anyway"</b>. Ini adalah peringatan standar Android untuk semua APK yang diunduh langsung tanpa Play Store.</li>
+                    <li>File APK ini 100% aman dan berisi sistem GudangPro serta modul offline AI TensorFlow untuk menghitung karung.</li>
+                </ul>
+            </div>
+
+            <!-- Langkah Pemasangan -->
+            <div style="background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:.85rem 1rem;font-size:.8rem;">
+                <div style="font-weight:800;font-size:.82rem;color:#0f172a;margin-bottom:.4rem;">Langkah Pemasangan di HP Android:</div>
+                <ol style="margin:0;padding-left:1.2rem;line-height:1.5;color:#334155;">
+                    <li>Klik salah satu tombol <b>Unduh APK</b> di atas.</li>
+                    <li>Tunggu proses pengunduhan selesai (18.9 MB).</li>
+                    <li>Buka menu Notifikasi HP atau aplikasi <b>File Manager &rarr; Download</b>.</li>
+                    <li>Ketuk <b>GudangPro-v5.0-Offline.apk</b> lalu pilih <b>Pasang / Install</b>.</li>
+                    <li>Buka aplikasi GudangPro dan gunakan secara penuh offline di kebun!</li>
+                </ol>
+            </div>
+        </div>
+        <div class="modal-foot" style="background:#fff;border-top:1px solid #e2e8f0;padding:.75rem 1.25rem;display:flex;justify-content:flex-end;">
+            <button type="button" class="btn btn-outline" onclick="closeModal('apkDownloadModal')">Tutup</button>
         </div>
     </div>
 </div>
@@ -3239,6 +3303,16 @@ function updateServerModalInfo() {
     if ($('cfg-server-url')) {
         $('cfg-server-url').value = localStorage.getItem('gudangpro_server_url') || ACTIVE_SERVER_URL || '';
     }
+}
+
+function openApkDownloadModal() {
+    if (window.AndroidBridge) {
+        if (confirm('Aplikasi GudangPro Android sudah terpasang dan aktif di HP ini.\n\nApakah Anda ingin mengunduh ulang file APK terbaru (v5.0) via browser HP?')) {
+            window.open('https://github.com/wafi123-sys/wafi123-sys.github.io/releases/download/v5.0/GudangPro-v5.0-Offline.apk', '_system');
+        }
+        return;
+    }
+    openModal('apkDownloadModal');
 }
 
 function openServerConfigModal() {
