@@ -782,14 +782,182 @@
             table.paper-sc-table th, table.paper-sc-table td { padding: .3rem .38rem; font-size: .73rem; }
         }
         @media print {
-            body { display: block; height: auto; overflow: visible; background: #fff; }
-            .sidebar, .erp-header, .topbar, .no-print, #login-screen, .toast-container { display: none !important; }
+            @page {
+                size: A4 portrait;
+                margin: 10mm 8mm 10mm 8mm;
+            }
+            html, body {
+                display: block !important;
+                height: auto !important;
+                min-height: 0 !important;
+                overflow: visible !important;
+                background: #ffffff !important;
+                color: #000000 !important;
+                font-family: Arial, Helvetica, sans-serif !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+            .sidebar, .erp-header, .topbar, .no-print, #login-screen, .toast-container,
+            .mobile-bottom-nav, .modal-backdrop:not(#stockCardModal),
+            .sc-modal-toolbar, #sc-quick-form, .modal-head, .modal-foot,
+            .sc-quick-actions, button, select, input {
+                display: none !important;
+            }
+
+            /* Hide background page when Stock Card is open or printing */
+            body.printing-stockcard .page,
+            body:has(#stockCardModal.open) .page,
+            #stockCardModal.open ~ * .page {
+                display: none !important;
+            }
+
             .page { display: none !important; padding: 0; }
             .page.active { display: block !important; overflow: visible; }
-            .panel { border: none; box-shadow: none; }
-            .print-only { display: block; margin-bottom: 1rem; }
-            table { font-size: 11px; }
-            thead th { background: #eee !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .panel { border: none !important; box-shadow: none !important; }
+            .print-only { display: block !important; margin-bottom: 1rem; }
+
+            /* Pure Fullscreen White Paper for Stock Card Print */
+            #stockCardModal.open {
+                position: static !important;
+                inset: auto !important;
+                display: block !important;
+                width: 100% !important;
+                height: auto !important;
+                background: #ffffff !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                opacity: 1 !important;
+                overflow: visible !important;
+                box-shadow: none !important;
+                backdrop-filter: none !important;
+                z-index: auto !important;
+            }
+            #stockCardModal.open .modal-box {
+                position: static !important;
+                transform: none !important;
+                max-width: 100% !important;
+                width: 100% !important;
+                max-height: none !important;
+                height: auto !important;
+                overflow: visible !important;
+                border: none !important;
+                box-shadow: none !important;
+                background: #ffffff !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+            #stockCardModal.open .modal-body {
+                padding: 0 !important;
+                margin: 0 !important;
+                background: #ffffff !important;
+                overflow: visible !important;
+                max-height: none !important;
+                height: auto !important;
+            }
+
+            /* Physical Sheet Formatting */
+            .paper-stockcard {
+                width: 100% !important;
+                max-width: 100% !important;
+                border: none !important;
+                box-shadow: none !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                background: #ffffff !important;
+            }
+            .paper-sc-company {
+                text-align: center !important;
+                font-size: 13pt !important;
+                font-weight: 900 !important;
+                color: #000000 !important;
+                letter-spacing: .05em !important;
+                text-transform: uppercase !important;
+                margin-bottom: 6px !important;
+            }
+            .paper-sc-meta {
+                display: grid !important;
+                grid-template-columns: 1.25fr 1fr !important;
+                gap: 4px 14px !important;
+                margin-bottom: 8px !important;
+                font-size: 9.5pt !important;
+                color: #000000 !important;
+            }
+            .paper-sc-field {
+                display: flex !important;
+                align-items: baseline !important;
+                gap: 4px !important;
+                margin-bottom: 2px !important;
+            }
+            .paper-sc-field b {
+                color: #000000 !important;
+                font-weight: 800 !important;
+                white-space: nowrap !important;
+                min-width: 65px !important;
+            }
+            .paper-sc-line {
+                flex: 1 !important;
+                border-bottom: 1.5px solid #000000 !important;
+                color: #000000 !important;
+                font-weight: 700 !important;
+                padding-bottom: 1px !important;
+            }
+            .paper-sc-code-red {
+                color: #c92a2a !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+                font-weight: 900 !important;
+                font-size: 11pt !important;
+            }
+
+            /* Table Formatting */
+            .paper-sc-table-wrap {
+                width: 100% !important;
+                overflow: visible !important;
+            }
+            table.paper-sc-table {
+                width: 100% !important;
+                border-collapse: collapse !important;
+                border: 2px solid #000000 !important;
+                font-size: 8.5pt !important;
+                background: #ffffff !important;
+            }
+            table.paper-sc-table th,
+            table.paper-sc-table td {
+                border: 1px solid #000000 !important;
+                padding: 4px 6px !important;
+                color: #000000 !important;
+                line-height: 1.2 !important;
+                vertical-align: middle !important;
+            }
+            table.paper-sc-table thead {
+                display: table-header-group !important;
+            }
+            table.paper-sc-table thead th {
+                background: #e9ecef !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+                color: #000000 !important;
+                font-weight: 800 !important;
+                text-align: center !important;
+                border: 1px solid #000000 !important;
+            }
+            table.paper-sc-table tbody tr {
+                page-break-inside: avoid !important;
+                break-inside: avoid !important;
+            }
+            table.paper-sc-table tbody tr.sc-bf-row td {
+                background: #f1f3f5 !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+                font-weight: 800 !important;
+                border-bottom: 1.5px solid #000000 !important;
+            }
+            table.paper-sc-table tbody tr.sc-empty-row {
+                height: 22px !important;
+            }
+            table.paper-sc-table tbody tr.sc-empty-row td {
+                border: 1px solid #ccc !important;
+            }
         }
     </style>
 </head>
@@ -1727,7 +1895,7 @@
                     <button type="button" class="btn btn-primary btn-sm" onclick="toggleScQuickForm('IN')">+ Barang Masuk</button>
                     <button type="button" class="btn btn-destructive btn-sm" onclick="toggleScQuickForm('OUT')">- Barang Keluar</button>
                     <button type="button" class="btn btn-outline btn-sm" onclick="jumpFromStockCard('CAM')">Kamera AI</button>
-                    <button type="button" class="btn btn-outline btn-sm" onclick="printBinCard()">Cetak</button>
+                    <button type="button" class="btn btn-outline btn-sm" onclick="printStockCard()">Cetak</button>
                     <button type="button" class="btn btn-outline btn-sm" onclick="exportStockCardExcel()">Excel</button>
                 </div>
             </div>
@@ -3804,12 +3972,20 @@ function initBinCard() {
     }
     loadBinCard();
 }
-function printBinCard() {
+function printStockCard() {
+    document.body.classList.add('printing-stockcard');
+    const cleanUp = () => document.body.classList.remove('printing-stockcard');
+    window.addEventListener('afterprint', cleanUp, { once: true });
     if (window.AndroidBridge && typeof window.AndroidBridge.printPage === 'function') {
         window.AndroidBridge.printPage();
+        setTimeout(cleanUp, 2000);
     } else {
         window.print();
+        setTimeout(cleanUp, 1500);
     }
+}
+function printBinCard() {
+    printStockCard();
 }
 async function loadBinCard() {
     const code = $('bc-item').value || (STOCK[0] && STOCK[0].kode_barang);
