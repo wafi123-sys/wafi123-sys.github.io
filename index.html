@@ -676,195 +676,156 @@
         .stock-row-clickable { cursor: pointer; transition: background .12s ease; }
         .stock-row-clickable:hover { background: #e6fcf5 !important; }
         .stock-row-clickable:active { background: #c3fae8 !important; }
+        /* Authentic Southwind Plantation Paper Stock Card */
         .paper-stockcard {
-            background: #ffffff;
-            border: 1.5px solid #0f172a;
-            border-radius: 8px;
-            padding: 1.25rem 1.4rem;
-            color: #0f172a;
-            box-shadow: 0 4px 18px rgba(15, 23, 42, 0.08);
+            background: #fffdf8;
+            border: 2px solid #222222;
+            border-radius: 4px;
+            padding: 1.15rem 1.25rem;
+            color: #111111;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.06);
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
         }
-        .paper-sc-header-bar {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            border-bottom: 2px solid #0f172a;
-            padding-bottom: .65rem;
-            margin-bottom: .9rem;
-            gap: 1rem;
-        }
         .paper-sc-company {
-            font-size: 1.22rem;
-            font-weight: 900;
-            letter-spacing: .04em;
-            color: #0f172a;
-            text-transform: uppercase;
-            line-height: 1.2;
-        }
-        .paper-sc-subtitle {
-            font-size: .82rem;
-            font-weight: 700;
-            color: #475569;
+            text-align: center;
+            font-size: 1.15rem;
+            font-weight: 800;
             letter-spacing: .05em;
-            margin-top: .15rem;
+            text-transform: uppercase;
+            margin-bottom: .85rem;
+            color: #111111;
         }
-        .paper-sc-ref-box {
-            text-align: right;
-            font-size: .75rem;
-            color: #64748b;
-            line-height: 1.4;
-            white-space: nowrap;
-        }
-        .paper-sc-meta-card {
+        .paper-sc-meta {
             display: grid;
             grid-template-columns: 1.25fr 1fr;
             gap: .75rem 1.5rem;
-            background: #f8fafc;
-            border: 1px solid #e2e8f0;
-            border-radius: 6px;
-            padding: .75rem .95rem;
-            margin-bottom: 1rem;
+            margin-bottom: .85rem;
+            font-size: .88rem;
         }
-        .sc-meta-col {
-            display: flex;
-            flex-direction: column;
-            gap: .4rem;
-        }
-        .sc-meta-row {
+        .paper-sc-field {
             display: flex;
             align-items: baseline;
-            gap: .5rem;
-            font-size: .82rem;
+            gap: .45rem;
+            margin-bottom: .35rem;
         }
-        .sc-meta-label {
-            min-width: 125px;
-            font-size: .74rem;
+        .paper-sc-field b {
+            white-space: nowrap;
             font-weight: 700;
-            color: #64748b;
-            text-transform: uppercase;
-            letter-spacing: .03em;
+            color: #111111;
+            min-width: 76px;
         }
-        .sc-meta-value {
+        .paper-sc-line {
             flex: 1;
+            border-bottom: 1.5px solid #222222;
+            padding: 0 .35rem .1rem .35rem;
             font-weight: 700;
-            color: #0f172a;
-            border-bottom: 1px dashed #cbd5e1;
-            padding-bottom: 1px;
+            min-height: 1.35rem;
+            color: #111111;
         }
-        .sc-badge-code {
-            display: inline-block;
-            background: #fee2e2;
-            color: #b91c1c;
-            border: 1px solid #f87171;
-            padding: 1px 8px;
-            border-radius: 4px;
+        .paper-sc-code-red {
             font-family: 'JetBrains Mono', Consolas, monospace;
-            font-size: .95rem;
+            font-size: 1.15rem;
             font-weight: 800;
+            color: #c92a2a;
             letter-spacing: .04em;
+            display: inline-block;
         }
         .paper-sc-table-wrap {
             width: 100%;
             overflow-x: auto;
             -webkit-overflow-scrolling: touch;
-            margin-bottom: 1rem;
+            margin-bottom: .85rem;
         }
         table.paper-sc-table {
             width: 100%;
             border-collapse: collapse;
-            border: 1.5px solid #0f172a;
-            background: #ffffff;
+            border: 2px solid #222222;
+            background: #fffdf8;
             font-size: .82rem;
         }
         table.paper-sc-table th,
         table.paper-sc-table td {
-            border: 1px solid #cbd5e1;
-            padding: .42rem .55rem;
-            color: #0f172a;
+            border: 1px solid #333333;
+            padding: .38rem .52rem;
+            color: #111111;
             line-height: 1.25;
-            vertical-align: middle;
         }
-        table.paper-sc-table thead tr:first-child th {
-            background: #0f172a !important;
-            color: #ffffff !important;
+        table.paper-sc-table thead th {
+            background: #f4f0e4 !important;
+            color: #111111 !important;
             font-weight: 800;
-            font-size: .75rem;
-            letter-spacing: .03em;
-            border: 1px solid #0f172a;
-        }
-        table.paper-sc-table thead tr:last-child th {
-            background: #f1f5f9 !important;
-            color: #0f172a !important;
-            font-weight: 700;
-            font-size: .73rem;
-            border: 1px solid #cbd5e1;
             text-align: center;
+            text-transform: none;
+            font-size: .78rem;
+            letter-spacing: .02em;
+            border: 1px solid #333333;
         }
-        table.paper-sc-table tbody tr:nth-child(even) { background: #fcfcfd; }
         table.paper-sc-table tbody tr.sc-bf-row td {
             font-weight: 800;
-            background: #f8fafc;
-            border-bottom: 1.5px solid #0f172a;
+            background: #faf6ea;
+            border-bottom: 1.5px solid #222222;
         }
         table.paper-sc-table tbody tr.sc-empty-row td {
             height: 22px;
-            border: 1px solid #e2e8f0;
+            border: 1px solid #d4cebe;
         }
         .paper-sc-signatures {
             display: grid;
             grid-template-columns: 1fr 1fr 1fr;
-            gap: 1rem;
-            margin-top: 1rem;
+            gap: 1.25rem;
+            margin-top: .85rem;
             page-break-inside: avoid;
         }
-        .sc-sig-card {
-            border: 1px solid #cbd5e1;
-            border-radius: 6px;
-            padding: .55rem .75rem;
-            background: #ffffff;
-        }
-        .sc-sig-header {
-            font-size: .75rem;
-            font-weight: 800;
-            text-transform: uppercase;
-            color: #0f172a;
+        .sc-sig-block {
             text-align: center;
-            border-bottom: 1px solid #f1f5f9;
-            padding-bottom: .3rem;
-            margin-bottom: 2rem;
+        }
+        .sc-sig-title {
+            font-size: .75rem;
+            font-weight: 700;
+            color: #222222;
+            margin-bottom: .25rem;
+        }
+        .sc-sig-space {
+            height: 38px;
         }
         .sc-sig-line {
-            border-bottom: 1px solid #0f172a;
+            border-bottom: 1.5px solid #222222;
             margin-bottom: .35rem;
         }
-        .sc-sig-footer {
-            display: flex;
-            justify-content: space-between;
-            font-size: .68rem;
-            color: #64748b;
+        .sc-sig-date {
+            font-size: .72rem;
+            color: #555555;
+            text-align: left;
         }
         .paper-sc-footer-note {
             margin-top: .75rem;
             display: flex;
             justify-content: space-between;
-            align-items: center;
             font-size: .72rem;
-            color: #64748b;
-            border-top: 1px solid #e2e8f0;
-            padding-top: .4rem;
+            color: #666666;
+            border-top: 1px solid #222222;
+            padding-top: .35rem;
         }
-        .sc-quick-box {
-            background: #f8fafc;
-            border: 1.5px solid var(--accent);
-            border-radius: 8px;
-            padding: .8rem .9rem;
+        .sc-modal-toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: .75rem;
             margin-bottom: .85rem;
+            flex-wrap: wrap;
+        }
+        .sc-quick-actions {
+            display: flex;
+            gap: .4rem;
+            flex-wrap: wrap;
         }
         @media (max-width: 820px) {
             .paper-stockcard { padding: .75rem .65rem; }
-            .paper-sc-meta-card { grid-template-columns: 1fr; gap: .35rem; }
-            .paper-sc-signatures { grid-template-columns: 1fr; gap: .5rem; }
+            .paper-sc-company { font-size: .95rem; }
+            .paper-sc-meta { grid-template-columns: 1fr; gap: .25rem; font-size: .8rem; }
+            table.paper-sc-table th, table.paper-sc-table td { padding: .3rem .38rem; font-size: .74rem; }
+            .paper-sc-signatures { grid-template-columns: 1fr; gap: .75rem; }
+            .sc-sig-space { height: 26px; }
         }
 
         /* Fallback & Direct Print Styling */
@@ -880,7 +841,7 @@
                 overflow: visible !important;
                 background: #ffffff !important;
                 color: #000000 !important;
-                font-family: Arial, "Helvetica Neue", Helvetica, sans-serif !important;
+                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif !important;
                 padding: 0 !important;
                 margin: 0 !important;
             }
@@ -895,7 +856,6 @@
                 margin: 0 !important;
             }
 
-            /* When stock card is active/open, strictly hide ALL background pages */
             body.printing-stockcard .page,
             body.sc-modal-open .page,
             body:has(#stockCardModal.open) .page,
@@ -969,28 +929,75 @@
                 page-break-after: avoid !important;
                 break-after: avoid !important;
             }
-            table.paper-sc-table {
-                border: 1.5px solid #000000 !important;
+            .paper-sc-company {
+                text-align: center !important;
+                font-size: 13pt !important;
+                font-weight: 800 !important;
+                color: #000000 !important;
+                margin-bottom: 4mm !important;
             }
-            table.paper-sc-table th, table.paper-sc-table td {
-                border: 1px solid #000000 !important;
+            .paper-sc-meta {
+                display: grid !important;
+                grid-template-columns: 1.25fr 1fr !important;
+                gap: 2.5mm 8mm !important;
+                margin-bottom: 3.5mm !important;
+                font-size: 9pt !important;
             }
-            table.paper-sc-table thead tr:first-child th {
-                background: #0f172a !important;
-                color: #ffffff !important;
+            .paper-sc-field {
+                display: flex !important;
+                align-items: baseline !important;
+                gap: 2mm !important;
+                margin-bottom: 1.5mm !important;
+            }
+            .paper-sc-field b {
+                min-width: 68px !important;
+                color: #000000 !important;
+                font-weight: 700 !important;
+            }
+            .paper-sc-line {
+                flex: 1 !important;
+                border-bottom: 1.5px solid #000000 !important;
+                color: #000000 !important;
+                font-weight: 700 !important;
+                padding-bottom: 1px !important;
+            }
+            .paper-sc-code-red {
+                color: #c92a2a !important;
+                font-weight: 800 !important;
+                font-size: 11pt !important;
                 -webkit-print-color-adjust: exact !important;
                 print-color-adjust: exact !important;
             }
-            table.paper-sc-table thead tr:last-child th {
-                background: #e2e8f0 !important;
+            table.paper-sc-table {
+                width: 100% !important;
+                border-collapse: collapse !important;
+                border: 2px solid #000000 !important;
+                font-size: 8.5pt !important;
+                background: #ffffff !important;
+            }
+            table.paper-sc-table th, table.paper-sc-table td {
+                border: 1px solid #000000 !important;
+                padding: 3.5px 5px !important;
                 color: #000000 !important;
+            }
+            table.paper-sc-table thead th {
+                background: #ece8dc !important;
+                color: #000000 !important;
+                font-weight: 800 !important;
+                text-align: center !important;
                 -webkit-print-color-adjust: exact !important;
                 print-color-adjust: exact !important;
             }
             table.paper-sc-table tbody tr.sc-bf-row td {
-                background: #f1f5f9 !important;
+                background: #f5f2e9 !important;
+                font-weight: 800 !important;
+                border-bottom: 1.5px solid #000000 !important;
                 -webkit-print-color-adjust: exact !important;
                 print-color-adjust: exact !important;
+            }
+            table.paper-sc-table tbody tr.sc-empty-row td {
+                height: 18px !important;
+                border: 1px solid #cccccc !important;
             }
             .paper-sc-signatures {
                 display: grid !important;
@@ -1000,43 +1007,38 @@
                 page-break-inside: avoid !important;
                 break-inside: avoid !important;
             }
-            .sc-sig-card {
-                border: 1px solid #000000 !important;
-                padding: 4px 8px !important;
-                background: #ffffff !important;
-                border-radius: 4px !important;
-            }
-            .sc-sig-header {
-                font-size: 7.5pt !important;
-                font-weight: 800 !important;
-                text-transform: uppercase !important;
-                color: #000000 !important;
+            .sc-sig-block {
                 text-align: center !important;
-                margin-bottom: 24px !important;
-                border-bottom: 1px solid #cbd5e1 !important;
-                padding-bottom: 2px !important;
+            }
+            .sc-sig-title {
+                font-size: 7.5pt !important;
+                font-weight: 700 !important;
+                color: #000000 !important;
+                margin-bottom: 1.5mm !important;
+            }
+            .sc-sig-space {
+                height: 24px !important;
             }
             .sc-sig-line {
-                border-bottom: 1px solid #000000 !important;
-                margin-bottom: 3px !important;
+                border-bottom: 1.5px solid #000000 !important;
+                margin-bottom: 1mm !important;
             }
-            .sc-sig-footer {
-                display: flex !important;
-                justify-content: space-between !important;
+            .sc-sig-date {
                 font-size: 6.8pt !important;
-                color: #334155 !important;
+                color: #333333 !important;
+                text-align: left !important;
             }
             .paper-sc-footer-note {
                 margin-top: 3mm !important;
                 display: flex !important;
                 justify-content: space-between !important;
                 font-size: 6.8pt !important;
-                color: #475569 !important;
+                color: #444444 !important;
                 border-top: 1px solid #000000 !important;
                 padding-top: 2px !important;
             }
         }
-    </style>
+        </style>
 </head>
 <body>
 
@@ -1147,6 +1149,14 @@
             <span class="erp-sys-title">Southwind Plantation &bull; Warehouse Control <span class="tag tag-green" style="font-size:.65rem;padding:1px 6px;margin-left:6px;vertical-align:middle;">v5.0</span></span>
         </div>
         <div class="erp-header-right">
+            <div class="erp-pill" style="padding:0 8px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.25);display:inline-flex;align-items:center;">
+                <span style="font-size:.8rem;margin-right:4px;">🌐</span>
+                <select id="app-lang-select" onchange="setAppLanguage(this.value)" style="background:transparent;color:#ffffff;border:none;font-weight:700;font-size:.76rem;cursor:pointer;outline:none;padding:3px 0;">
+                    <option value="en" style="color:#000;">English (EN)</option>
+                    <option value="ms" style="color:#000;">Bahasa Melayu (MS)</option>
+                    <option value="id" style="color:#000;">Bahasa Indonesia (ID)</option>
+                </select>
+            </div>
             <button type="button" class="erp-pill" onclick="openApkDownloadModal()" style="cursor:pointer;background:#0ca678;color:#fff;font-weight:700;display:inline-flex;align-items:center;gap:5px;border:none;" title="Unduh APK GudangPro Offline untuk HP Android">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                 <span>Unduh APK v5.0</span>
@@ -1481,87 +1491,63 @@
                 <div class="print-only" id="bc-print-head" style="display:none;"></div>
                 <div id="bc-title" class="cell-muted" style="display:none;"></div>
                 <div class="paper-stockcard">
-                    <div class="paper-sc-header-bar">
-                        <div style="flex:1;">
-                            <div class="paper-sc-company">SOUTHWIND PLANTATION SDN. BHD.</div>
-                            <div class="paper-sc-subtitle">ESTATE STORE &bull; BIN &amp; STOCK INVENTORY CONTROL CARD</div>
+                    <div class="paper-sc-company" id="bc-sc-comp">SOUTHWIND PLANTATION SDN. BHD.</div>
+                    <div class="paper-sc-meta">
+                        <div>
+                            <div class="paper-sc-field"><b id="bc-lbl-item">ITEM :</b><span class="paper-sc-line" id="bc-sc-item">-</span></div>
+                            <div class="paper-sc-field"><b></b><span class="paper-sc-line" id="bc-sc-sub" style="font-weight:600;color:#333;">-</span></div>
                         </div>
-                        <div class="paper-sc-ref-box">
-                            <div><b>DOC REF:</b> SWP/WH-SC/2026</div>
-                            <div><b>STATUS:</b> <span class="tag tag-green" style="font-size:.68rem;padding:1px 6px;">OFFICIAL</span></div>
-                        </div>
-                    </div>
-
-                    <div class="paper-sc-meta-card">
-                        <div class="sc-meta-col">
-                            <div class="sc-meta-row">
-                                <span class="sc-meta-label">Nama Barang (Item):</span>
-                                <span class="sc-meta-value" id="bc-sc-item">-</span>
-                            </div>
-                            <div class="sc-meta-row">
-                                <span class="sc-meta-label">Spesifikasi / Brand:</span>
-                                <span class="sc-meta-value" id="bc-sc-sub">-</span>
-                            </div>
-                            <div class="sc-meta-row">
-                                <span class="sc-meta-label">Kategori / Sifat:</span>
-                                <span class="sc-meta-value" id="bc-sc-cat">Fertilizer</span>
-                            </div>
-                        </div>
-                        <div class="sc-meta-col">
-                            <div class="sc-meta-row">
-                                <span class="sc-meta-label">Kode Barang:</span>
-                                <span class="sc-meta-value"><span class="sc-badge-code" id="bc-sc-code">-</span></span>
-                            </div>
-                            <div class="sc-meta-row">
-                                <span class="sc-meta-label">Gudang / Lokasi:</span>
-                                <span class="sc-meta-value" id="bc-sc-sheet">1 (ALL WAREHOUSES)</span>
-                            </div>
-                            <div class="sc-meta-row">
-                                <span class="sc-meta-label">Satuan (UOM):</span>
-                                <span class="sc-meta-value" id="bc-sc-unit">-</span>
-                            </div>
+                        <div>
+                            <div class="paper-sc-field"><b id="bc-lbl-code">Code No :</b><span class="paper-sc-line"><span class="paper-sc-code-red" id="bc-sc-code">-</span></span></div>
+                            <div class="paper-sc-field"><b id="bc-lbl-sheet">Sheet No :</b><span class="paper-sc-line" id="bc-sc-sheet">1 (ALL WAREHOUSES)</span></div>
+                            <div class="paper-sc-field"><b id="bc-lbl-unit">Unit :</b><span class="paper-sc-line" id="bc-sc-unit">-</span></div>
                         </div>
                     </div>
-
                     <div class="paper-sc-table-wrap">
                         <table id="tbl-bin" class="paper-sc-table">
                             <thead>
                                 <tr>
-                                    <th rowspan="2" style="width:78px;text-align:center;">TANGGAL<br><span style="font-size:.65rem;font-weight:500;opacity:.8;">DATE</span></th>
-                                    <th colspan="2" style="text-align:center;">PENERIMAAN (RECEIPT)</th>
-                                    <th colspan="1" style="text-align:center;">PENGELUARAN (ISSUE)</th>
-                                    <th colspan="3" style="text-align:center;">KUANTITAS (QUANTITIES)</th>
-                                    <th rowspan="2" style="min-width:120px;text-align:left;">ALOKASI &amp; BLOK<br><span style="font-size:.65rem;font-weight:500;opacity:.8;">FIELD / REMARKS</span></th>
+                                    <th rowspan="2" style="width:76px;" id="bc-th-date">DATE</th>
+                                    <th colspan="2" id="bc-th-rec">RECEIPT</th>
+                                    <th colspan="1" id="bc-th-iss">ISSUE</th>
+                                    <th colspan="3" id="bc-th-qty">QUANTITIES</th>
+                                    <th rowspan="2" style="min-width:115px;" id="bc-th-alloc">Allocation</th>
                                 </tr>
                                 <tr>
-                                    <th>SUPPLIER / SUMBER</th>
-                                    <th style="width:85px;">D/O NO.</th>
-                                    <th style="width:95px;">REQUISITION NO.</th>
-                                    <th style="width:75px;color:#2b8a3e;">MASUK (+)</th>
-                                    <th style="width:75px;color:#c92a2a;">KELUAR (-)</th>
-                                    <th style="width:85px;font-weight:800;">SALDO (BAL)</th>
+                                    <th id="bc-th-supp">SUPPLIER</th>
+                                    <th id="bc-th-do">D/O No.</th>
+                                    <th id="bc-th-req">Requisition No.</th>
+                                    <th id="bc-th-rec-val">Received</th>
+                                    <th id="bc-th-iss-val">Issued</th>
+                                    <th id="bc-th-bal-val">Balance</th>
                                 </tr>
                             </thead>
                             <tbody id="bc-body"></tbody>
                         </table>
                     </div>
-
                     <div class="paper-sc-signatures">
-                        <div class="sc-sig-card">
-                            <div class="sc-sig-header">Dibuat Oleh (Storekeeper)</div>
+                        <div class="sc-sig-block">
+                            <div class="sc-sig-title" id="bc-sig-p">Prepared by (Storekeeper)</div>
+                            <div class="sc-sig-space"></div>
                             <div class="sc-sig-line"></div>
-                            <div class="sc-sig-footer"><span>Nama: ....................</span><span>Tgl: ..../..../....</span></div>
+                            <div class="sc-sig-date" id="bc-sig-p-date">Date: ........................</div>
                         </div>
-                        <div class="sc-sig-card">
-                            <div class="sc-sig-header">Diperiksa (Supervisor)</div>
+                        <div class="sc-sig-block">
+                            <div class="sc-sig-title" id="bc-sig-c">Checked by (Supervisor)</div>
+                            <div class="sc-sig-space"></div>
                             <div class="sc-sig-line"></div>
-                            <div class="sc-sig-footer"><span>Nama: ....................</span><span>Tgl: ..../..../....</span></div>
+                            <div class="sc-sig-date" id="bc-sig-c-date">Date: ........................</div>
                         </div>
-                        <div class="sc-sig-card">
-                            <div class="sc-sig-header">Audit Internal / Manager</div>
+                        <div class="sc-sig-block">
+                            <div class="sc-sig-title" id="bc-sig-a">Audited by (Manager)</div>
+                            <div class="sc-sig-space"></div>
                             <div class="sc-sig-line"></div>
-                            <div class="sc-sig-footer"><span>Nama: ....................</span><span>Tgl: ..../..../....</span></div>
+                            <div class="sc-sig-date" id="bc-sig-a-date">Date: ........................</div>
                         </div>
+                    </div>
+                    <div class="paper-sc-footer-note">
+                        <span id="bc-footer-title">GudangPro Estate Warehouse Management System &bull; Official Inventory Ledger</span>
+                        <span>Sheet 1 of 1</span>
                     </div>
                 </div>
             </div>
@@ -2093,104 +2079,66 @@
                 </div>
             </form>
 
-            <!-- Physical Southwind Plantation Stock Card Sheet (Executive Modern Grade) -->
+            <!-- Physical Southwind Plantation Stock Card Sheet -->
             <div class="paper-stockcard" id="sc-modal-paper">
-                <div class="paper-sc-header-bar">
-                    <div style="flex:1;">
-                        <div class="paper-sc-company">SOUTHWIND PLANTATION SDN. BHD.</div>
-                        <div class="paper-sc-subtitle">ESTATE STORE &bull; BIN &amp; STOCK INVENTORY CONTROL CARD</div>
+                <div class="paper-sc-company" id="sc-m-comp">SOUTHWIND PLANTATION SDN. BHD.</div>
+                <div class="paper-sc-meta">
+                    <div>
+                        <div class="paper-sc-field"><b id="sc-lbl-item">ITEM :</b><span class="paper-sc-line" id="sc-m-item">-</span></div>
+                        <div class="paper-sc-field"><b></b><span class="paper-sc-line" id="sc-m-sub" style="font-weight:600;color:#333;">-</span></div>
                     </div>
-                    <div class="paper-sc-ref-box">
-                        <div><b>DOC REF:</b> SWP/WH-SC/2026</div>
-                        <div><b>STATUS:</b> <span class="tag tag-green" style="font-size:.68rem;padding:1px 6px;">OFFICIAL</span></div>
-                    </div>
-                </div>
-
-                <div class="paper-sc-meta-card">
-                    <div class="sc-meta-col">
-                        <div class="sc-meta-row">
-                            <span class="sc-meta-label">Nama Barang (Item):</span>
-                            <span class="sc-meta-value" id="sc-m-item">-</span>
-                        </div>
-                        <div class="sc-meta-row">
-                            <span class="sc-meta-label">Spesifikasi / Brand:</span>
-                            <span class="sc-meta-value" id="sc-m-sub">-</span>
-                        </div>
-                        <div class="sc-meta-row">
-                            <span class="sc-meta-label">Kategori / Sifat:</span>
-                            <span class="sc-meta-value" id="sc-m-cat">Fertilizer</span>
-                        </div>
-                    </div>
-                    <div class="sc-meta-col">
-                        <div class="sc-meta-row">
-                            <span class="sc-meta-label">Kode Barang:</span>
-                            <span class="sc-meta-value"><span class="sc-badge-code" id="sc-m-code">-</span></span>
-                        </div>
-                        <div class="sc-meta-row">
-                            <span class="sc-meta-label">Gudang / Lokasi:</span>
-                            <span class="sc-meta-value" id="sc-m-sheet">1 (ALL WAREHOUSES)</span>
-                        </div>
-                        <div class="sc-meta-row">
-                            <span class="sc-meta-label">Satuan (UOM):</span>
-                            <span class="sc-meta-value" id="sc-m-unit">-</span>
-                        </div>
+                    <div>
+                        <div class="paper-sc-field"><b id="sc-lbl-code">Code No :</b><span class="paper-sc-line"><span class="paper-sc-code-red" id="sc-m-code">-</span></span></div>
+                        <div class="paper-sc-field"><b id="sc-lbl-sheet">Sheet No :</b><span class="paper-sc-line" id="sc-m-sheet">1 (ALL WAREHOUSES)</span></div>
+                        <div class="paper-sc-field"><b id="sc-lbl-unit">Unit :</b><span class="paper-sc-line" id="sc-m-unit">-</span></div>
                     </div>
                 </div>
-
                 <div class="paper-sc-table-wrap">
                     <table id="tbl-modal-stockcard" class="paper-sc-table">
                         <thead>
                             <tr>
-                                <th rowspan="2" style="width:78px;text-align:center;">TANGGAL<br><span style="font-size:.65rem;font-weight:500;opacity:.8;">DATE</span></th>
-                                <th colspan="2" style="text-align:center;">PENERIMAAN (RECEIPT)</th>
-                                <th colspan="1" style="text-align:center;">PENGELUARAN (ISSUE)</th>
-                                <th colspan="3" style="text-align:center;">KUANTITAS (QUANTITIES)</th>
-                                <th rowspan="2" style="min-width:120px;text-align:left;">ALOKASI &amp; BLOK<br><span style="font-size:.65rem;font-weight:500;opacity:.8;">FIELD / REMARKS</span></th>
+                                <th rowspan="2" style="width:76px;" id="sc-th-date">DATE</th>
+                                <th colspan="2" id="sc-th-rec">RECEIPT</th>
+                                <th colspan="1" id="sc-th-iss">ISSUE</th>
+                                <th colspan="3" id="sc-th-qty">QUANTITIES</th>
+                                <th rowspan="2" style="min-width:115px;" id="sc-th-alloc">Allocation</th>
                             </tr>
                             <tr>
-                                <th>SUPPLIER / SUMBER</th>
-                                <th style="width:85px;">D/O NO.</th>
-                                <th style="width:95px;">REQUISITION NO.</th>
-                                <th style="width:75px;color:#2b8a3e;">MASUK (+)</th>
-                                <th style="width:75px;color:#c92a2a;">KELUAR (-)</th>
-                                <th style="width:85px;font-weight:800;">SALDO (BAL)</th>
+                                <th id="sc-th-supp">SUPPLIER</th>
+                                <th id="sc-th-do">D/O No.</th>
+                                <th id="sc-th-req">Requisition No.</th>
+                                <th id="sc-th-rec-val">Received</th>
+                                <th id="sc-th-iss-val">Issued</th>
+                                <th id="sc-th-bal-val">Balance</th>
                             </tr>
                         </thead>
                         <tbody id="sc-m-body"></tbody>
                     </table>
                 </div>
-
-                <!-- Executive Sign-off Block on Sheet -->
+                <!-- Clean Classical Signatures without AI Slop -->
                 <div class="paper-sc-signatures">
-                    <div class="sc-sig-card">
-                        <div class="sc-sig-header">Dibuat Oleh (Storekeeper)</div>
+                    <div class="sc-sig-block">
+                        <div class="sc-sig-title" id="sc-sig-p">Prepared by (Storekeeper)</div>
+                        <div class="sc-sig-space"></div>
                         <div class="sc-sig-line"></div>
-                        <div class="sc-sig-footer">
-                            <span>Nama: ....................</span>
-                            <span>Tgl: ..../..../....</span>
-                        </div>
+                        <div class="sc-sig-date" id="sc-sig-p-date">Date: ........................</div>
                     </div>
-                    <div class="sc-sig-card">
-                        <div class="sc-sig-header">Diperiksa (Supervisor)</div>
+                    <div class="sc-sig-block">
+                        <div class="sc-sig-title" id="sc-sig-c">Checked by (Supervisor)</div>
+                        <div class="sc-sig-space"></div>
                         <div class="sc-sig-line"></div>
-                        <div class="sc-sig-footer">
-                            <span>Nama: ....................</span>
-                            <span>Tgl: ..../..../....</span>
-                        </div>
+                        <div class="sc-sig-date" id="sc-sig-c-date">Date: ........................</div>
                     </div>
-                    <div class="sc-sig-card">
-                        <div class="sc-sig-header">Audit Internal / Manager</div>
+                    <div class="sc-sig-block">
+                        <div class="sc-sig-title" id="sc-sig-a">Audited by (Manager)</div>
+                        <div class="sc-sig-space"></div>
                         <div class="sc-sig-line"></div>
-                        <div class="sc-sig-footer">
-                            <span>Nama: ....................</span>
-                            <span>Tgl: ..../..../....</span>
-                        </div>
+                        <div class="sc-sig-date" id="sc-sig-a-date">Date: ........................</div>
                     </div>
                 </div>
-
                 <div class="paper-sc-footer-note">
-                    <span>GudangPro Estate Warehouse Management System &bull; Dokumen Resmi Inventaris Gudang</span>
-                    <span id="sc-m-printed-note">Halaman 1 dari 1</span>
+                    <span id="sc-footer-title">GudangPro Estate Warehouse Management System &bull; Official Inventory Ledger</span>
+                    <span>Sheet 1 of 1</span>
                 </div>
             </div>
         </div>
@@ -4173,6 +4121,248 @@ async function loadClosingHistory() {
 }
 function viewClosing(i) { $('cl-date').value = CLH[i].tanggal; $('cl-wh').value = CLH[i].gudang; loadClosing(); window.scrollTo(0, 0); }
 
+// ===================================================== MULTI-LANGUAGE SYSTEM (EN, MS, ID)
+const I18N = {
+    en: {
+        code: 'en',
+        langName: 'English',
+        // Top Header & Sidebar Navigation
+        sys_subtitle: 'Southwind Plantation • Warehouse Control',
+        nav_dashboard: 'Dashboard',
+        nav_stock: 'Stock Inventory',
+        nav_warehouses: 'Warehouses',
+        nav_receiving: 'Receiving (In)',
+        nav_issuing: 'Issuing (Requisition)',
+        nav_fertlog: 'Fertilizer Log',
+        nav_camcount: 'AI Camera Counter',
+        nav_closing: 'Daily Closing',
+        nav_bincard: 'Bin Card (Ledger)',
+        nav_sync: 'Data Sync & Backup',
+        nav_download_apk: 'Download APK v5.0 (HP)',
+        download_apk_btn: 'Download APK v5.0',
+        multi_wh: 'Multi-Warehouse',
+        sign_out: 'Sign out',
+        // Stock Card Authentic Form
+        sc_company: 'SOUTHWIND PLANTATION SDN. BHD.',
+        sc_lbl_item: 'ITEM :',
+        sc_lbl_code: 'Code No :',
+        sc_lbl_sheet: 'Sheet No :',
+        sc_lbl_unit: 'Unit :',
+        sc_th_date: 'DATE',
+        sc_th_receipt: 'RECEIPT',
+        sc_th_issue: 'ISSUE',
+        sc_th_qty: 'QUANTITIES',
+        sc_th_alloc: 'Allocation',
+        sc_th_supp: 'SUPPLIER',
+        sc_th_do: 'D/O No.',
+        sc_th_req: 'Requisition No.',
+        sc_th_rec_val: 'Received',
+        sc_th_iss_val: 'Issued',
+        sc_th_bal_val: 'Balance',
+        sc_bf: 'B/F (Balance Brought Forward)',
+        sc_bf_sub: 'Opening Balance',
+        sc_sig_p: 'Prepared by (Storekeeper)',
+        sc_sig_c: 'Checked by (Supervisor)',
+        sc_sig_a: 'Audited by (Manager)',
+        sc_sig_date: 'Date: ........................',
+        sc_footer: 'GudangPro Estate Warehouse Management System • Official Inventory Ledger',
+        // Buttons & Toolbar
+        btn_in: '+ Goods In',
+        btn_out: '- Goods Out',
+        btn_cam: 'Camera AI',
+        btn_print: 'Print',
+        btn_excel: 'Excel',
+        btn_all_dates: 'All Dates',
+        btn_show: 'Show',
+        btn_close: 'Close',
+        lbl_warehouse: 'Warehouse',
+        lbl_from_date: 'From Date',
+        lbl_to_date: 'To Date',
+        lbl_all_wh: 'ALL WAREHOUSES'
+    },
+    ms: {
+        code: 'ms',
+        langName: 'Bahasa Melayu',
+        sys_subtitle: 'Southwind Plantation • Kawalan Gudang',
+        nav_dashboard: 'Paparan Utama',
+        nav_stock: 'Inventori Stok',
+        nav_warehouses: 'Senarai Gudang',
+        nav_receiving: 'Penerimaan (Masuk)',
+        nav_issuing: 'Pengeluaran (Permintaan)',
+        nav_fertlog: 'Log Pembajaan',
+        nav_camcount: 'Pengira Kamera AI',
+        nav_closing: 'Penutupan Harian',
+        nav_bincard: 'Kad Bin / Stok',
+        nav_sync: 'Sandaran & Sinkronisasi',
+        nav_download_apk: 'Muat Turun APK v5.0 (HP)',
+        download_apk_btn: 'Muat Turun APK v5.0',
+        multi_wh: 'Pelbagai Gudang',
+        sign_out: 'Log Keluar',
+        sc_company: 'SOUTHWIND PLANTATION SDN. BHD.',
+        sc_lbl_item: 'ITEM :',
+        sc_lbl_code: 'No. Kod :',
+        sc_lbl_sheet: 'No. Helaian :',
+        sc_lbl_unit: 'Unit :',
+        sc_th_date: 'TARIKH',
+        sc_th_receipt: 'PENERIMAAN',
+        sc_th_issue: 'PENGELUARAN',
+        sc_th_qty: 'KUANTITI',
+        sc_th_alloc: 'Peruntukan',
+        sc_th_supp: 'PEMBEKAL',
+        sc_th_do: 'No. D/O',
+        sc_th_req: 'No. Requisition',
+        sc_th_rec_val: 'Diterima',
+        sc_th_iss_val: 'Dikeluarkan',
+        sc_th_bal_val: 'Baki',
+        sc_bf: 'Baki Pindahan (B/F)',
+        sc_bf_sub: 'Baki Awal',
+        sc_sig_p: 'Disediakan oleh (Penjaga Stor)',
+        sc_sig_c: 'Disemak oleh (Penyelia)',
+        sc_sig_a: 'Diaudit oleh (Pengurus Estet)',
+        sc_sig_date: 'Tarikh: ........................',
+        sc_footer: 'Sistem Pengurusan Inventori GudangPro • Dokumen Rasmi Estet',
+        btn_in: '+ Barang Masuk',
+        btn_out: '- Barang Keluar',
+        btn_cam: 'Kamera AI',
+        btn_print: 'Cetak',
+        btn_excel: 'Excel',
+        btn_all_dates: 'Semua Tarikh',
+        btn_show: 'Papar',
+        btn_close: 'Tutup',
+        lbl_warehouse: 'Gudang',
+        lbl_from_date: 'Dari Tarikh',
+        lbl_to_date: 'Hingga Tarikh',
+        lbl_all_wh: 'SEMUA GUDANG'
+    },
+    id: {
+        code: 'id',
+        langName: 'Bahasa Indonesia',
+        sys_subtitle: 'Southwind Plantation • Kontrol Gudang',
+        nav_dashboard: 'Dashboard',
+        nav_stock: 'Stok Barang',
+        nav_warehouses: 'Daftar Gudang',
+        nav_receiving: 'Barang Masuk',
+        nav_issuing: 'Barang Keluar',
+        nav_fertlog: 'Log Pupuk',
+        nav_camcount: 'Hitung Kamera AI',
+        nav_closing: 'Tutup Buku Stok',
+        nav_bincard: 'Kartu Stok (Bin Card)',
+        nav_sync: 'Sinkronisasi & Backup',
+        nav_download_apk: 'Download APK v5.0 (HP)',
+        download_apk_btn: 'Unduh APK v5.0',
+        multi_wh: 'Multi-Warehouse',
+        sign_out: 'Keluar',
+        sc_company: 'SOUTHWIND PLANTATION SDN. BHD.',
+        sc_lbl_item: 'ITEM :',
+        sc_lbl_code: 'Kode Barang :',
+        sc_lbl_sheet: 'No. Lembar :',
+        sc_lbl_unit: 'Satuan :',
+        sc_th_date: 'TANGGAL',
+        sc_th_receipt: 'PENERIMAAN',
+        sc_th_issue: 'PENGELUARAN',
+        sc_th_qty: 'KUANTITAS',
+        sc_th_alloc: 'Alokasi / Blok',
+        sc_th_supp: 'SUPPLIER',
+        sc_th_do: 'No. Surat Jalan',
+        sc_th_req: 'No. Requisition',
+        sc_th_rec_val: 'Masuk (+)',
+        sc_th_iss_val: 'Keluar (-)',
+        sc_th_bal_val: 'Saldo',
+        sc_bf: 'Saldo Pindahan (B/F)',
+        sc_bf_sub: 'Saldo Awal',
+        sc_sig_p: 'Dibuat Oleh (Storekeeper)',
+        sc_sig_c: 'Diperiksa Oleh (Supervisor)',
+        sc_sig_a: 'Diaudit Oleh (Manajer)',
+        sc_sig_date: 'Tgl: ........................',
+        sc_footer: 'GudangPro Estate Warehouse Management System • Dokumen Resmi Inventaris Gudang',
+        btn_in: '+ Barang Masuk',
+        btn_out: '- Barang Keluar',
+        btn_cam: 'Kamera AI',
+        btn_print: 'Cetak',
+        btn_excel: 'Excel',
+        btn_all_dates: 'Semua Tanggal',
+        btn_show: 'Tampilkan',
+        btn_close: 'Tutup',
+        lbl_warehouse: 'Gudang',
+        lbl_from_date: 'Dari Tanggal',
+        lbl_to_date: 'Sampai Tanggal',
+        lbl_all_wh: 'SEMUA GUDANG'
+    }
+};
+
+let currentLang = localStorage.getItem('gudangpro_lang') || 'en';
+
+function T(key) {
+    const langObj = I18N[currentLang] || I18N.en;
+    return langObj[key] || (I18N.en && I18N.en[key]) || key;
+}
+
+function setAppLanguage(lang) {
+    if (!I18N[lang]) lang = 'en';
+    currentLang = lang;
+    localStorage.setItem('gudangpro_lang', lang);
+    if ($('app-lang-select')) $('app-lang-select').value = lang;
+
+    // Apply translations to UI elements
+    const setTxt = (id, k) => { const el = $(id); if (el) el.innerText = T(k); };
+    const setHtml = (id, k) => { const el = $(id); if (el) el.innerHTML = T(k); };
+
+    // Stock Card labels in Modal & Bin Card tab
+    ['sc', 'bc'].forEach(prefix => {
+        setTxt(`${prefix}-lbl-item`, 'sc_lbl_item');
+        setTxt(`${prefix}-lbl-code`, 'sc_lbl_code');
+        setTxt(`${prefix}-lbl-sheet`, 'sc_lbl_sheet');
+        setTxt(`${prefix}-lbl-unit`, 'sc_lbl_unit');
+        setTxt(`${prefix}-th-date`, 'sc_th_date');
+        setTxt(`${prefix}-th-rec`, 'sc_th_receipt');
+        setTxt(`${prefix}-th-iss`, 'sc_th_issue');
+        setTxt(`${prefix}-th-qty`, 'sc_th_qty');
+        setTxt(`${prefix}-th-alloc`, 'sc_th_alloc');
+        setTxt(`${prefix}-th-supp`, 'sc_th_supp');
+        setTxt(`${prefix}-th-do`, 'sc_th_do');
+        setTxt(`${prefix}-th-req`, 'sc_th_req');
+        setTxt(`${prefix}-th-rec-val`, 'sc_th_rec_val');
+        setTxt(`${prefix}-th-iss-val`, 'sc_th_iss_val');
+        setTxt(`${prefix}-th-bal-val`, 'sc_th_bal_val');
+        setTxt(`${prefix}-sig-p`, 'sc_sig_p');
+        setTxt(`${prefix}-sig-c`, 'sc_sig_c');
+        setTxt(`${prefix}-sig-a`, 'sc_sig_a');
+        setTxt(`${prefix}-sig-p-date`, 'sc_sig_date');
+        setTxt(`${prefix}-sig-c-date`, 'sc_sig_date');
+        setTxt(`${prefix}-sig-a-date`, 'sc_sig_date');
+        setTxt(`${prefix}-footer-title`, 'sc_footer');
+    });
+
+    // Modal toolbar buttons
+    if ($('sc-btn-in')) $('sc-btn-in').innerText = T('btn_in');
+    if ($('sc-btn-out')) $('sc-btn-out').innerText = T('btn_out');
+    if ($('sc-btn-print')) $('sc-btn-print').innerText = T('btn_print');
+    if ($('sc-btn-excel')) $('sc-btn-excel').innerText = T('btn_excel');
+
+    // Sidebar navigation texts
+    document.querySelectorAll('.sidebar-nav .nav-link').forEach(btn => {
+        const tab = btn.getAttribute('data-tab');
+        const txt = btn.querySelector('.nav-txt');
+        if (txt && tab) {
+            const k = 'nav_' + tab;
+            if (I18N[currentLang][k]) txt.innerText = I18N[currentLang][k];
+        }
+    });
+
+    // Re-render currently open card if active
+    if (currentScData) {
+        const wh = ($('sc-modal-wh') && $('sc-modal-wh').value) || 'ALL';
+        renderPaperStockCard(currentScData, wh, {
+            item: 'sc-m-item', sub: 'sc-m-sub', code: 'sc-m-code', sheet: 'sc-m-sheet', unit: 'sc-m-unit', body: 'sc-m-body'
+        });
+        if ($('bc-item') && $('bc-item').value) {
+            renderPaperStockCard(currentScData, $('bc-wh').value || 'ALL', {
+                item: 'bc-sc-item', sub: 'bc-sc-sub', code: 'bc-sc-code', sheet: 'bc-sc-sheet', unit: 'bc-sc-unit', body: 'bc-body'
+            });
+        }
+    }
+}
+
 // ===================================================== bin card & southwind stock card
 let currentScCode = null;
 let currentScData = null;
@@ -4199,19 +4389,19 @@ function renderPaperStockCard(d, whCode, ids) {
     if ($(ids.item)) $(ids.item).innerText = names.main;
     if ($(ids.sub)) $(ids.sub).innerText = names.sub || '-';
     if ($(ids.code)) $(ids.code).innerText = it.kode_barang;
-    if ($(ids.sheet)) $(ids.sheet).innerText = `1 (${whCode === 'ALL' ? 'ALL WAREHOUSES' : whName(whCode)})`;
+    if ($(ids.sheet)) $(ids.sheet).innerText = `1 (${whCode === 'ALL' ? T('lbl_all_wh') : whName(whCode)})`;
     if ($(ids.unit)) $(ids.unit).innerText = `${it.satuan}${it.conv_factor > 0 && it.conv_unit ? ' (@ ' + it.conv_factor + ' ' + it.conv_unit + ')' : ''}`;
     if ($(ids.cat)) $(ids.cat).innerText = it.kategori || 'General';
 
     let html = `<tr class="sc-bf-row">
         <td style="text-align:center;">-</td>
-        <td style="text-align:center;font-weight:800;letter-spacing:.05em;">B/F (Balance Brought Forward)</td>
+        <td style="text-align:center;font-weight:800;letter-spacing:.05em;">${esc(T('sc_bf'))}</td>
         <td style="text-align:center;">-</td>
         <td style="text-align:center;">-</td>
         <td style="text-align:right;">-</td>
         <td style="text-align:right;">-</td>
         <td class="sc-num" style="font-weight:800;text-align:right;">${fmt(d.opening)}</td>
-        <td style="text-align:center;">Saldo Awal</td>
+        <td style="text-align:center;">${esc(T('sc_bf_sub'))}</td>
     </tr>`;
 
     (d.rows || []).forEach(r => {
@@ -4284,20 +4474,20 @@ async function printStockCard(customCode, customWh) {
 
     // In Web Browsers: Pure Isolated Iframe Printing
     const names = splitItemTitle(it.nama_barang, it.kategori);
-    const whLabel = wh === 'ALL' ? 'ALL WAREHOUSES' : whName(wh);
+    const whLabel = wh === 'ALL' ? T('lbl_all_wh') : whName(wh);
     const uom = `${it.satuan}${it.conv_factor > 0 && it.conv_unit ? ' (@ ' + it.conv_factor + ' ' + it.conv_unit + ')' : ''}`;
-    const printDate = new Date().toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' });
+    const printDate = new Date().toLocaleString(currentLang === 'id' ? 'id-ID' : (currentLang === 'ms' ? 'ms-MY' : 'en-GB'), { dateStyle: 'medium', timeStyle: 'short' });
 
     let rowsHtml = `
         <tr class="sc-bf-row">
             <td style="text-align:center;">-</td>
-            <td style="text-align:center;font-weight:800;letter-spacing:1px;">B/F (Balance Brought Forward)</td>
+            <td style="text-align:center;font-weight:800;letter-spacing:.04em;">${esc(T('sc_bf'))}</td>
             <td style="text-align:center;">-</td>
             <td style="text-align:center;">-</td>
             <td style="text-align:right;">-</td>
             <td style="text-align:right;">-</td>
             <td style="text-align:right;font-weight:800;">${fmt(d.opening)}</td>
-            <td style="text-align:center;">Saldo Awal</td>
+            <td style="text-align:center;">${esc(T('sc_bf_sub'))}</td>
         </tr>
     `;
 
@@ -4314,16 +4504,16 @@ async function printStockCard(customCode, customWh) {
                 <td>${esc(r.supplier || '-')}</td>
                 <td style="text-align:center;">${esc(r.do_no || '-')}</td>
                 <td style="text-align:center;font-weight:600;">${esc(reqNo)}</td>
-                <td style="text-align:right;color:#15803d;font-weight:700;">${recVal}</td>
-                <td style="text-align:right;color:#b91c1c;font-weight:700;">${issVal}</td>
+                <td style="text-align:right;color:#087f5b;font-weight:700;">${recVal}</td>
+                <td style="text-align:right;color:#c92a2a;font-weight:700;">${issVal}</td>
                 <td style="text-align:right;font-weight:800;">${fmt(r.balance)}</td>
                 <td>${esc(r.allocation || '-')}</td>
             </tr>
         `;
     });
 
-    const minRows = 16;
-    const remaining = Math.max(3, minRows - (d.rows ? d.rows.length : 0));
+    const minRows = 14;
+    const remaining = Math.max(2, minRows - (d.rows ? d.rows.length : 0));
     for (let k = 0; k < remaining; k++) {
         rowsHtml += `<tr class="sc-empty-row"><td>&nbsp;</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>`;
     }
@@ -4336,7 +4526,7 @@ async function printStockCard(customCode, customWh) {
     <style>
         @page {
             size: A4 portrait;
-            margin: 10mm 10mm 10mm 10mm;
+            margin: 8mm 8mm 8mm 8mm;
         }
         * {
             box-sizing: border-box;
@@ -4346,274 +4536,196 @@ async function printStockCard(customCode, customWh) {
             print-color-adjust: exact !important;
         }
         body {
-            font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
-            color: #0f172a;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            color: #111111;
             background: #ffffff;
             font-size: 8.5pt;
-            line-height: 1.3;
+            line-height: 1.25;
+            padding: 0;
         }
-        .sc-card {
+        .paper-stockcard {
             width: 100%;
-            max-width: 190mm;
+            max-width: 194mm;
             margin: 0 auto;
-            border: 2px solid #0f172a;
-            padding: 8mm 8mm 6mm 8mm;
+            border: 2px solid #000000;
+            padding: 6mm 7mm;
             background: #ffffff;
         }
-        .sc-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            border-bottom: 2px solid #0f172a;
-            padding-bottom: 6px;
-            margin-bottom: 8px;
-        }
-        .sc-company {
-            font-size: 13.5pt;
-            font-weight: 900;
-            letter-spacing: 0.5px;
-            color: #0f172a;
-            text-transform: uppercase;
-        }
-        .sc-title {
-            font-size: 9.5pt;
+        .paper-sc-company {
+            text-align: center;
+            font-size: 13pt;
             font-weight: 800;
-            color: #334155;
-            letter-spacing: 1px;
-            margin-top: 2px;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            margin-bottom: 4mm;
+            color: #000000;
         }
-        .sc-ref {
-            font-size: 7.5pt;
-            color: #64748b;
-            text-align: right;
-            line-height: 1.4;
-        }
-        .sc-meta {
+        .paper-sc-meta {
             display: grid;
-            grid-template-columns: 1.3fr 1fr;
-            gap: 5px 16px;
-            margin-bottom: 10px;
-            padding: 6px 10px;
-            background: #f8fafc;
-            border: 1px solid #cbd5e1;
-            border-radius: 4px;
+            grid-template-columns: 1.25fr 1fr;
+            gap: 2.5mm 8mm;
+            margin-bottom: 4mm;
+            font-size: 9pt;
         }
-        .sc-meta-row {
+        .paper-sc-field {
             display: flex;
             align-items: baseline;
-            gap: 6px;
-            font-size: 8.5pt;
+            gap: 2mm;
+            margin-bottom: 1.5mm;
         }
-        .sc-meta-row b {
-            min-width: 85px;
-            color: #475569;
+        .paper-sc-field b {
+            min-width: 65px;
+            color: #000000;
             font-weight: 700;
-            text-transform: uppercase;
-            font-size: 7.5pt;
         }
-        .sc-meta-val {
-            font-weight: 700;
-            color: #0f172a;
+        .paper-sc-line {
             flex: 1;
-            border-bottom: 1px dashed #94a3b8;
-            padding-bottom: 1px;
+            border-bottom: 1.5px solid #000000;
+            padding: 0 2mm 0.5mm 2mm;
+            font-weight: 700;
+            min-height: 4mm;
+            color: #000000;
         }
-        .sc-code {
-            display: inline-block;
-            background: #fee2e2;
-            color: #b91c1c;
-            border: 1px solid #f87171;
-            padding: 1px 8px;
-            border-radius: 3px;
+        .paper-sc-code-red {
             font-family: "Courier New", Courier, monospace;
-            font-size: 9.5pt;
-            font-weight: 900;
-            letter-spacing: 1px;
+            font-size: 11pt;
+            font-weight: 800;
+            color: #c92a2a;
+            display: inline-block;
         }
-        table.sc-table {
+        table.paper-sc-table {
             width: 100%;
             border-collapse: collapse;
+            border: 2px solid #000000;
             font-size: 8pt;
-            margin-bottom: 10px;
+            background: #ffffff;
+            margin-bottom: 4mm;
         }
-        table.sc-table th, table.sc-table td {
-            border: 1px solid #0f172a;
+        table.paper-sc-table th, table.paper-sc-table td {
+            border: 1px solid #000000;
             padding: 3.5px 5px;
-            vertical-align: middle;
+            color: #000000;
+            line-height: 1.2;
         }
-        table.sc-table thead tr:first-child th {
-            background: #0f172a !important;
-            color: #ffffff !important;
+        table.paper-sc-table thead th {
+            background: #ece8dc !important;
+            color: #000000 !important;
             font-weight: 800;
             text-align: center;
             font-size: 7.5pt;
-            letter-spacing: 0.5px;
         }
-        table.sc-table thead tr:last-child th {
-            background: #e2e8f0 !important;
-            color: #0f172a !important;
+        table.paper-sc-table tbody tr.sc-bf-row td {
+            background: #f5f2e9 !important;
             font-weight: 800;
-            text-align: center;
-            font-size: 7pt;
+            border-bottom: 1.5px solid #000000;
         }
-        table.sc-table tbody tr.sc-bf-row td {
-            background: #f1f5f9 !important;
-            font-weight: 700;
-            border-bottom: 1.5px solid #0f172a;
-        }
-        table.sc-table tbody tr.sc-empty-row {
+        table.paper-sc-table tbody tr.sc-empty-row td {
             height: 18px;
+            border: 1px solid #cccccc;
         }
-        table.sc-table tbody tr.sc-empty-row td {
-            border: 1px solid #cbd5e1;
-        }
-        .sc-signatures {
+        .paper-sc-signatures {
             display: grid;
             grid-template-columns: 1fr 1fr 1fr;
-            gap: 10px;
-            margin-top: 10px;
+            gap: 6mm;
+            margin-top: 3.5mm;
             page-break-inside: avoid;
+            break-inside: avoid;
         }
-        .sc-sig-box {
-            border: 1px solid #0f172a;
-            padding: 5px 8px;
-            font-size: 7.5pt;
-            background: #ffffff;
+        .sc-sig-block {
+            text-align: center;
         }
         .sc-sig-title {
-            font-weight: 800;
-            text-transform: uppercase;
-            color: #0f172a;
-            margin-bottom: 28px;
-            text-align: center;
-            border-bottom: 1px solid #e2e8f0;
-            padding-bottom: 2px;
+            font-size: 7.5pt;
+            font-weight: 700;
+            color: #000000;
+            margin-bottom: 1.5mm;
+        }
+        .sc-sig-space {
+            height: 24px;
         }
         .sc-sig-line {
-            border-bottom: 1px solid #0f172a;
-            margin-bottom: 3px;
+            border-bottom: 1.5px solid #000000;
+            margin-bottom: 1mm;
         }
-        .sc-sig-meta {
+        .sc-sig-date {
+            font-size: 6.8pt;
+            color: #333333;
+            text-align: left;
+        }
+        .paper-sc-footer-note {
+            margin-top: 3mm;
             display: flex;
             justify-content: space-between;
-            color: #64748b;
-            font-size: 7pt;
-        }
-        .sc-footer {
-            margin-top: 8px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 7pt;
-            color: #64748b;
-            border-top: 1px solid #cbd5e1;
-            padding-top: 4px;
+            font-size: 6.8pt;
+            color: #444444;
+            border-top: 1px solid #000000;
+            padding-top: 2px;
         }
     </style>
 </head>
 <body>
-    <div class="sc-card">
-        <div class="sc-header">
+    <div class="paper-stockcard">
+        <div class="paper-sc-company">${esc(T('sc_company'))}</div>
+        <div class="paper-sc-meta">
             <div>
-                <div class="sc-company">SOUTHWIND PLANTATION SDN. BHD.</div>
-                <div class="sc-title">BIN &amp; STOCK INVENTORY CONTROL CARD</div>
+                <div class="paper-sc-field"><b>${esc(T('sc_lbl_item'))}</b><span class="paper-sc-line">${esc(names.main)}</span></div>
+                <div class="paper-sc-field"><b></b><span class="paper-sc-line" style="font-weight:600;color:#333;">${esc(names.sub || '-')}</span></div>
             </div>
-            <div class="sc-ref">
-                <b>DOC REF:</b> SWP/WH-SC/2026<br>
-                <b>STATUS:</b> OFFICIAL LEDGER<br>
-                <b>PRINTED:</b> ${esc(printDate)}
+            <div>
+                <div class="paper-sc-field"><b>${esc(T('sc_lbl_code'))}</b><span class="paper-sc-line"><span class="paper-sc-code-red">${esc(it.kode_barang)}</span></span></div>
+                <div class="paper-sc-field"><b>${esc(T('sc_lbl_sheet'))}</b><span class="paper-sc-line">1 (${esc(whLabel)})</span></div>
+                <div class="paper-sc-field"><b>${esc(T('sc_lbl_unit'))}</b><span class="paper-sc-line">${esc(uom)}</span></div>
             </div>
         </div>
-
-        <div class="sc-meta">
-            <div>
-                <div class="sc-meta-row">
-                    <b>Item Name:</b>
-                    <span class="sc-meta-val">${esc(names.main)}</span>
-                </div>
-                <div class="sc-meta-row">
-                    <b>Specification:</b>
-                    <span class="sc-meta-val">${esc(names.sub || '-')}</span>
-                </div>
-                <div class="sc-meta-row">
-                    <b>Category:</b>
-                    <span class="sc-meta-val">${esc(it.kategori || 'General')}</span>
-                </div>
-            </div>
-            <div>
-                <div class="sc-meta-row">
-                    <b>Item Code:</b>
-                    <span class="sc-meta-val" style="border:none;"><span class="sc-code">${esc(it.kode_barang)}</span></span>
-                </div>
-                <div class="sc-meta-row">
-                    <b>Warehouse:</b>
-                    <span class="sc-meta-val">${esc(whLabel)}</span>
-                </div>
-                <div class="sc-meta-row">
-                    <b>UOM / Unit:</b>
-                    <span class="sc-meta-val">${esc(uom)}</span>
-                </div>
-            </div>
-        </div>
-
-        <table class="sc-table">
+        <table class="paper-sc-table">
             <thead>
                 <tr>
-                    <th rowspan="2" style="width:70px;">DATE</th>
-                    <th colspan="2">RECEIPT</th>
-                    <th colspan="1">ISSUE</th>
-                    <th colspan="3">QUANTITIES</th>
-                    <th rowspan="2" style="width:110px;">ALLOCATION</th>
+                    <th rowspan="2" style="width:70px;">${esc(T('sc_th_date'))}</th>
+                    <th colspan="2">${esc(T('sc_th_receipt'))}</th>
+                    <th colspan="1">${esc(T('sc_th_issue'))}</th>
+                    <th colspan="3">${esc(T('sc_th_qty'))}</th>
+                    <th rowspan="2" style="min-width:110px;">${esc(T('sc_th_alloc'))}</th>
                 </tr>
                 <tr>
-                    <th>SUPPLIER / SOURCE</th>
-                    <th style="width:75px;">D/O NO.</th>
-                    <th style="width:85px;">REQUISITION NO.</th>
-                    <th style="width:65px;">RECEIVED (+)</th>
-                    <th style="width:65px;">ISSUED (-)</th>
-                    <th style="width:75px;">BALANCE</th>
+                    <th>${esc(T('sc_th_supp'))}</th>
+                    <th style="width:75px;">${esc(T('sc_th_do'))}</th>
+                    <th style="width:85px;">${esc(T('sc_th_req'))}</th>
+                    <th style="width:65px;">${esc(T('sc_th_rec_val'))}</th>
+                    <th style="width:65px;">${esc(T('sc_th_iss_val'))}</th>
+                    <th style="width:75px;">${esc(T('sc_th_bal_val'))}</th>
                 </tr>
             </thead>
             <tbody>
                 ${rowsHtml}
             </tbody>
         </table>
-
-        <div class="sc-signatures">
-            <div class="sc-sig-box">
-                <div class="sc-sig-title">Prepared By (Storekeeper)</div>
+        <div class="paper-sc-signatures">
+            <div class="sc-sig-block">
+                <div class="sc-sig-title">${esc(T('sc_sig_p'))}</div>
+                <div class="sc-sig-space"></div>
                 <div class="sc-sig-line"></div>
-                <div class="sc-sig-meta">
-                    <span>Name: ....................</span>
-                    <span>Date: ..../..../....</span>
-                </div>
+                <div class="sc-sig-date">${esc(T('sc_sig_date'))}</div>
             </div>
-            <div class="sc-sig-box">
-                <div class="sc-sig-title">Verified By (Supervisor)</div>
+            <div class="sc-sig-block">
+                <div class="sc-sig-title">${esc(T('sc_sig_c'))}</div>
+                <div class="sc-sig-space"></div>
                 <div class="sc-sig-line"></div>
-                <div class="sc-sig-meta">
-                    <span>Name: ....................</span>
-                    <span>Date: ..../..../....</span>
-                </div>
+                <div class="sc-sig-date">${esc(T('sc_sig_date'))}</div>
             </div>
-            <div class="sc-sig-box">
-                <div class="sc-sig-title">Estate Audit / Manager</div>
+            <div class="sc-sig-block">
+                <div class="sc-sig-title">${esc(T('sc_sig_a'))}</div>
+                <div class="sc-sig-space"></div>
                 <div class="sc-sig-line"></div>
-                <div class="sc-sig-meta">
-                    <span>Name: ....................</span>
-                    <span>Date: ..../..../....</span>
-                </div>
+                <div class="sc-sig-date">${esc(T('sc_sig_date'))}</div>
             </div>
         </div>
-
-        <div class="sc-footer">
-            <span>GudangPro Inventory Management System &bull; Confidential Estate Ledger</span>
-            <span>Halaman 1 dari 1</span>
+        <div class="paper-sc-footer-note">
+            <span>${esc(T('sc_footer'))}</span>
+            <span>Sheet 1 of 1 &bull; Printed: ${esc(printDate)}</span>
         </div>
     </div>
 </body>
 </html>`;
-
     let pframe = document.getElementById('gudangpro-print-iframe');
     if (pframe) {
         pframe.remove();
@@ -5408,7 +5520,7 @@ if ('serviceWorker' in navigator && window.location.protocol !== 'file:' && !win
         navigator.serviceWorker.getRegistrations().then(regs => regs.forEach(r => r.unregister())).catch(() => {});
         if (window.caches) caches.keys().then(keys => keys.forEach(k => caches.delete(k))).catch(() => {});
     } else {
-        window.addEventListener('load', () => { navigator.serviceWorker.register('/sw.js?v=5.3').then(reg => { reg.update().catch(() => {}); }).catch(err => console.warn('SW registration failed:', err)); });
+        window.addEventListener('load', () => { navigator.serviceWorker.register('/sw.js?v=5.4').then(reg => { reg.update().catch(() => {}); }).catch(err => console.warn('SW registration failed:', err)); });
     }
 }
 window.addEventListener('keydown', (e) => {
