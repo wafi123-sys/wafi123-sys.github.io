@@ -867,11 +867,11 @@
             .paper-sc-signatures { grid-template-columns: 1fr; gap: .5rem; }
         }
 
-        /* Fallback Print Styling */
+        /* Fallback & Direct Print Styling */
         @media print {
             @page {
                 size: A4 portrait;
-                margin: 10mm 8mm 10mm 8mm;
+                margin: 8mm 8mm 8mm 8mm;
             }
             html, body {
                 display: block !important;
@@ -880,26 +880,35 @@
                 overflow: visible !important;
                 background: #ffffff !important;
                 color: #000000 !important;
-                font-family: Arial, Helvetica, sans-serif !important;
+                font-family: Arial, "Helvetica Neue", Helvetica, sans-serif !important;
                 padding: 0 !important;
                 margin: 0 !important;
             }
             .sidebar, .erp-header, .topbar, .no-print, #login-screen, .toast-container,
             .mobile-bottom-nav, .modal-backdrop:not(#stockCardModal),
             .sc-modal-toolbar, #sc-quick-form, .modal-head, .modal-foot,
-            .sc-quick-actions, button, select, input, .form-field, .dropzone,
-            #gudangpro-print-iframe {
+            .sc-quick-actions, button, select, input, textarea, .form-field, .dropzone {
                 display: none !important;
+                visibility: hidden !important;
+                height: 0 !important;
+                padding: 0 !important;
+                margin: 0 !important;
             }
 
+            /* When stock card is active/open, strictly hide ALL background pages */
             body.printing-stockcard .page,
+            body.sc-modal-open .page,
             body:has(#stockCardModal.open) .page,
-            #stockCardModal.open ~ * .page {
+            body.printing-stockcard .page.active,
+            body.sc-modal-open .page.active,
+            body:has(#stockCardModal.open) .page.active {
                 display: none !important;
+                visibility: hidden !important;
+                height: 0 !important;
             }
 
-            .page { display: none !important; padding: 0; }
-            .page.active { display: block !important; overflow: visible; }
+            body:not(.printing-stockcard):not(.sc-modal-open) .page { display: none !important; padding: 0; }
+            body:not(.printing-stockcard):not(.sc-modal-open) .page.active { display: block !important; overflow: visible; }
             .panel { border: none !important; box-shadow: none !important; }
             .print-only { display: block !important; margin-bottom: 1rem; }
 
@@ -932,6 +941,15 @@
                 margin: 0 !important;
                 padding: 0 !important;
             }
+            #stockCardModal.open .modal-head,
+            #stockCardModal.open .sc-modal-toolbar,
+            #stockCardModal.open #sc-quick-form {
+                display: none !important;
+                visibility: hidden !important;
+                height: 0 !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
             #stockCardModal.open .modal-body {
                 padding: 0 !important;
                 margin: 0 !important;
@@ -942,11 +960,14 @@
             }
             .paper-stockcard {
                 width: 100% !important;
+                max-width: 100% !important;
                 border: 2px solid #000000 !important;
                 box-shadow: none !important;
                 margin: 0 !important;
-                padding: 6mm 8mm !important;
+                padding: 5mm 6mm !important;
                 background: #ffffff !important;
+                page-break-after: avoid !important;
+                break-after: avoid !important;
             }
             table.paper-sc-table {
                 border: 1.5px solid #000000 !important;
@@ -971,8 +992,48 @@
                 -webkit-print-color-adjust: exact !important;
                 print-color-adjust: exact !important;
             }
+            .paper-sc-signatures {
+                display: grid !important;
+                grid-template-columns: 1fr 1fr 1fr !important;
+                gap: 6mm !important;
+                margin-top: 4mm !important;
+                page-break-inside: avoid !important;
+                break-inside: avoid !important;
+            }
             .sc-sig-card {
                 border: 1px solid #000000 !important;
+                padding: 4px 8px !important;
+                background: #ffffff !important;
+                border-radius: 4px !important;
+            }
+            .sc-sig-header {
+                font-size: 7.5pt !important;
+                font-weight: 800 !important;
+                text-transform: uppercase !important;
+                color: #000000 !important;
+                text-align: center !important;
+                margin-bottom: 24px !important;
+                border-bottom: 1px solid #cbd5e1 !important;
+                padding-bottom: 2px !important;
+            }
+            .sc-sig-line {
+                border-bottom: 1px solid #000000 !important;
+                margin-bottom: 3px !important;
+            }
+            .sc-sig-footer {
+                display: flex !important;
+                justify-content: space-between !important;
+                font-size: 6.8pt !important;
+                color: #334155 !important;
+            }
+            .paper-sc-footer-note {
+                margin-top: 3mm !important;
+                display: flex !important;
+                justify-content: space-between !important;
+                font-size: 6.8pt !important;
+                color: #475569 !important;
+                border-top: 1px solid #000000 !important;
+                padding-top: 2px !important;
             }
         }
     </style>
@@ -2070,73 +2131,6 @@
                             <span class="sc-meta-value" id="sc-m-sheet">1 (ALL WAREHOUSES)</span>
                         </div>
                         <div class="sc-meta-row">
-                            <span class="sc-meta-label">Satuan (UOM):</span>
-                            <span class="sc-meta-value" id="sc-m-unit">-</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="paper-sc-table-wrap">
-                    <table id="tbl-modal-stockcard" class="paper-sc-table">
-                        <thead>
-                            <tr>
-                                <th rowspan="2" style="width:78px;text-align:center;">TANGGAL<br><span style="font-size:.65rem;font-weight:500;opacity:.8;">DATE</span></th>
-                                <th colspan="2" style="text-align:center;">PENERIMAAN (RECEIPT)</th>
-                                <th colspan="1" style="text-align:center;">PENGELUARAN (ISSUE)</th>
-                                <th colspan="3" style="text-align:center;">KUANTITAS (QUANTITIES)</th>
-                                <th rowspan="2" style="min-width:120px;text-align:left;">ALOKASI &amp; BLOK<br><span style="font-size:.65rem;font-weight:500;opacity:.8;">FIELD / REMARKS</span></th>
-                            </tr>
-                            <tr>
-                                <th>SUPPLIER / SUMBER</th>
-                                <th style="width:85px;">D/O NO.</th>
-                                <th style="width:95px;">REQUISITION NO.</th>
-                                <th style="width:75px;color:#2b8a3e;">MASUK (+)</th>
-                                <th style="width:75px;color:#c92a2a;">KELUAR (-)</th>
-                                <th style="width:85px;font-weight:800;">SALDO (BAL)</th>
-                            </tr>
-                        </thead>
-                        <tbody id="sc-m-body"></tbody>
-                    </table>
-                </div>
-
-                <!-- Executive Sign-off Block on Sheet -->
-                <div class="paper-sc-signatures">
-                    <div class="sc-sig-card">
-                        <div class="sc-sig-header">Dibuat Oleh (Storekeeper)</div>
-                        <div class="sc-sig-line"></div>
-                        <div class="sc-sig-footer">
-                            <span>Nama: ....................</span>
-                            <span>Tgl: ..../..../....</span>
-                        </div>
-                    </div>
-                    <div class="sc-sig-card">
-                        <div class="sc-sig-header">Diperiksa (Supervisor)</div>
-                        <div class="sc-sig-line"></div>
-                        <div class="sc-sig-footer">
-                            <span>Nama: ....................</span>
-                            <span>Tgl: ..../..../....</span>
-                        </div>
-                    </div>
-                    <div class="sc-sig-card">
-                        <div class="sc-sig-header">Audit Internal / Manager</div>
-                        <div class="sc-sig-line"></div>
-                        <div class="sc-sig-footer">
-                            <span>Nama: ....................</span>
-                            <span>Tgl: ..../..../....</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="paper-sc-footer-note">
-                    <span>GudangPro Estate Warehouse Management System &bull; Dokumen Resmi Inventaris Gudang</span>
-                    <span id="sc-m-printed-note">Halaman 1 dari 1</span>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
--row">
                             <span class="sc-meta-label">Satuan (UOM):</span>
                             <span class="sc-meta-value" id="sc-m-unit">-</span>
                         </div>
@@ -3391,8 +3385,8 @@ function resetAllLocalData() {
     });
 }
 
-function openModal(id) { $(id).classList.add('open'); }
-function closeModal(id) { $(id).classList.remove('open'); }
+function openModal(id) { $(id).classList.add('open'); if (id === 'stockCardModal') document.body.classList.add('sc-modal-open'); }
+function closeModal(id) { $(id).classList.remove('open'); if (id === 'stockCardModal') document.body.classList.remove('sc-modal-open'); }
 
 // ===================================================== auth
 async function handleLogin(e) {
@@ -4621,18 +4615,20 @@ async function printStockCard(customCode, customWh) {
 </html>`;
 
     let pframe = document.getElementById('gudangpro-print-iframe');
-    if (!pframe) {
-        pframe = document.createElement('iframe');
-        pframe.id = 'gudangpro-print-iframe';
-        pframe.style.position = 'fixed';
-        pframe.style.right = '0';
-        pframe.style.bottom = '0';
-        pframe.style.width = '0';
-        pframe.style.height = '0';
-        pframe.style.border = '0';
-        pframe.style.visibility = 'hidden';
-        document.body.appendChild(pframe);
+    if (pframe) {
+        pframe.remove();
     }
+    pframe = document.createElement('iframe');
+    pframe.id = 'gudangpro-print-iframe';
+    pframe.style.position = 'fixed';
+    pframe.style.left = '-9999px';
+    pframe.style.top = '-9999px';
+    pframe.style.width = '210mm';
+    pframe.style.height = '297mm';
+    pframe.style.border = 'none';
+    pframe.style.opacity = '0.01';
+    pframe.style.pointerEvents = 'none';
+    document.body.appendChild(pframe);
 
     try {
         const frameDoc = pframe.contentWindow.document;
@@ -4715,7 +4711,7 @@ async function loadStockCardModal() {
         const d = (await api('/api/bincard?' + q)).data;
         currentScData = d;
         renderPaperStockCard(d, wh, {
-            item: 'sc-m-item', sub: 'sc-m-sub', code: 'sc-m-code', sheet: 'sc-m-sheet', unit: 'sc-m-unit', body: 'sc-m-body'
+            item: 'sc-m-item', sub: 'sc-m-sub', code: 'sc-m-code', sheet: 'sc-m-sheet', unit: 'sc-m-unit', cat: 'sc-m-cat', body: 'sc-m-body'
         });
         if ($('bc-item')) {
             $('bc-item').value = currentScCode;
@@ -5412,7 +5408,7 @@ if ('serviceWorker' in navigator && window.location.protocol !== 'file:' && !win
         navigator.serviceWorker.getRegistrations().then(regs => regs.forEach(r => r.unregister())).catch(() => {});
         if (window.caches) caches.keys().then(keys => keys.forEach(k => caches.delete(k))).catch(() => {});
     } else {
-        window.addEventListener('load', () => { navigator.serviceWorker.register('/sw.js').catch(err => console.warn('SW registration failed:', err)); });
+        window.addEventListener('load', () => { navigator.serviceWorker.register('/sw.js?v=5.3').then(reg => { reg.update().catch(() => {}); }).catch(err => console.warn('SW registration failed:', err)); });
     }
 }
 window.addEventListener('keydown', (e) => {
