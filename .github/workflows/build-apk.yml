@@ -1,4 +1,4 @@
-name: Build Offline APK
+﻿name: Build Offline APK
 on:
   push:
     branches: [ main ]
@@ -393,7 +393,7 @@ jobs:
           ls -lh GudangPro-Offline.apk GudangPro.apk
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add GudangPro.apk
+          git add GudangPro.apk GudangPro-Offline.apk
           git commit -m "chore: update compiled GudangPro.apk [skip ci]" || true
           git push origin main || true
 
@@ -401,5 +401,6 @@ jobs:
         with:
           name: GudangPro-Offline-APK
           path: GudangPro-Offline.apk
+
 
 
