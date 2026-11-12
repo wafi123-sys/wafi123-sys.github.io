@@ -696,9 +696,9 @@
             color: #111111;
         }
         .paper-sc-meta {
-            display: grid;
-            grid-template-columns: 1.25fr 1fr;
-            gap: .75rem 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: .35rem;
             margin-bottom: .85rem;
             font-size: .88rem;
         }
@@ -769,34 +769,6 @@
             height: 22px;
             border: 1px solid #d4cebe;
         }
-        .paper-sc-signatures {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 1.25rem;
-            margin-top: .85rem;
-            page-break-inside: avoid;
-        }
-        .sc-sig-block {
-            text-align: center;
-        }
-        .sc-sig-title {
-            font-size: .75rem;
-            font-weight: 700;
-            color: #222222;
-            margin-bottom: .25rem;
-        }
-        .sc-sig-space {
-            height: 38px;
-        }
-        .sc-sig-line {
-            border-bottom: 1.5px solid #222222;
-            margin-bottom: .35rem;
-        }
-        .sc-sig-date {
-            font-size: .72rem;
-            color: #555555;
-            text-align: left;
-        }
         .paper-sc-footer-note {
             margin-top: .75rem;
             display: flex;
@@ -824,210 +796,6 @@
             .paper-sc-company { font-size: .95rem; }
             .paper-sc-meta { grid-template-columns: 1fr; gap: .25rem; font-size: .8rem; }
             table.paper-sc-table th, table.paper-sc-table td { padding: .3rem .38rem; font-size: .74rem; }
-            .paper-sc-signatures { grid-template-columns: 1fr; gap: .75rem; }
-            .sc-sig-space { height: 26px; }
-        }
-
-        /* Fallback & Direct Print Styling */
-        @media print {
-            @page {
-                size: A4 portrait;
-                margin: 8mm 8mm 8mm 8mm;
-            }
-            html, body {
-                display: block !important;
-                height: auto !important;
-                min-height: 0 !important;
-                overflow: visible !important;
-                background: #ffffff !important;
-                color: #000000 !important;
-                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif !important;
-                padding: 0 !important;
-                margin: 0 !important;
-            }
-            .sidebar, .erp-header, .topbar, .no-print, #login-screen, .toast-container,
-            .mobile-bottom-nav, .modal-backdrop:not(#stockCardModal),
-            .sc-modal-toolbar, #sc-quick-form, .modal-head, .modal-foot,
-            .sc-quick-actions, button, select, input, textarea, .form-field, .dropzone {
-                display: none !important;
-                visibility: hidden !important;
-                height: 0 !important;
-                padding: 0 !important;
-                margin: 0 !important;
-            }
-
-            body.printing-stockcard .page,
-            body.sc-modal-open .page,
-            body:has(#stockCardModal.open) .page,
-            body.printing-stockcard .page.active,
-            body.sc-modal-open .page.active,
-            body:has(#stockCardModal.open) .page.active {
-                display: none !important;
-                visibility: hidden !important;
-                height: 0 !important;
-            }
-
-            body:not(.printing-stockcard):not(.sc-modal-open) .page { display: none !important; padding: 0; }
-            body:not(.printing-stockcard):not(.sc-modal-open) .page.active { display: block !important; overflow: visible; }
-            .panel { border: none !important; box-shadow: none !important; }
-            .print-only { display: block !important; margin-bottom: 1rem; }
-
-            #stockCardModal.open {
-                position: static !important;
-                inset: auto !important;
-                display: block !important;
-                width: 100% !important;
-                height: auto !important;
-                background: #ffffff !important;
-                padding: 0 !important;
-                margin: 0 !important;
-                opacity: 1 !important;
-                overflow: visible !important;
-                box-shadow: none !important;
-                backdrop-filter: none !important;
-                z-index: auto !important;
-            }
-            #stockCardModal.open .modal-box {
-                position: static !important;
-                transform: none !important;
-                max-width: 100% !important;
-                width: 100% !important;
-                max-height: none !important;
-                height: auto !important;
-                overflow: visible !important;
-                border: none !important;
-                box-shadow: none !important;
-                background: #ffffff !important;
-                margin: 0 !important;
-                padding: 0 !important;
-            }
-            #stockCardModal.open .modal-head,
-            #stockCardModal.open .sc-modal-toolbar,
-            #stockCardModal.open #sc-quick-form {
-                display: none !important;
-                visibility: hidden !important;
-                height: 0 !important;
-                margin: 0 !important;
-                padding: 0 !important;
-            }
-            #stockCardModal.open .modal-body {
-                padding: 0 !important;
-                margin: 0 !important;
-                background: #ffffff !important;
-                overflow: visible !important;
-                max-height: none !important;
-                height: auto !important;
-            }
-            .paper-stockcard {
-                width: 100% !important;
-                max-width: 100% !important;
-                border: 2px solid #000000 !important;
-                box-shadow: none !important;
-                margin: 0 !important;
-                padding: 5mm 6mm !important;
-                background: #ffffff !important;
-                page-break-after: avoid !important;
-                break-after: avoid !important;
-            }
-            .paper-sc-company {
-                text-align: center !important;
-                font-size: 13pt !important;
-                font-weight: 800 !important;
-                color: #000000 !important;
-                margin-bottom: 4mm !important;
-            }
-            .paper-sc-meta {
-                display: grid !important;
-                grid-template-columns: 1.25fr 1fr !important;
-                gap: 2.5mm 8mm !important;
-                margin-bottom: 3.5mm !important;
-                font-size: 9pt !important;
-            }
-            .paper-sc-field {
-                display: flex !important;
-                align-items: baseline !important;
-                gap: 2mm !important;
-                margin-bottom: 1.5mm !important;
-            }
-            .paper-sc-field b {
-                min-width: 68px !important;
-                color: #000000 !important;
-                font-weight: 700 !important;
-            }
-            .paper-sc-line {
-                flex: 1 !important;
-                border-bottom: 1.5px solid #000000 !important;
-                color: #000000 !important;
-                font-weight: 700 !important;
-                padding-bottom: 1px !important;
-            }
-            .paper-sc-code-red {
-                color: #c92a2a !important;
-                font-weight: 800 !important;
-                font-size: 11pt !important;
-                -webkit-print-color-adjust: exact !important;
-                print-color-adjust: exact !important;
-            }
-            table.paper-sc-table {
-                width: 100% !important;
-                border-collapse: collapse !important;
-                border: 2px solid #000000 !important;
-                font-size: 8.5pt !important;
-                background: #ffffff !important;
-            }
-            table.paper-sc-table th, table.paper-sc-table td {
-                border: 1px solid #000000 !important;
-                padding: 3.5px 5px !important;
-                color: #000000 !important;
-            }
-            table.paper-sc-table thead th {
-                background: #ece8dc !important;
-                color: #000000 !important;
-                font-weight: 800 !important;
-                text-align: center !important;
-                -webkit-print-color-adjust: exact !important;
-                print-color-adjust: exact !important;
-            }
-            table.paper-sc-table tbody tr.sc-bf-row td {
-                background: #f5f2e9 !important;
-                font-weight: 800 !important;
-                border-bottom: 1.5px solid #000000 !important;
-                -webkit-print-color-adjust: exact !important;
-                print-color-adjust: exact !important;
-            }
-            table.paper-sc-table tbody tr.sc-empty-row td {
-                height: 18px !important;
-                border: 1px solid #cccccc !important;
-            }
-            .paper-sc-signatures {
-                display: grid !important;
-                grid-template-columns: 1fr 1fr 1fr !important;
-                gap: 6mm !important;
-                margin-top: 4mm !important;
-                page-break-inside: avoid !important;
-                break-inside: avoid !important;
-            }
-            .sc-sig-block {
-                text-align: center !important;
-            }
-            .sc-sig-title {
-                font-size: 7.5pt !important;
-                font-weight: 700 !important;
-                color: #000000 !important;
-                margin-bottom: 1.5mm !important;
-            }
-            .sc-sig-space {
-                height: 24px !important;
-            }
-            .sc-sig-line {
-                border-bottom: 1.5px solid #000000 !important;
-                margin-bottom: 1mm !important;
-            }
-            .sc-sig-date {
-                font-size: 6.8pt !important;
-                color: #333333 !important;
-                text-align: left !important;
-            }
             .paper-sc-footer-note {
                 margin-top: 3mm !important;
                 display: flex !important;
@@ -1493,15 +1261,10 @@
                 <div class="paper-stockcard">
                     <div class="paper-sc-company" id="bc-sc-comp">SOUTHWIND PLANTATION SDN. BHD.</div>
                     <div class="paper-sc-meta">
-                        <div>
-                            <div class="paper-sc-field"><b id="bc-lbl-item">ITEM :</b><span class="paper-sc-line" id="bc-sc-item">-</span></div>
-                            <div class="paper-sc-field"><b></b><span class="paper-sc-line" id="bc-sc-sub" style="font-weight:600;color:#333;">-</span></div>
-                        </div>
-                        <div>
-                            <div class="paper-sc-field"><b id="bc-lbl-code">Code No :</b><span class="paper-sc-line"><span class="paper-sc-code-red" id="bc-sc-code">-</span></span></div>
-                            <div class="paper-sc-field"><b id="bc-lbl-sheet">Sheet No :</b><span class="paper-sc-line" id="bc-sc-sheet">1 (ALL WAREHOUSES)</span></div>
-                            <div class="paper-sc-field"><b id="bc-lbl-unit">Unit :</b><span class="paper-sc-line" id="bc-sc-unit">-</span></div>
-                        </div>
+                        <div class="paper-sc-field"><b id="bc-lbl-item">ITEM :</b><span class="paper-sc-line" id="bc-sc-item">-</span></div>
+                        <div class="paper-sc-field"><b id="bc-lbl-code">Code No :</b><span class="paper-sc-line"><span class="paper-sc-code-red" id="bc-sc-code">-</span></span></div>
+                        <div class="paper-sc-field"><b id="bc-lbl-sheet">Sheet No :</b><span class="paper-sc-line" id="bc-sc-sheet">1 (ALL WAREHOUSES)</span></div>
+                        <div class="paper-sc-field"><b id="bc-lbl-unit">Unit :</b><span class="paper-sc-line" id="bc-sc-unit">-</span></div>
                     </div>
                     <div class="paper-sc-table-wrap">
                         <table id="tbl-bin" class="paper-sc-table">
@@ -1524,30 +1287,6 @@
                             </thead>
                             <tbody id="bc-body"></tbody>
                         </table>
-                    </div>
-                    <div class="paper-sc-signatures">
-                        <div class="sc-sig-block">
-                            <div class="sc-sig-title" id="bc-sig-p">Prepared by (Storekeeper)</div>
-                            <div class="sc-sig-space"></div>
-                            <div class="sc-sig-line"></div>
-                            <div class="sc-sig-date" id="bc-sig-p-date">Date: ........................</div>
-                        </div>
-                        <div class="sc-sig-block">
-                            <div class="sc-sig-title" id="bc-sig-c">Checked by (Supervisor)</div>
-                            <div class="sc-sig-space"></div>
-                            <div class="sc-sig-line"></div>
-                            <div class="sc-sig-date" id="bc-sig-c-date">Date: ........................</div>
-                        </div>
-                        <div class="sc-sig-block">
-                            <div class="sc-sig-title" id="bc-sig-a">Audited by (Manager)</div>
-                            <div class="sc-sig-space"></div>
-                            <div class="sc-sig-line"></div>
-                            <div class="sc-sig-date" id="bc-sig-a-date">Date: ........................</div>
-                        </div>
-                    </div>
-                    <div class="paper-sc-footer-note">
-                        <span id="bc-footer-title">GudangPro Estate Warehouse Management System &bull; Official Inventory Ledger</span>
-                        <span>Sheet 1 of 1</span>
                     </div>
                 </div>
             </div>
@@ -2083,15 +1822,10 @@
             <div class="paper-stockcard" id="sc-modal-paper">
                 <div class="paper-sc-company" id="sc-m-comp">SOUTHWIND PLANTATION SDN. BHD.</div>
                 <div class="paper-sc-meta">
-                    <div>
-                        <div class="paper-sc-field"><b id="sc-lbl-item">ITEM :</b><span class="paper-sc-line" id="sc-m-item">-</span></div>
-                        <div class="paper-sc-field"><b></b><span class="paper-sc-line" id="sc-m-sub" style="font-weight:600;color:#333;">-</span></div>
-                    </div>
-                    <div>
-                        <div class="paper-sc-field"><b id="sc-lbl-code">Code No :</b><span class="paper-sc-line"><span class="paper-sc-code-red" id="sc-m-code">-</span></span></div>
-                        <div class="paper-sc-field"><b id="sc-lbl-sheet">Sheet No :</b><span class="paper-sc-line" id="sc-m-sheet">1 (ALL WAREHOUSES)</span></div>
-                        <div class="paper-sc-field"><b id="sc-lbl-unit">Unit :</b><span class="paper-sc-line" id="sc-m-unit">-</span></div>
-                    </div>
+                    <div class="paper-sc-field"><b id="sc-lbl-item">ITEM :</b><span class="paper-sc-line" id="sc-m-item">-</span></div>
+                    <div class="paper-sc-field"><b id="sc-lbl-code">Code No :</b><span class="paper-sc-line"><span class="paper-sc-code-red" id="sc-m-code">-</span></span></div>
+                    <div class="paper-sc-field"><b id="sc-lbl-sheet">Sheet No :</b><span class="paper-sc-line" id="sc-m-sheet">1 (ALL WAREHOUSES)</span></div>
+                    <div class="paper-sc-field"><b id="sc-lbl-unit">Unit :</b><span class="paper-sc-line" id="sc-m-unit">-</span></div>
                 </div>
                 <div class="paper-sc-table-wrap">
                     <table id="tbl-modal-stockcard" class="paper-sc-table">
@@ -2114,31 +1848,6 @@
                         </thead>
                         <tbody id="sc-m-body"></tbody>
                     </table>
-                </div>
-                <!-- Clean Classical Signatures without AI Slop -->
-                <div class="paper-sc-signatures">
-                    <div class="sc-sig-block">
-                        <div class="sc-sig-title" id="sc-sig-p">Prepared by (Storekeeper)</div>
-                        <div class="sc-sig-space"></div>
-                        <div class="sc-sig-line"></div>
-                        <div class="sc-sig-date" id="sc-sig-p-date">Date: ........................</div>
-                    </div>
-                    <div class="sc-sig-block">
-                        <div class="sc-sig-title" id="sc-sig-c">Checked by (Supervisor)</div>
-                        <div class="sc-sig-space"></div>
-                        <div class="sc-sig-line"></div>
-                        <div class="sc-sig-date" id="sc-sig-c-date">Date: ........................</div>
-                    </div>
-                    <div class="sc-sig-block">
-                        <div class="sc-sig-title" id="sc-sig-a">Audited by (Manager)</div>
-                        <div class="sc-sig-space"></div>
-                        <div class="sc-sig-line"></div>
-                        <div class="sc-sig-date" id="sc-sig-a-date">Date: ........................</div>
-                    </div>
-                </div>
-                <div class="paper-sc-footer-note">
-                    <span id="sc-footer-title">GudangPro Estate Warehouse Management System &bull; Official Inventory Ledger</span>
-                    <span>Sheet 1 of 1</span>
                 </div>
             </div>
         </div>
@@ -4385,13 +4094,11 @@ function splitItemTitle(nama, kat) {
 
 function renderPaperStockCard(d, whCode, ids) {
     const it = d.item;
-    const names = splitItemTitle(it.nama_barang, it.kategori);
-    if ($(ids.item)) $(ids.item).innerText = names.main;
-    if ($(ids.sub)) $(ids.sub).innerText = names.sub || '-';
+    if ($(ids.item)) $(ids.item).innerText = it.nama_barang || '-';
     if ($(ids.code)) $(ids.code).innerText = it.kode_barang;
     if ($(ids.sheet)) $(ids.sheet).innerText = `1 (${whCode === 'ALL' ? T('lbl_all_wh') : whName(whCode)})`;
-    if ($(ids.unit)) $(ids.unit).innerText = `${it.satuan}${it.conv_factor > 0 && it.conv_unit ? ' (@ ' + it.conv_factor + ' ' + it.conv_unit + ')' : ''}`;
-    if ($(ids.cat)) $(ids.cat).innerText = it.kategori || 'General';
+    const uom = `${it.satuan}${it.conv_factor > 0 && it.conv_unit ? ' (@ ' + it.conv_factor + ' ' + it.conv_unit + ')' : ''}`;
+    if ($(ids.unit)) $(ids.unit).innerText = uom;
 
     let html = `<tr class="sc-bf-row">
         <td style="text-align:center;">-</td>
@@ -4522,7 +4229,7 @@ async function printStockCard(customCode, customWh) {
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Stock Card - ${esc(it.kode_barang)} - ${esc(names.main)}</title>
+    <title>Stock Card - ${esc(it.kode_barang)} - ${esc(it.nama_barang || '')}</title>
     <style>
         @page {
             size: A4 portrait;
@@ -4561,17 +4268,17 @@ async function printStockCard(customCode, customWh) {
             color: #000000;
         }
         .paper-sc-meta {
-            display: grid;
-            grid-template-columns: 1.25fr 1fr;
-            gap: 2.5mm 8mm;
-            margin-bottom: 4mm;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5mm;
+            margin-bottom: 3.5mm;
             font-size: 9pt;
         }
         .paper-sc-field {
             display: flex;
             align-items: baseline;
             gap: 2mm;
-            margin-bottom: 1.5mm;
+            margin-bottom: 1mm;
         }
         .paper-sc-field b {
             min-width: 65px;
@@ -4599,7 +4306,6 @@ async function printStockCard(customCode, customWh) {
             border: 2px solid #000000;
             font-size: 8pt;
             background: #ffffff;
-            margin-bottom: 4mm;
         }
         table.paper-sc-table th, table.paper-sc-table td {
             border: 1px solid #000000;
@@ -4623,59 +4329,16 @@ async function printStockCard(customCode, customWh) {
             height: 18px;
             border: 1px solid #cccccc;
         }
-        .paper-sc-signatures {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 6mm;
-            margin-top: 3.5mm;
-            page-break-inside: avoid;
-            break-inside: avoid;
-        }
-        .sc-sig-block {
-            text-align: center;
-        }
-        .sc-sig-title {
-            font-size: 7.5pt;
-            font-weight: 700;
-            color: #000000;
-            margin-bottom: 1.5mm;
-        }
-        .sc-sig-space {
-            height: 24px;
-        }
-        .sc-sig-line {
-            border-bottom: 1.5px solid #000000;
-            margin-bottom: 1mm;
-        }
-        .sc-sig-date {
-            font-size: 6.8pt;
-            color: #333333;
-            text-align: left;
-        }
-        .paper-sc-footer-note {
-            margin-top: 3mm;
-            display: flex;
-            justify-content: space-between;
-            font-size: 6.8pt;
-            color: #444444;
-            border-top: 1px solid #000000;
-            padding-top: 2px;
-        }
     </style>
 </head>
 <body>
     <div class="paper-stockcard">
         <div class="paper-sc-company">${esc(T('sc_company'))}</div>
         <div class="paper-sc-meta">
-            <div>
-                <div class="paper-sc-field"><b>${esc(T('sc_lbl_item'))}</b><span class="paper-sc-line">${esc(names.main)}</span></div>
-                <div class="paper-sc-field"><b></b><span class="paper-sc-line" style="font-weight:600;color:#333;">${esc(names.sub || '-')}</span></div>
-            </div>
-            <div>
-                <div class="paper-sc-field"><b>${esc(T('sc_lbl_code'))}</b><span class="paper-sc-line"><span class="paper-sc-code-red">${esc(it.kode_barang)}</span></span></div>
-                <div class="paper-sc-field"><b>${esc(T('sc_lbl_sheet'))}</b><span class="paper-sc-line">1 (${esc(whLabel)})</span></div>
-                <div class="paper-sc-field"><b>${esc(T('sc_lbl_unit'))}</b><span class="paper-sc-line">${esc(uom)}</span></div>
-            </div>
+            <div class="paper-sc-field"><b>${esc(T('sc_lbl_item'))}</b><span class="paper-sc-line">${esc(it.nama_barang || '')}</span></div>
+            <div class="paper-sc-field"><b>${esc(T('sc_lbl_code'))}</b><span class="paper-sc-line"><span class="paper-sc-code-red">${esc(it.kode_barang)}</span></span></div>
+            <div class="paper-sc-field"><b>${esc(T('sc_lbl_sheet'))}</b><span class="paper-sc-line">1 (${esc(whLabel)})</span></div>
+            <div class="paper-sc-field"><b>${esc(T('sc_lbl_unit'))}</b><span class="paper-sc-line">${esc(uom)}</span></div>
         </div>
         <table class="paper-sc-table">
             <thead>
@@ -4699,30 +4362,6 @@ async function printStockCard(customCode, customWh) {
                 ${rowsHtml}
             </tbody>
         </table>
-        <div class="paper-sc-signatures">
-            <div class="sc-sig-block">
-                <div class="sc-sig-title">${esc(T('sc_sig_p'))}</div>
-                <div class="sc-sig-space"></div>
-                <div class="sc-sig-line"></div>
-                <div class="sc-sig-date">${esc(T('sc_sig_date'))}</div>
-            </div>
-            <div class="sc-sig-block">
-                <div class="sc-sig-title">${esc(T('sc_sig_c'))}</div>
-                <div class="sc-sig-space"></div>
-                <div class="sc-sig-line"></div>
-                <div class="sc-sig-date">${esc(T('sc_sig_date'))}</div>
-            </div>
-            <div class="sc-sig-block">
-                <div class="sc-sig-title">${esc(T('sc_sig_a'))}</div>
-                <div class="sc-sig-space"></div>
-                <div class="sc-sig-line"></div>
-                <div class="sc-sig-date">${esc(T('sc_sig_date'))}</div>
-            </div>
-        </div>
-        <div class="paper-sc-footer-note">
-            <span>${esc(T('sc_footer'))}</span>
-            <span>Sheet 1 of 1 &bull; Printed: ${esc(printDate)}</span>
-        </div>
     </div>
 </body>
 </html>`;
@@ -5520,7 +5159,7 @@ if ('serviceWorker' in navigator && window.location.protocol !== 'file:' && !win
         navigator.serviceWorker.getRegistrations().then(regs => regs.forEach(r => r.unregister())).catch(() => {});
         if (window.caches) caches.keys().then(keys => keys.forEach(k => caches.delete(k))).catch(() => {});
     } else {
-        window.addEventListener('load', () => { navigator.serviceWorker.register('/sw.js?v=5.4').then(reg => { reg.update().catch(() => {}); }).catch(err => console.warn('SW registration failed:', err)); });
+        window.addEventListener('load', () => { navigator.serviceWorker.register('/sw.js?v=5.5').then(reg => { reg.update().catch(() => {}); }).catch(err => console.warn('SW registration failed:', err)); });
     }
 }
 window.addEventListener('keydown', (e) => {
