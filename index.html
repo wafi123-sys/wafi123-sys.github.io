@@ -791,6 +791,60 @@
             gap: .4rem;
             flex-wrap: wrap;
         }
+        .sc-mode-bar {
+            display: flex;
+            align-items: center;
+            gap: .4rem;
+            flex-wrap: wrap;
+            background: #ffffff;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: .5rem .65rem;
+        }
+        .sc-mode-label {
+            font-size: .72rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: .04em;
+            color: var(--text-secondary);
+            margin-right: .25rem;
+        }
+        .sc-mode-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: .3rem;
+            padding: .3rem .65rem;
+            font-size: .76rem;
+            font-weight: 700;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            background: var(--bg-input);
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all .15s ease;
+        }
+        .sc-mode-btn:hover {
+            border-color: var(--accent);
+            background: var(--accent-soft);
+        }
+        .sc-mode-btn.active {
+            background: var(--accent);
+            color: #ffffff;
+            border-color: var(--accent);
+        }
+        .sc-wh-cell {
+            cursor: pointer;
+            transition: background .12s ease, color .12s ease;
+            text-decoration: underline dotted rgba(11,122,142,0.4);
+        }
+        .sc-wh-cell:hover {
+            background: #e6fcf5 !important;
+            color: #087f5b !important;
+            font-weight: 800;
+        }
+        #sc-batch-print-area {
+            display: none;
+        }
         @media (max-width: 820px) {
             .paper-stockcard { padding: .75rem .65rem; }
             .paper-sc-company { font-size: .95rem; }
@@ -832,6 +886,28 @@
                 margin: 0 !important;
                 padding: 0 !important;
                 border: none !important;
+            }
+
+            /* Batch Print (Print All Warehouses Separated) */
+            body.printing-stockcard-batch .page,
+            body.printing-stockcard-batch #stockCardModal {
+                display: none !important;
+                visibility: hidden !important;
+                height: 0 !important;
+            }
+            body.printing-stockcard-batch #sc-batch-print-area {
+                display: block !important;
+                visibility: visible !important;
+                width: 100% !important;
+            }
+            body.printing-stockcard-batch .sc-batch-page {
+                page-break-after: always !important;
+                break-after: page !important;
+                margin-bottom: 0 !important;
+            }
+            body.printing-stockcard-batch .sc-batch-page:last-child {
+                page-break-after: avoid !important;
+                break-after: avoid !important;
             }
 
             /* Modal Backdrop Reset for Print */
@@ -1219,6 +1295,7 @@
                 <div class="panel-controls no-print">
                     <input class="search-box" id="stock-search" placeholder="Search code / name..." oninput="renderStock()">
                     <label class="cell-muted" style="display:flex;gap:.3rem;align-items:center;"><input type="checkbox" id="stock-inactive" onchange="renderStock()"> Show inactive</label>
+                    <button class="btn btn-outline btn-sm admin-only" onclick="openTransferModal()">⇄ Split / Transfer</button>
                     <button class="btn btn-outline btn-sm" onclick="exportTable('tbl-stock','Stock')">Export</button>
                     <button class="btn btn-primary btn-sm admin-only" onclick="openItemModal(-1)">+ Register Item</button>
                 </div>
@@ -1450,6 +1527,7 @@
             <div class="panel-body" style="padding:0;">
                 <div class="print-only" id="bc-print-head" style="display:none;"></div>
                 <div id="bc-title" class="cell-muted" style="display:none;"></div>
+                <div id="bc-mode-bar" class="sc-mode-bar no-print" style="margin-bottom:.85rem;"></div>
                 <div class="paper-stockcard">
                     <div class="paper-sc-company" id="bc-sc-comp">SOUTHWIND PLANTATION SDN. BHD.</div>
                     <div class="paper-sc-meta">
@@ -1569,6 +1647,16 @@
                             <span id="imp-meta-hash" class="tag tag-green cell-mono"></span>
                         </div>
 
+                        <div style="background:var(--bg-input);border:1px solid var(--border);border-radius:6px;padding:.65rem .85rem;margin-bottom:1rem;display:flex;align-items:center;justify-content:space-between;gap:.75rem;flex-wrap:wrap;">
+                            <div>
+                                <div style="font-size:.78rem;font-weight:700;color:var(--text-primary);" id="imp-wh-lbl">Target Warehouse for Upload:</div>
+                                <div style="font-size:.72rem;color:var(--text-secondary);" id="imp-wh-sub">Choose a specific warehouse so multi-warehouse items do not merge into one card.</div>
+                            </div>
+                            <select id="imp-target-wh" onchange="inspectSyncPackage(false)" style="min-width:210px;height:34px;font-weight:700;font-size:.82rem;">
+                                <option value="AUTO">Sesuai Isi File (Auto / Multi-Gudang)</option>
+                            </select>
+                        </div>
+
                         <div style="display:flex;justify-content:space-between;align-items:center;">
                             <label style="font-size:.78rem;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--text-secondary);">Select Date(s) to Import</label>
                             <div style="display:flex;gap:.5rem;">
@@ -1587,7 +1675,7 @@
 
                         <div class="table-wrap" style="max-height:210px;overflow-y:auto;margin-top:1rem;border:1px solid var(--border);border-radius:6px;">
                             <table>
-                                <thead><tr><th>Date</th><th>Type</th><th>Ref / Req</th><th>Item</th><th class="num">Qty</th><th>Disposition</th></tr></thead>
+                                <thead><tr><th>Date</th><th>Type</th><th>WH</th><th>Ref / Req</th><th>Item</th><th class="num">Qty</th><th>Disposition</th></tr></thead>
                                 <tbody id="imp-preview-body"></tbody>
                             </table>
                         </div>
@@ -1913,6 +2001,51 @@
     </div>
 </div>
 
+<!-- MODAL: Transfer / Split Stock Across Warehouses -->
+<div class="modal-backdrop" id="transferModal" onclick="if(event.target===this) closeModal('transferModal')">
+    <div class="modal-box wide" style="max-width:600px;">
+        <div class="modal-head" style="display:flex;justify-content:space-between;align-items:center;">
+            <h2 id="trf-modal-title">Split / Transfer Stock Between Warehouses</h2>
+            <button type="button" class="btn btn-outline btn-sm" onclick="closeModal('transferModal')">&times;</button>
+        </div>
+        <form id="transferForm" onsubmit="submitTransferStock(event)">
+            <div class="modal-body">
+                <div class="form-grid" style="margin-bottom:.85rem;">
+                    <div class="form-field">
+                        <label class="req">Item</label>
+                        <select id="trf-item" class="item-select" required onchange="renderTransferFormBalances()"></select>
+                    </div>
+                    <div class="form-field">
+                        <label class="req">Date</label>
+                        <input type="date" id="trf-date" required>
+                    </div>
+                </div>
+                <div class="form-grid" style="margin-bottom:.85rem;">
+                    <div class="form-field">
+                        <label class="req">From Warehouse (Source)</label>
+                        <select id="trf-from" required onchange="renderTransferSplitsUI()"></select>
+                    </div>
+                    <div class="form-field">
+                        <label>Allocation / Notes</label>
+                        <input type="text" id="trf-notes" placeholder="Split / Transfer Stock" value="Split / Transfer Stock">
+                    </div>
+                </div>
+                <div id="trf-summary-bar" style="background:var(--bg-input);border:1px solid var(--border);border-radius:6px;padding:.55rem .75rem;margin-bottom:.85rem;font-size:.8rem;display:flex;justify-content:space-between;flex-wrap:wrap;gap:.5rem;">
+                    <span>Available in Source: <b id="trf-avail-lbl">0</b></span>
+                    <span>Moving Out: <b id="trf-moving-lbl" style="color:var(--red);">0</b></span>
+                    <span>Remaining: <b id="trf-remain-lbl" style="color:var(--accent-text);">0</b></span>
+                </div>
+                <div style="font-size:.76rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--text-secondary);margin-bottom:.4rem;">Distribute / Move To Warehouses:</div>
+                <div id="trf-dest-list" style="display:flex;flex-direction:column;gap:.45rem;"></div>
+            </div>
+            <div class="modal-foot" style="display:flex;justify-content:flex-end;gap:.5rem;">
+                <button type="button" class="btn btn-outline" onclick="closeModal('transferModal')">Cancel</button>
+                <button type="submit" class="btn btn-primary" id="trf-submit-btn">Execute Split / Transfer</button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <!-- MODAL: Interactive Stock Card (Southwind Plantation Style) -->
 <div class="modal-backdrop" id="stockCardModal" onclick="if(event.target===this) closeModal('stockCardModal')">
     <div class="modal-box" style="max-width:860px;width:96vw;max-height:92vh;display:flex;flex-direction:column;padding:0;overflow:hidden;">
@@ -1944,8 +2077,10 @@
                 <div class="sc-quick-actions">
                     <button type="button" class="btn btn-primary btn-sm" onclick="toggleScQuickForm('IN')">+ Barang Masuk</button>
                     <button type="button" class="btn btn-destructive btn-sm" onclick="toggleScQuickForm('OUT')">- Barang Keluar</button>
+                    <button type="button" class="btn btn-outline btn-sm admin-only" id="sc-btn-split" onclick="openTransferModal(currentScCode, $('sc-modal-wh') && $('sc-modal-wh').value)">⇄ Split / Move</button>
                     <button type="button" class="btn btn-outline btn-sm" onclick="jumpFromStockCard('CAM')">Kamera AI</button>
-                    <button type="button" class="btn btn-outline btn-sm" onclick="printStockCard()">Cetak</button>
+                    <button type="button" class="btn btn-outline btn-sm" id="sc-btn-print" onclick="printStockCard()">Print</button>
+                    <button type="button" class="btn btn-outline btn-sm" id="sc-btn-print-all" onclick="printAllWarehousesStockCard()" title="Print Separate Sheets Per Warehouse">Print All WH (Split)</button>
                     <button type="button" class="btn btn-outline btn-sm" onclick="exportStockCardExcel()">Excel</button>
                 </div>
             </div>
@@ -2010,6 +2145,9 @@
                 </div>
             </form>
 
+            <!-- Stock Card Mode Switcher (Per Warehouse vs All Warehouses) -->
+            <div id="sc-mode-bar" class="sc-mode-bar no-print" style="margin-bottom:.75rem;"></div>
+
             <!-- Physical Southwind Plantation Stock Card Sheet -->
             <div class="paper-stockcard" id="sc-modal-paper">
                 <div class="paper-sc-company" id="sc-m-comp">SOUTHWIND PLANTATION SDN. BHD.</div>
@@ -2054,7 +2192,7 @@
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#63e6be" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                 <div>
                     <div style="font-weight:800;font-size:1.05rem;line-height:1.2;">Unduh GudangPro APK Android</div>
-                    <div style="font-size:.75rem;color:#adb5bd;">Versi 5.0 (Build Resmi 2026 &bull; 100% Offline)</div>
+                    <div style="font-size:.75rem;color:#adb5bd;">Versi 6.0 (Mode Multi-Gudang &bull; 100% Offline)</div>
                 </div>
             </div>
             <button type="button" class="btn btn-outline btn-sm" onclick="closeModal('apkDownloadModal')" style="color:#fff;border-color:rgba(255,255,255,0.3);padding:.25rem .5rem;">&times;</button>
@@ -2581,11 +2719,68 @@ function offlineApiFallback(url, opts = {}) {
             }
         };
     }
+    if (p === '/api/stock/transfer' && method === 'POST') {
+        const { kode_barang, from_gudang, splits, tanggal, notes } = b;
+        if (!kode_barang || !from_gudang || !Array.isArray(splits) || !splits.length) throw new Error('Item, source warehouse, and destination splits are required.');
+        const it = st.items.find(x => x.kode_barang === kode_barang);
+        if (!it) throw new Error('Item not found.');
+        it.balances = it.balances || {};
+        const avail = round3(it.balances[from_gudang] || 0);
+        const cleanSplits = splits.map(s => ({ to_gudang: (s.to_gudang || '').trim(), qty: round3(Number(s.qty) || 0) })).filter(s => s.to_gudang && s.to_gudang !== from_gudang && s.qty > 0);
+        if (!cleanSplits.length) throw new Error('Enter a valid quantity (> 0) for at least one destination warehouse.');
+        const totalMove = round3(cleanSplits.reduce((s, x) => s + x.qty, 0));
+        if (totalMove > avail) throw new Error(`Insufficient stock in ${from_gudang} (available: ${avail} ${it.satuan}, requested: ${totalMove}).`);
+        const dt = tanggal || today();
+        const noteText = (notes || 'Split / Transfer Stock').trim();
+        const batchRef = 'TRF-' + Date.now().toString(36).toUpperCase();
+        cleanSplits.forEach((sp, idx) => {
+            const refId = `${batchRef}-${idx + 1}`;
+            st.outbound = st.outbound || [];
+            st.inbound = st.inbound || [];
+            st.outbound.unshift({
+                transaction_id: 'OUT-' + refId,
+                tanggal_keluar: dt,
+                kode_barang,
+                nama_barang: it.nama_barang,
+                satuan: it.satuan,
+                qty_keluar: sp.qty,
+                kondisi_keluar: 'OK',
+                alasan_keluar: `${noteText} -> ${sp.to_gudang}`,
+                pic: localStorage.getItem('auth') || 'admin',
+                gudang: from_gudang,
+                requisition_no: refId,
+                phase: 'TRF',
+                block: sp.to_gudang,
+                created_at: new Date().toISOString().replace('T', ' ').slice(0, 19)
+            });
+            st.inbound.unshift({
+                transaction_id: 'IN-' + refId,
+                tanggal_masuk: dt,
+                kode_barang,
+                nama_barang: it.nama_barang,
+                satuan: it.satuan,
+                qty_masuk: sp.qty,
+                pic: localStorage.getItem('auth') || 'admin',
+                supplier: `Transfer from ${from_gudang}`,
+                surat_jalan: refId,
+                lokasi: noteText,
+                gudang: sp.to_gudang,
+                created_at: new Date().toISOString().replace('T', ' ').slice(0, 19)
+            });
+            it.balances[from_gudang] = round3((it.balances[from_gudang] || 0) - sp.qty);
+            it.balances[sp.to_gudang] = round3((it.balances[sp.to_gudang] || 0) + sp.qty);
+        });
+        it.total = round3(Object.values(it.balances).reduce((a, v) => a + (Number(v) || 0), 0));
+        saveOfflineStore(st);
+        return { status: 'success', message: `Transferred ${totalMove} ${it.satuan} from ${from_gudang} successfully.` };
+    }
     if (p === '/api/sync/inspect' && method === 'POST') {
         const pkg = b.package || {};
-        const inb = Array.isArray(pkg.inbound) ? pkg.inbound : [];
-        const outb = Array.isArray(pkg.outbound) ? pkg.outbound : [];
-        const clDays = Array.isArray(pkg.closing_days) ? pkg.closing_days : [];
+        const targetWh = (b.targetWarehouse && b.targetWarehouse !== 'AUTO') ? b.targetWarehouse : null;
+        const applyWh = r => targetWh ? Object.assign({}, r, { gudang: targetWh }) : r;
+        const inb = (Array.isArray(pkg.inbound) ? pkg.inbound : []).map(applyWh);
+        const outb = (Array.isArray(pkg.outbound) ? pkg.outbound : []).map(applyWh);
+        const clDays = (Array.isArray(pkg.closing_days) ? pkg.closing_days : []).map(applyWh);
         const pkgWhs = Array.isArray(pkg.warehouses) ? pkg.warehouses : [];
         const pkgItems = Array.isArray(pkg.items) ? pkg.items : [];
 
@@ -2663,6 +2858,7 @@ function offlineApiFallback(url, opts = {}) {
     }
     if (p === '/api/sync/import' && method === 'POST') {
         const pkg = b.package || {};
+        const targetWh = (b.targetWarehouse && b.targetWarehouse !== 'AUTO') ? b.targetWarehouse : null;
         const selDates = Array.isArray(b.selectedDates) && b.selectedDates.length ? b.selectedDates : [today()];
         const selSet = new Set(selDates);
         const ops = [];
@@ -2691,8 +2887,11 @@ function offlineApiFallback(url, opts = {}) {
         (pkg.items || []).forEach(it => {
             const ex = st.items.find(x => x.kode_barang === it.kode_barang);
             if (!ex) {
-                const clonedBalances = it.balances ? Object.assign({}, it.balances) : {};
+                let clonedBalances = it.balances ? Object.assign({}, it.balances) : {};
                 const calcTotal = it.total !== undefined ? Number(it.total) : Object.values(clonedBalances).reduce((a, v) => a + (Number(v) || 0), 0);
+                if (targetWh && (pkg.inbound || []).length === 0 && (pkg.outbound || []).length === 0 && calcTotal > 0) {
+                    clonedBalances = { [targetWh]: calcTotal };
+                }
                 st.items.push({
                     kode_barang: it.kode_barang,
                     nama_barang: it.nama_barang,
@@ -2714,7 +2913,7 @@ function offlineApiFallback(url, opts = {}) {
         });
 
         // 2. Merge Inbound
-        (pkg.inbound || []).filter(r => selSet.has(r.tanggal_masuk)).forEach(r => {
+        (pkg.inbound || []).map(x => targetWh ? Object.assign({}, x, { gudang: targetWh }) : x).filter(r => selSet.has(r.tanggal_masuk)).forEach(r => {
             const ex = (st.inbound || []).find(x => x.transaction_id === r.transaction_id);
             const it = st.items.find(x => x.kode_barang === r.kode_barang);
             const name = it ? it.nama_barang : r.kode_barang;
@@ -2736,7 +2935,7 @@ function offlineApiFallback(url, opts = {}) {
         });
 
         // 3. Merge Outbound
-        (pkg.outbound || []).filter(r => selSet.has(r.tanggal_keluar)).forEach(r => {
+        (pkg.outbound || []).map(x => targetWh ? Object.assign({}, x, { gudang: targetWh }) : x).filter(r => selSet.has(r.tanggal_keluar)).forEach(r => {
             const ex = (st.outbound || []).find(x => x.transaction_id === r.transaction_id);
             const it = st.items.find(x => x.kode_barang === r.kode_barang);
             const name = it ? it.nama_barang : r.kode_barang;
@@ -3312,6 +3511,12 @@ async function init() {
     startLiveSyncHeartbeat();
 }
 function fillSelects() {
+    if ($('imp-target-wh')) {
+        const tv = $('imp-target-wh').value || 'AUTO';
+        $('imp-target-wh').innerHTML = '<option value="AUTO">Sesuai Isi File (Auto / Multi-Gudang)</option>' +
+            activeWH().map(w => `<option value="${esc(w.code)}">Paksa Masuk ke: ${esc(w.name)} (${esc(w.code)})</option>`).join('');
+        if ([...$('imp-target-wh').options].some(o => o.value === tv)) $('imp-target-wh').value = tv;
+    }
     document.querySelectorAll('select.wh-select').forEach(s => {
         const v = s.value; const all = s.dataset.all === '1';
         s.innerHTML = (all ? '<option value="ALL">All warehouses</option>' : '') + activeWH().map(w => `<option value="${esc(w.code)}">${esc(w.name)} (${esc(w.code)})</option>`).join('');
@@ -3443,11 +3648,11 @@ function renderStock() {
                 <td>${actionBtns}</td></tr>`;
         }
 
-        return `<tr class="stock-row-clickable ${i.aktif === 0 ? 'row-muted' : ''}" onclick="openStockCard('${esc(i.kode_barang)}','ALL')" title="Klik untuk melihat Stock Card ${esc(i.nama_barang)}">
+        return `<tr class="stock-row-clickable ${i.aktif === 0 ? 'row-muted' : ''}" onclick="openStockCard('${esc(i.kode_barang)}', localStorage.getItem('gudangpro_sc_mode') || 'ALL')" title="Klik untuk melihat Stock Card ${esc(i.nama_barang)}">
             <td class="cell-mono" style="color:#c92a2a;font-weight:700;">${esc(i.kode_barang)}</td>
             <td class="cell-bold">${esc(i.nama_barang)}</td>
             <td><span class="tag ${CATTAG[i.kategori]}">${CAT[i.kategori]}</span></td><td>${esc(i.satuan)}</td>
-            ${allWhs.map(w => `<td class="num">${fmt(i.balances[w.code] || 0)}</td>`).join('')}
+            ${allWhs.map(w => `<td class="num sc-wh-cell" title="Buka Mode Stock Card ${esc(w.name)}" onclick="event.stopPropagation(); openStockCard('${esc(i.kode_barang)}', '${esc(w.code)}')">${fmt(i.balances[w.code] || 0)}</td>`).join('')}
             <td class="num cell-bold">${fmt(i.total)}</td><td class="cell-muted">${esc(convText(i, i.total))}</td>
             <td class="num">${fmt(i.min_stock_alert)}</td><td>${status}</td>
             <td>${actionBtns}</td></tr>`;
@@ -4371,12 +4576,258 @@ function printBinCard() {
     printStockCard();
 }
 
+let stockCardMode = localStorage.getItem('gudangpro_sc_mode') || 'ALL';
+
+function renderScModeBars(activeMode) {
+    const mode = activeMode || stockCardMode || 'ALL';
+    const whs = activeWH();
+    const mkBtns = (fnName) => {
+        let html = `<span class="sc-mode-label">Mode:</span>`;
+        html += `<button type="button" class="sc-mode-btn ${mode === 'ALL' ? 'active' : ''}" onclick="${fnName}('ALL')">Semua Gudang (ALL)</button>`;
+        whs.forEach(w => {
+            html += `<button type="button" class="sc-mode-btn ${mode === w.code ? 'active' : ''}" onclick="${fnName}('${esc(w.code)}')">${esc(w.name)} (${esc(w.code)})</button>`;
+        });
+        return html;
+    };
+    if ($('sc-mode-bar')) $('sc-mode-bar').innerHTML = mkBtns('setStockCardMode');
+    if ($('bc-mode-bar')) $('bc-mode-bar').innerHTML = mkBtns('setBinCardMode');
+}
+
+function setStockCardMode(mode) {
+    stockCardMode = mode || 'ALL';
+    localStorage.setItem('gudangpro_sc_mode', stockCardMode);
+    if ($('sc-modal-wh')) $('sc-modal-wh').value = stockCardMode;
+    renderScModeBars(stockCardMode);
+    loadStockCardModal();
+}
+
+function setBinCardMode(mode) {
+    stockCardMode = mode || 'ALL';
+    localStorage.setItem('gudangpro_sc_mode', stockCardMode);
+    if ($('bc-wh')) $('bc-wh').value = stockCardMode;
+    renderScModeBars(stockCardMode);
+    loadBinCard();
+}
+
+async function printAllWarehousesStockCard() {
+    const code = currentScCode || ($('bc-item') && $('bc-item').value) || (STOCK[0] && STOCK[0].kode_barang);
+    if (!code) return toast('Pilih barang terlebih dahulu', true);
+    const it = itemOf(code) || { kode_barang: code, nama_barang: code, satuan: 'unit' };
+    const cleanName = (it.nama_barang || '').split('/')[0].trim();
+    const whs = activeWH();
+    const from = ($('sc-modal-from') && $('sc-modal-from').value) || '';
+    const to = ($('sc-modal-to') && $('sc-modal-to').value) || '';
+
+    try {
+        toast('Menyiapkan Stock Card terpisah untuk semua gudang...');
+        const cards = [];
+        for (const w of whs) {
+            const q = `kode_barang=${encodeURIComponent(code)}&gudang=${encodeURIComponent(w.code)}&from=${from}&to=${to}`;
+            const d = (await api('/api/bincard?' + q)).data;
+            // Include warehouse if it has transactions OR positive/non-zero balance OR if none have data show all
+            if ((d.rows && d.rows.length > 0) || d.opening !== 0 || d.closing !== 0) {
+                cards.push({ wh: w, data: d });
+            }
+        }
+        if (cards.length === 0) {
+            for (const w of whs) {
+                const q = `kode_barang=${encodeURIComponent(code)}&gudang=${encodeURIComponent(w.code)}&from=${from}&to=${to}`;
+                cards.push({ wh: w, data: (await api('/api/bincard?' + q)).data });
+            }
+        }
+
+        const uom = `${it.satuan}${it.conv_factor > 0 && it.conv_unit ? ' (@ ' + it.conv_factor + ' ' + it.conv_unit + ')' : ''}`;
+        let batchHtml = '';
+        cards.forEach((entry, idx) => {
+            const d = entry.data;
+            const w = entry.wh;
+            let rowsHtml = `<tr class="sc-bf-row">
+                <td style="text-align:center;">-</td>
+                <td style="text-align:center;font-weight:800;letter-spacing:.05em;">${esc(T('sc_bf'))}</td>
+                <td style="text-align:center;">-</td>
+                <td style="text-align:center;">-</td>
+                <td style="text-align:right;">-</td>
+                <td style="text-align:right;">-</td>
+                <td class="sc-num" style="font-weight:800;text-align:right;">${fmt(d.opening)}</td>
+                <td style="text-align:center;">${esc(T('sc_bf_sub'))}</td>
+            </tr>`;
+            (d.rows || []).forEach(r => {
+                const isIn = r.kind === 'IN';
+                const isOut = r.kind === 'OUT';
+                const isAdj = r.kind === 'ADJ';
+                const recVal = isIn ? fmt(r.qty) : (isAdj && r.qty > 0 ? '+' + fmt(r.qty) : '-');
+                const issVal = isOut ? fmt(-r.qty) : (isAdj && r.qty < 0 ? fmt(-r.qty) : '-');
+                const reqNo = isAdj ? 'ADJ-CLOSING' : (r.requisition_no || '-');
+                rowsHtml += `<tr>
+                    <td style="text-align:center;font-weight:600;">${esc(fmtScDate(r.tanggal))}</td>
+                    <td>${esc(r.supplier || '-')}</td>
+                    <td style="text-align:center;">${esc(r.do_no || '-')}</td>
+                    <td style="text-align:center;font-weight:600;">${esc(reqNo)}</td>
+                    <td style="color:#087f5b;font-weight:700;text-align:right;">${recVal}</td>
+                    <td style="color:#c92a2a;font-weight:700;text-align:right;">${issVal}</td>
+                    <td style="font-weight:800;text-align:right;">${fmt(r.balance)}</td>
+                    <td>${esc(r.allocation || '-')}</td>
+                </tr>`;
+            });
+            const emptyCount = Math.max(2, 12 - (d.rows ? d.rows.length : 0));
+            for (let k = 0; k < emptyCount; k++) {
+                rowsHtml += `<tr class="sc-empty-row"><td>&nbsp;</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>`;
+            }
+
+            batchHtml += `<div class="paper-stockcard sc-batch-page">
+                <div class="paper-sc-company">${esc(T('sc_company'))}</div>
+                <div class="paper-sc-meta">
+                    <div class="paper-sc-field"><b>${esc(T('sc_lbl_item'))}</b><span class="paper-sc-line">${esc(cleanName || it.nama_barang)}</span></div>
+                    <div class="paper-sc-field"><b>${esc(T('sc_lbl_code'))}</b><span class="paper-sc-line"><span class="paper-sc-code-red">${esc(it.kode_barang)}</span></span></div>
+                    <div class="paper-sc-field"><b>${esc(T('sc_lbl_sheet'))}</b><span class="paper-sc-line">${idx + 1} (${esc(w.name)} - ${esc(w.code)})</span></div>
+                    <div class="paper-sc-field"><b>${esc(T('sc_lbl_unit'))}</b><span class="paper-sc-line">${esc(uom)}</span></div>
+                </div>
+                <div class="paper-sc-table-wrap">
+                    <table class="paper-sc-table">
+                        <thead>
+                            <tr>
+                                <th rowspan="2" style="width:76px;">${esc(T('sc_th_date'))}</th>
+                                <th colspan="2">${esc(T('sc_th_receipt'))}</th>
+                                <th colspan="1">${esc(T('sc_th_issue'))}</th>
+                                <th colspan="3">${esc(T('sc_th_qty'))}</th>
+                                <th rowspan="2" style="min-width:115px;">${esc(T('sc_th_alloc'))}</th>
+                            </tr>
+                            <tr>
+                                <th>${esc(T('sc_th_supp'))}</th>
+                                <th style="width:82px;">${esc(T('sc_th_do'))}</th>
+                                <th style="width:92px;">${esc(T('sc_th_req'))}</th>
+                                <th style="width:70px;">${esc(T('sc_th_rec_val'))}</th>
+                                <th style="width:70px;">${esc(T('sc_th_iss_val'))}</th>
+                                <th style="width:78px;">${esc(T('sc_th_bal_val'))}</th>
+                            </tr>
+                        </thead>
+                        <tbody>${rowsHtml}</tbody>
+                    </table>
+                </div>
+            </div>`;
+        });
+
+        $('sc-batch-print-area').innerHTML = batchHtml;
+        document.body.classList.add('printing-stockcard-batch');
+        const cleanUp = () => {
+            document.body.classList.remove('printing-stockcard-batch');
+            $('sc-batch-print-area').innerHTML = '';
+        };
+        window.addEventListener('afterprint', cleanUp, { once: true });
+        if (window.AndroidBridge && typeof window.AndroidBridge.printPage === 'function') {
+            window.AndroidBridge.printPage();
+            setTimeout(cleanUp, 2500);
+        } else {
+            window.print();
+            setTimeout(cleanUp, 1500);
+        }
+    } catch (e) { toast(e.message, true); }
+}
+
+async function openTransferModal(presetCode, presetWh) {
+    $('transferForm').reset();
+    $('trf-date').value = today();
+    $('trf-notes').value = 'Split / Transfer Stock';
+    if (presetCode && itemOf(presetCode)) {
+        $('trf-item').value = presetCode;
+    } else if (STOCK[0]) {
+        $('trf-item').value = STOCK[0].kode_barang;
+    }
+    renderTransferFormBalances(presetWh);
+    openModal('transferModal');
+}
+
+function renderTransferFormBalances(preferredFrom) {
+    const code = $('trf-item').value;
+    const it = itemOf(code);
+    const whs = activeWH();
+    const curFrom = preferredFrom && preferredFrom !== 'ALL' ? preferredFrom : ($('trf-from').value || (whs[0] && whs[0].code));
+    let bestWh = curFrom;
+    if (it && it.balances && (!preferredFrom || preferredFrom === 'ALL')) {
+        const sorted = [...whs].sort((a, b) => (it.balances[b.code] || 0) - (it.balances[a.code] || 0));
+        if (sorted[0]) bestWh = sorted[0].code;
+    }
+    $('trf-from').innerHTML = whs.map(w => {
+        const bal = it && it.balances ? (it.balances[w.code] || 0) : 0;
+        return `<option value="${esc(w.code)}">${esc(w.name)} (${esc(w.code)}) — Saldo: ${fmt(bal)} ${esc(it ? it.satuan : '')}</option>`;
+    }).join('');
+    if ([...$('trf-from').options].some(o => o.value === bestWh)) $('trf-from').value = bestWh;
+    renderTransferSplitsUI();
+}
+
+function renderTransferSplitsUI() {
+    const code = $('trf-item').value;
+    const fromWh = $('trf-from').value;
+    const it = itemOf(code);
+    const avail = (it && it.balances) ? (it.balances[fromWh] || 0) : 0;
+    const unit = it ? it.satuan : '';
+    const others = activeWH().filter(w => w.code !== fromWh);
+    $('trf-dest-list').innerHTML = others.length ? others.map(w => {
+        const curBal = (it && it.balances) ? (it.balances[w.code] || 0) : 0;
+        return `<div style="display:flex;align-items:center;justify-content:space-between;gap:.75rem;padding:.45rem .65rem;border:1px solid var(--border);border-radius:6px;background:#fff;">
+            <div>
+                <div style="font-weight:700;font-size:.84rem;">${esc(w.name)} <span class="cell-muted">(${esc(w.code)})</span></div>
+                <div style="font-size:.72rem;color:var(--text-secondary);">Stok saat ini: <b>${fmt(curBal)} ${esc(unit)}</b></div>
+            </div>
+            <div style="display:flex;align-items:center;gap:.35rem;">
+                <input type="number" class="trf-split-input" data-wh="${esc(w.code)}" min="0" step="${it ? stepFor(it.satuan) : '1'}" placeholder="0" oninput="updateTransferTotals()" style="width:110px;height:34px;text-align:right;font-weight:700;">
+                <span style="font-size:.78rem;color:var(--text-secondary);min-width:34px;">${esc(unit)}</span>
+            </div>
+        </div>`;
+    }).join('') : '<div class="cell-muted">Minimal harus ada 2 gudang aktif untuk melakukan split/transfer.</div>';
+    updateTransferTotals();
+}
+
+function updateTransferTotals() {
+    const code = $('trf-item').value;
+    const fromWh = $('trf-from').value;
+    const it = itemOf(code);
+    const avail = (it && it.balances) ? (it.balances[fromWh] || 0) : 0;
+    const unit = it ? it.satuan : '';
+    let moving = 0;
+    document.querySelectorAll('.trf-split-input').forEach(inp => { moving += (parseFloat(inp.value) || 0); });
+    const rem = round3(avail - moving);
+    $('trf-avail-lbl').innerText = `${fmt(avail)} ${unit}`;
+    $('trf-moving-lbl').innerText = `${fmt(moving)} ${unit}`;
+    $('trf-remain-lbl').innerText = `${fmt(rem)} ${unit}`;
+    $('trf-remain-lbl').style.color = rem < 0 ? 'var(--red)' : 'var(--accent-text)';
+}
+
+async function submitTransferStock(e) {
+    e.preventDefault();
+    const kode_barang = $('trf-item').value;
+    const from_gudang = $('trf-from').value;
+    const tanggal = $('trf-date').value || today();
+    const notes = ($('trf-notes').value || '').trim();
+    const splits = [];
+    document.querySelectorAll('.trf-split-input').forEach(inp => {
+        const qty = parseFloat(inp.value) || 0;
+        if (qty > 0) splits.push({ to_gudang: inp.dataset.wh, qty });
+    });
+    if (!splits.length) return toast('Masukkan jumlah minimal ke 1 gudang tujuan.', true);
+    try {
+        const r = await api('/api/stock/transfer', {
+            method: 'POST',
+            headers: JSONH,
+            body: JSON.stringify({ kode_barang, from_gudang, splits, tanggal, notes })
+        });
+        toast(r.message);
+        closeModal('transferModal');
+        await refreshBase();
+        renderStock();
+        if ($('stockCardModal') && $('stockCardModal').classList.contains('open')) await loadStockCardModal();
+        if ($('tab-bincard') && $('tab-bincard').classList.contains('active')) await loadBinCard();
+    } catch (err) { toast(err.message, true); }
+}
+
 async function loadBinCard() {
     const code = $('bc-item').value || (STOCK[0] && STOCK[0].kode_barang);
     if (!code) return;
     if ($('bc-item').value !== code) $('bc-item').value = code;
     try {
-        const wh = $('bc-wh').value || 'ALL';
+        const wh = $('bc-wh').value || stockCardMode || 'ALL';
+        $('bc-wh').value = wh;
+        renderScModeBars(wh);
         const q = `kode_barang=${encodeURIComponent(code)}&gudang=${encodeURIComponent(wh)}&from=${$('bc-from').value}&to=${$('bc-to').value}`;
         const d = (await api('/api/bincard?' + q)).data;
         currentScData = d;
@@ -4390,31 +4841,16 @@ async function loadBinCard() {
     } catch (e) { toast(e.message, true); }
 }
 
-async function loadStockCardModal() {
-    if (!currentScCode) return;
-    try {
-        const wh = ($('sc-modal-wh') && $('sc-modal-wh').value) || 'ALL';
-        const from = ($('sc-modal-from') && $('sc-modal-from').value) || '';
-        const to = ($('sc-modal-to') && $('sc-modal-to').value) || '';
-        const q = `kode_barang=${encodeURIComponent(currentScCode)}&gudang=${encodeURIComponent(wh)}&from=${from}&to=${to}`;
-        const d = (await api('/api/bincard?' + q)).data;
-        currentScData = d;
-        renderPaperStockCard(d, wh, {
-            item: 'sc-m-item', sub: 'sc-m-sub', code: 'sc-m-code', sheet: 'sc-m-sheet', unit: 'sc-m-unit', cat: 'sc-m-cat', body: 'sc-m-body'
-        });
-        if ($('bc-item')) {
-            $('bc-item').value = currentScCode;
-            if ($('bc-wh')) $('bc-wh').value = wh;
-        }
-    } catch (e) { toast(e.message, true); }
-}
-
-async function openStockCard(code, wh = 'ALL') {
+async function openStockCard(code, wh) {
     if (!code) return;
     currentScCode = code;
-    if ($('sc-modal-wh')) $('sc-modal-wh').value = wh || 'ALL';
+    const effectiveWh = wh || stockCardMode || 'ALL';
+    stockCardMode = effectiveWh;
+    localStorage.setItem('gudangpro_sc_mode', effectiveWh);
+    if ($('sc-modal-wh')) $('sc-modal-wh').value = effectiveWh;
     if ($('sc-modal-from')) $('sc-modal-from').value = '';
     if ($('sc-modal-to')) $('sc-modal-to').value = '';
+    renderScModeBars(effectiveWh);
     toggleScQuickForm(null);
     openModal('stockCardModal');
     await loadStockCardModal();
@@ -4423,7 +4859,10 @@ async function openStockCard(code, wh = 'ALL') {
 async function loadStockCardModal() {
     if (!currentScCode) return;
     try {
-        const wh = ($('sc-modal-wh') && $('sc-modal-wh').value) || 'ALL';
+        const wh = ($('sc-modal-wh') && $('sc-modal-wh').value) || stockCardMode || 'ALL';
+        stockCardMode = wh;
+        localStorage.setItem('gudangpro_sc_mode', wh);
+        renderScModeBars(wh);
         const from = ($('sc-modal-from') && $('sc-modal-from').value) || '';
         const to = ($('sc-modal-to') && $('sc-modal-to').value) || '';
         const q = `kode_barang=${encodeURIComponent(currentScCode)}&gudang=${encodeURIComponent(wh)}&from=${from}&to=${to}`;
@@ -4780,7 +5219,7 @@ async function inspectSyncPackage(selectAll = false) {
         const r = await api('/api/sync/inspect', {
             method: 'POST',
             headers: JSONH,
-            body: JSON.stringify({ package: SYNC_PKG, selectedDates: selectedArr })
+            body: JSON.stringify({ package: SYNC_PKG, selectedDates: selectedArr, targetWarehouse: ($('imp-target-wh') && $('imp-target-wh').value) || 'AUTO' })
         });
         SYNC_PLAN = r.data;
         if (selectAll) {
@@ -4835,13 +5274,13 @@ function renderSyncInspector() {
 
     const previewRows = [];
     p.inbound.forEach(r => previewRows.push({
-        date: r.tanggal_masuk, type: 'RECEIVING', ref: `D/O ${r.surat_jalan || '-'}`,
-        item: `${r.nama_barang} (${r.gudang})`, qty: `+${fmt(r.qty_masuk)} ${r.satuan}`,
+        date: r.tanggal_masuk, type: 'RECEIVING', wh: r.gudang || 'MAIN', ref: `D/O ${r.surat_jalan || '-'}`,
+        item: `${r.nama_barang}`, qty: `+${fmt(r.qty_masuk)} ${r.satuan}`,
         disp: r.action === 'NEW' ? '<span class="tag tag-green">NEW · INSERT</span>' : '<span class="tag tag-default">SKIP · EXISTS</span>'
     }));
     p.outbound.forEach(r => previewRows.push({
-        date: r.tanggal_keluar, type: 'REQUISITION', ref: `REQ #${r.requisition_no || '-'}`,
-        item: `${r.nama_barang} (${r.gudang})`, qty: `-${fmt(r.qty_keluar)} ${r.satuan}`,
+        date: r.tanggal_keluar, type: 'REQUISITION', wh: r.gudang || 'MAIN', ref: `REQ #${r.requisition_no || '-'}`,
+        item: `${r.nama_barang}`, qty: `-${fmt(r.qty_keluar)} ${r.satuan}`,
         disp: r.action === 'NEW'
             ? '<span class="tag tag-green">NEW · INSERT</span>'
             : r.action === 'UPDATE_BAGS'
@@ -4849,7 +5288,7 @@ function renderSyncInspector() {
                 : '<span class="tag tag-default">SKIP · EXISTS</span>'
     }));
     p.closing.forEach(r => previewRows.push({
-        date: r.tanggal, type: 'CLOSING', ref: r.gudang,
+        date: r.tanggal, type: 'CLOSING', wh: r.gudang || 'MAIN', ref: r.gudang,
         item: `Daily Closing (${r.itemsCount} items)`, qty: `${r.mismatches} diff(s)`,
         disp: r.action === 'NEW' ? '<span class="tag tag-blue">NEW · LOCK DAY</span>' : '<span class="tag tag-amber">REFRESH CLOSING</span>'
     }));
@@ -4858,12 +5297,13 @@ function renderSyncInspector() {
         ? previewRows.map(r => `<tr>
             <td class="cell-mono">${esc(r.date)}</td>
             <td class="cell-mono" style="font-size:.73rem;">${esc(r.type)}</td>
+            <td><span class="tag tag-blue cell-mono" style="font-size:.7rem;">${esc(r.wh || 'MAIN')}</span></td>
             <td class="cell-mono">${esc(r.ref)}</td>
             <td class="cell-bold">${esc(r.item)}</td>
             <td class="num cell-mono">${esc(r.qty)}</td>
             <td>${r.disp}</td>
         </tr>`).join('')
-        : '<tr><td colspan="6" class="cell-muted">Select at least one date above to preview transactions.</td></tr>';
+        : '<tr><td colspan="7" class="cell-muted">Select at least one date above to preview transactions.</td></tr>';
 
     $('btn-run-sync').disabled = SYNC_SELECTED_DATES.size === 0;
 }
@@ -4943,7 +5383,7 @@ async function executeSyncImport() {
         const res = await api('/api/sync/import', {
             method: 'POST',
             headers: JSONH,
-            body: JSON.stringify({ package: SYNC_PKG, selectedDates: datesArr })
+            body: JSON.stringify({ package: SYNC_PKG, selectedDates: datesArr, targetWarehouse: ($('imp-target-wh') && $('imp-target-wh').value) || 'AUTO' })
         });
         const d = res.data;
         const ops = d.operations || [];
@@ -5122,12 +5562,30 @@ async function installPWA() {
     deferredPrompt = null;
 }
 window.addEventListener('appinstalled', () => { $('pwa-install-btn').style.display = 'none'; $('pwa-login-install').style.display = 'none'; toast('GudangPro installed!'); });
+const APP_VERSION = '6.0.0';
+try {
+    const prevVer = localStorage.getItem('gudangpro_app_ver');
+    if (prevVer && prevVer !== APP_VERSION) {
+        localStorage.setItem('gudangpro_app_ver', APP_VERSION);
+        if (window.caches) caches.keys().then(keys => Promise.all(keys.map(k => caches.delete(k)))).catch(() => {});
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.getRegistrations().then(regs => Promise.all(regs.map(r => r.update()))).then(() => window.location.reload()).catch(() => {});
+        }
+    } else {
+        localStorage.setItem('gudangpro_app_ver', APP_VERSION);
+    }
+} catch (_) {}
+
 if ('serviceWorker' in navigator && window.location.protocol !== 'file:' && !window.GUDANGPRO_STANDALONE) {
     if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
         navigator.serviceWorker.getRegistrations().then(regs => regs.forEach(r => r.unregister())).catch(() => {});
         if (window.caches) caches.keys().then(keys => keys.forEach(k => caches.delete(k))).catch(() => {});
     } else {
-        window.addEventListener('load', () => { navigator.serviceWorker.register('/sw.js?v=5.6').then(reg => { reg.update().catch(() => {}); }).catch(err => console.warn('SW registration failed:', err)); });
+        let _swRefreshing = false;
+        navigator.serviceWorker.addEventListener('controllerchange', () => {
+            if (!_swRefreshing) { _swRefreshing = true; window.location.reload(); }
+        });
+        window.addEventListener('load', () => { navigator.serviceWorker.register('/sw.js?v=6.0').then(reg => { reg.update().catch(() => {}); }).catch(err => console.warn('SW registration failed:', err)); });
     }
 }
 window.addEventListener('keydown', (e) => {
@@ -5138,5 +5596,6 @@ window.addEventListener('keydown', (e) => {
 
 checkAuth();
 </script>
+<div id="sc-batch-print-area"></div>
 </body>
 </html>

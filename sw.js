@@ -1,4 +1,4 @@
-const CACHE_NAME = 'gudangpro-v5.6';
+const CACHE_NAME = 'gudangpro-v6.0';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
@@ -91,10 +91,10 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // 3. Navigation / HTML pages: Network-First with offline cache fallback
-  if (event.request.mode === 'navigate') {
+  // 3. Navigation / HTML pages: Network-First (bypassing HTTP disk cache) with offline cache fallback
+  if (event.request.mode === 'navigate' || url.pathname === '/' || url.pathname === '/index.html') {
     event.respondWith(
-      fetch(event.request)
+      fetch(event.request, { cache: 'no-cache' })
         .then(async (networkResponse) => {
           if (networkResponse && networkResponse.status === 200) {
             const cache = await caches.open(CACHE_NAME);
