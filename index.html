@@ -832,6 +832,59 @@
             color: #ffffff;
             border-color: var(--accent);
         }
+        .sc-edit-toggle-btn.active {
+            background: #d97706 !important;
+            color: #ffffff !important;
+            border-color: #b45309 !important;
+            font-weight: 700;
+        }
+        .sc-edit-banner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: .5rem;
+            background: #fffbeb;
+            border: 1.5px solid #f59e0b;
+            border-radius: 8px;
+            padding: .55rem .8rem;
+            color: #78350f;
+            font-size: .78rem;
+            box-shadow: 0 2px 6px rgba(245, 158, 11, 0.12);
+        }
+        .sc-row-edit-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 2px;
+            padding: 2px 6px;
+            font-size: 10.5px;
+            font-weight: 700;
+            border-radius: 4px;
+            border: 1px solid #f59e0b;
+            background: #fef3c7;
+            color: #92400e;
+            cursor: pointer;
+            flex-shrink: 0;
+            line-height: 1.2;
+        }
+        .sc-row-edit-btn:hover {
+            background: #f59e0b;
+            color: #fff;
+        }
+        .sce-impact-box {
+            background: #f0fdf4;
+            border: 1px solid #86efac;
+            border-radius: 8px;
+            padding: .65rem .8rem;
+            margin-top: .75rem;
+            font-size: .79rem;
+            color: #14532d;
+        }
+        .sce-impact-box.warn {
+            background: #fef2f2;
+            border-color: #fca5a5;
+            color: #7f1d1d;
+        }
         .sc-wh-cell {
             cursor: pointer;
             transition: background .12s ease, color .12s ease;
@@ -1518,6 +1571,7 @@
                     <div class="form-field"><label>To</label><input type="date" id="bc-to" onchange="loadBinCard()"></div>
                     <button class="btn btn-primary" onclick="loadBinCard()">Show</button>
                     <button class="btn btn-outline" onclick="$('bc-from').value='';$('bc-to').value='';loadBinCard()">All Dates</button>
+                    <button type="button" class="btn btn-outline no-print sc-edit-toggle-btn" onclick="toggleScEditMode()">&#9998; Edit Stock Card</button>
                     <button class="btn btn-outline" onclick="printBinCard()">Print</button>
                     <button class="btn btn-outline" onclick="exportTable('tbl-bin','Stock_Card')">Export</button>
                 </div>
@@ -1528,6 +1582,7 @@
                 <div class="print-only" id="bc-print-head" style="display:none;"></div>
                 <div id="bc-title" class="cell-muted" style="display:none;"></div>
                 <div id="bc-mode-bar" class="sc-mode-bar no-print" style="margin-bottom:.85rem;"></div>
+                <div id="bc-edit-banner" class="sc-edit-banner no-print" style="display:none;margin-bottom:.75rem;"></div>
                 <div class="paper-stockcard">
                     <div class="paper-sc-company" id="bc-sc-comp">SOUTHWIND PLANTATION SDN. BHD.</div>
                     <div class="paper-sc-meta">
@@ -2078,6 +2133,7 @@
                     <button type="button" class="btn btn-primary btn-sm" onclick="toggleScQuickForm('IN')">+ Barang Masuk</button>
                     <button type="button" class="btn btn-destructive btn-sm" onclick="toggleScQuickForm('OUT')">- Barang Keluar</button>
                     <button type="button" class="btn btn-outline btn-sm admin-only" id="sc-btn-split" onclick="openTransferModal(currentScCode, $('sc-modal-wh') && $('sc-modal-wh').value)">⇄ Split / Move</button>
+                    <button type="button" class="btn btn-outline btn-sm no-print sc-edit-toggle-btn" onclick="toggleScEditMode()">&#9998; Edit Stock Card</button>
                     <button type="button" class="btn btn-outline btn-sm" onclick="jumpFromStockCard('CAM')">Kamera AI</button>
                     <button type="button" class="btn btn-outline btn-sm" id="sc-btn-print" onclick="printStockCard()">Print</button>
                     <button type="button" class="btn btn-outline btn-sm" id="sc-btn-print-all" onclick="printAllWarehousesStockCard()" title="Print Separate Sheets Per Warehouse">Print All WH (Split)</button>
@@ -2147,6 +2203,7 @@
 
             <!-- Stock Card Mode Switcher (Per Warehouse vs All Warehouses) -->
             <div id="sc-mode-bar" class="sc-mode-bar no-print" style="margin-bottom:.75rem;"></div>
+            <div id="sc-edit-banner" class="sc-edit-banner no-print" style="display:none;margin-bottom:.75rem;"></div>
 
             <!-- Physical Southwind Plantation Stock Card Sheet -->
             <div class="paper-stockcard" id="sc-modal-paper">
@@ -2184,6 +2241,122 @@
     </div>
 </div>
 
+<!-- MODAL: Edit Stock Card Entry (B/F Opening, IN, OUT, ADJ) with Auto-Sync -->
+<div class="modal-backdrop" id="scEditRowModal" onclick="if(event.target===this) closeModal('scEditRowModal')">
+    <div class="modal-box" style="max-width:540px;width:95vw;padding:0;overflow:hidden;border-radius:12px;">
+        <div class="modal-head" style="background:linear-gradient(90deg,#b45309,#d97706);color:#fff;padding:.9rem 1.15rem;display:flex;justify-content:space-between;align-items:center;">
+            <div>
+                <h2 id="sce-title" style="margin:0;font-size:1rem;color:#fff;">Edit Stock Card</h2>
+                <div id="sce-subtitle" style="font-size:.74rem;color:#fef3c7;margin-top:2px;">-</div>
+            </div>
+            <button type="button" class="btn btn-outline btn-sm" style="color:#fff;border-color:rgba(255,255,255,0.4);" onclick="closeModal('scEditRowModal')">&times;</button>
+        </div>
+        <form onsubmit="saveScEditRow(event)" style="padding:1rem 1.15rem;max-height:78vh;overflow-y:auto;">
+            <input type="hidden" id="sce-mode">
+            <input type="hidden" id="sce-ref">
+            <input type="hidden" id="sce-old-wh">
+            <input type="hidden" id="sce-old-qty">
+
+            <!-- Mode: B/F Opening Balance -->
+            <div id="sce-sec-opening" style="display:none;">
+                <div class="form-grid" style="grid-template-columns:1fr 1fr;gap:.65rem;">
+                    <div class="form-field" style="margin:0;">
+                        <label>Gudang *</label>
+                        <select id="sce-open-wh" onchange="onScEditOpeningWhChange()"></select>
+                    </div>
+                    <div class="form-field" style="margin:0;">
+                        <label>Saldo Awal (B/F) Saat Ini</label>
+                        <input type="text" id="sce-open-cur" disabled style="background:#f1f5f9;font-weight:700;">
+                    </div>
+                    <div class="form-field" style="margin:0;">
+                        <label id="sce-open-new-lbl">Saldo Awal (B/F) Baru *</label>
+                        <input type="number" id="sce-open-val" min="0" step="any" oninput="updateScEditPreview()">
+                    </div>
+                    <div class="form-field" style="margin:0;">
+                        <label>Keterangan Koreksi</label>
+                        <input type="text" id="sce-open-note" placeholder="Contoh: Koreksi B/F gudang">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mode: Transaction Row (IN / OUT / ADJ) -->
+            <div id="sce-sec-tx" style="display:none;">
+                <div class="form-grid" style="grid-template-columns:1fr 1fr;gap:.65rem;">
+                    <div class="form-field" style="margin:0;">
+                        <label>Tanggal *</label>
+                        <input type="date" id="sce-tx-date">
+                    </div>
+                    <div class="form-field" style="margin:0;">
+                        <label>Gudang *</label>
+                        <select id="sce-tx-wh" class="wh-select" onchange="updateScEditPreview()"></select>
+                    </div>
+                    <div class="form-field" style="margin:0;grid-column:1 / -1;">
+                        <label id="sce-tx-qty-lbl">Qty *</label>
+                        <input type="number" id="sce-tx-qty" step="any" oninput="updateScEditPreview()">
+                    </div>
+                </div>
+
+                <!-- IN extra fields -->
+                <div id="sce-tx-in-fields" class="form-grid" style="grid-template-columns:1fr 1fr;gap:.65rem;margin-top:.65rem;display:none;">
+                    <div class="form-field" style="margin:0;">
+                        <label>Supplier</label>
+                        <input type="text" id="sce-in-supp" placeholder="Nama Supplier">
+                    </div>
+                    <div class="form-field" style="margin:0;">
+                        <label>D/O No. (Surat Jalan)</label>
+                        <input type="text" id="sce-in-do" placeholder="No. DO / SJ">
+                    </div>
+                    <div class="form-field" style="margin:0;grid-column:1 / -1;">
+                        <label>Allocation / Lokasi</label>
+                        <input type="text" id="sce-in-loc" placeholder="Rak / Blok / Catatan">
+                    </div>
+                </div>
+
+                <!-- OUT extra fields -->
+                <div id="sce-tx-out-fields" class="form-grid" style="grid-template-columns:1fr 1fr;gap:.65rem;margin-top:.65rem;display:none;">
+                    <div class="form-field" style="margin:0;">
+                        <label>Requisition No.</label>
+                        <input type="text" id="sce-out-req" placeholder="71290">
+                    </div>
+                    <div class="form-field" style="margin:0;">
+                        <label>Phase / Afdeling</label>
+                        <input type="text" id="sce-out-phase" placeholder="PH4 / NS">
+                    </div>
+                    <div class="form-field" style="margin:0;">
+                        <label>Block</label>
+                        <input type="text" id="sce-out-block" placeholder="2686 / B56">
+                    </div>
+                    <div class="form-field" style="margin:0;">
+                        <label>Allocation / Remarks</label>
+                        <input type="text" id="sce-out-alasan" placeholder="Keterangan">
+                    </div>
+                </div>
+
+                <!-- ADJ extra fields -->
+                <div id="sce-tx-adj-fields" class="form-grid" style="grid-template-columns:1fr;gap:.65rem;margin-top:.65rem;display:none;">
+                    <div class="form-field" style="margin:0;">
+                        <label>Alasan / Keterangan Adjustment</label>
+                        <input type="text" id="sce-adj-reason" placeholder="Contoh: Koreksi selisih opname">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Live Impact Preview -->
+            <div id="sce-impact-box" class="sce-impact-box">
+                Perubahan otomatis memperbarui Saldo Gudang, Total Stok, Log Masuk/Keluar/Pupuk, Closing Harian, &amp; Dashboard.
+            </div>
+
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:.5rem;margin-top:1rem;flex-wrap:wrap;">
+                <button type="button" class="btn btn-destructive btn-sm" id="sce-del-btn" onclick="deleteScEditRow()">Hapus Baris Ini</button>
+                <div style="display:flex;gap:.5rem;margin-left:auto;">
+                    <button type="button" class="btn btn-outline btn-sm" onclick="closeModal('scEditRowModal')">Batal</button>
+                    <button type="submit" class="btn btn-primary btn-sm" id="sce-save-btn">Simpan &amp; Sinkronkan</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
 <!-- MODAL: Download APK & Panduan Instalasi -->
 <div class="modal-backdrop" id="apkDownloadModal" onclick="if(event.target===this) closeModal('apkDownloadModal')">
     <div class="modal-box" style="max-width:560px;width:95vw;padding:0;overflow:hidden;border-radius:12px;border:1.5px solid var(--border);box-shadow:0 12px 36px rgba(0,0,0,0.25);">
@@ -2192,7 +2365,7 @@
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#63e6be" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                 <div>
                     <div style="font-weight:800;font-size:1.05rem;line-height:1.2;">Unduh GudangPro APK Android</div>
-                    <div style="font-size:.75rem;color:#adb5bd;">Versi 6.0 (Mode Multi-Gudang &bull; 100% Offline)</div>
+                    <div style="font-size:.75rem;color:#adb5bd;">Versi 6.1 (Edit Stock Card Auto-Sync &bull; Mode Multi-Gudang &bull; 100% Offline)</div>
                 </div>
             </div>
             <button type="button" class="btn btn-outline btn-sm" onclick="closeModal('apkDownloadModal')" style="color:#fff;border-color:rgba(255,255,255,0.3);padding:.25rem .5rem;">&times;</button>
@@ -2381,6 +2554,38 @@ function isOfflineDayLocked(st, wh, dt) {
     return dt <= lastClosed ? lastClosed : null;
 }
 
+function recomputeOfflineClosingFor(st, kodeBarang, wh, fromDate = '2000-01-01') {
+    if (!Array.isArray(st.daily_closing) || !st.daily_closing.length) return;
+    const it = (st.items || []).find(x => x.kode_barang === kodeBarang);
+    const curBal = it ? round3((it.balances && it.balances[wh]) || 0) : 0;
+    const moves = [];
+    (st.inbound || []).filter(r => r.kode_barang === kodeBarang && (r.gudang || 'MAIN') === wh && !String(r.transaction_id || '').startsWith('BF-')).forEach(r => {
+        moves.push({ dt: r.tanggal_masuk, kind: 'IN', qty: Number(r.qty_masuk) || 0 });
+    });
+    (st.outbound || []).filter(r => r.kode_barang === kodeBarang && (r.gudang || 'MAIN') === wh).forEach(r => {
+        moves.push({ dt: r.tanggal_keluar, kind: 'OUT', qty: -(Number(r.qty_keluar) || 0) });
+    });
+    (st.stock_opname || []).filter(r => r.kode_barang === kodeBarang && (r.gudang || 'MAIN') === wh).forEach(r => {
+        moves.push({ dt: r.tanggal, kind: 'ADJ', qty: Number(r.selisih) || 0 });
+    });
+    (st.daily_closing || []).filter(r => r.kode_barang === kodeBarang && (r.gudang || 'MAIN') === wh && Number(r.selisih) !== 0).forEach(r => {
+        moves.push({ dt: r.tanggal, kind: 'CLADJ', qty: Number(r.selisih) || 0 });
+    });
+    const baseSeed = round3(curBal - moves.reduce((s, m) => s + m.qty, 0));
+    st.daily_closing.filter(d => d.kode_barang === kodeBarang && (d.gudang || 'MAIN') === wh && d.tanggal >= fromDate).forEach(d => {
+        const dt = d.tanggal;
+        const opening = round3(baseSeed + moves.filter(m => m.dt < dt).reduce((s, m) => s + m.qty, 0));
+        const qIn = round3(moves.filter(m => m.dt === dt && m.kind === 'IN').reduce((s, m) => s + m.qty, 0));
+        const qOut = round3(moves.filter(m => m.dt === dt && m.kind === 'OUT').reduce((s, m) => s + (-m.qty), 0));
+        const qAdj = round3(moves.filter(m => m.dt === dt && m.kind === 'ADJ').reduce((s, m) => s + m.qty, 0));
+        d.opening = opening;
+        d.qty_in = qIn;
+        d.qty_out = qOut;
+        d.adj = qAdj;
+        d.expected = round3(opening + qIn - qOut + qAdj);
+    });
+}
+
 function offlineApiFallback(url, opts = {}) {
     setFieldModeBadge(true);
     const method = (opts.method || 'GET').toUpperCase();
@@ -2472,7 +2677,7 @@ function offlineApiFallback(url, opts = {}) {
             return { kode_barang: k, nama_barang: it.nama_barang || k, total_keluar: itemOutMap[k] };
         }).sort((a, b) => b.total_keluar - a.total_keluar).slice(0, 5);
         const deadStock = st.items.filter(i => i.aktif !== 0 && (i.total || 0) > 0 && !itemOutMap[i.kode_barang]);
-        const adjTotal = round3((st.daily_closing || []).reduce((a, x) => a + (Number(x.selisih) || 0), 0));
+        const adjTotal = round3((st.daily_closing || []).reduce((a, x) => a + (Number(x.selisih) || 0), 0) + (st.stock_opname || []).reduce((a, x) => a + (Number(x.selisih) || 0), 0));
         return {
             status: 'success',
             data: {
@@ -2513,21 +2718,65 @@ function offlineApiFallback(url, opts = {}) {
         }
         return { status: 'success', message: 'Tersimpan di memori lokal HP (Offline).', transaction_id: txId };
     }
+    if (p.startsWith('/api/inbound/') && method === 'PUT') {
+        const id = decodeURIComponent(p.split('/').pop());
+        const rec = (st.inbound || []).find(x => x.transaction_id === id);
+        if (!rec) throw new Error('Transaction not found.');
+        const oldWh = rec.gudang || 'MAIN';
+        const newWh = (b.gudang || oldWh).trim();
+        const oldQty = Number(rec.qty_masuk) || 0;
+        const newQty = Number(b.qty_masuk);
+        const newDt = b.tanggal_masuk || rec.tanggal_masuk;
+        if (!newDt) throw new Error('Invalid date.');
+        if (!(newQty > 0)) throw new Error('Quantity must be greater than 0.');
+        const it = st.items.find(x => x.kode_barang === rec.kode_barang);
+        if (it) {
+            it.balances = it.balances || {};
+            if (oldWh === newWh) {
+                const afterBal = round3((it.balances[oldWh] || 0) - oldQty + newQty);
+                if (afterBal < 0) throw new Error(`Cannot update: stock in ${oldWh} would become negative.`);
+                it.balances[oldWh] = afterBal;
+            } else {
+                const afterOld = round3((it.balances[oldWh] || 0) - oldQty);
+                if (afterOld < 0) throw new Error(`Cannot move: stock in ${oldWh} would become negative.`);
+                it.balances[oldWh] = afterOld;
+                it.balances[newWh] = round3((it.balances[newWh] || 0) + newQty);
+            }
+            it.total = round3(Object.values(it.balances).reduce((s, v) => s + (Number(v) || 0), 0));
+        }
+        const minDt = newDt < rec.tanggal_masuk ? newDt : rec.tanggal_masuk;
+        rec.tanggal_masuk = newDt;
+        rec.qty_masuk = round3(newQty);
+        rec.supplier = b.supplier !== undefined ? b.supplier : rec.supplier;
+        rec.surat_jalan = b.surat_jalan !== undefined ? b.surat_jalan : rec.surat_jalan;
+        rec.lokasi = b.lokasi !== undefined ? b.lokasi : rec.lokasi;
+        rec.gudang = newWh;
+        rec._synced = false;
+        recomputeOfflineClosingFor(st, rec.kode_barang, oldWh, minDt);
+        if (newWh !== oldWh) recomputeOfflineClosingFor(st, rec.kode_barang, newWh, minDt);
+        saveOfflineStore(st);
+        return { status: 'success', message: 'Inbound entry updated & all related stock/reports synchronized.' };
+    }
     if (p.startsWith('/api/inbound/') && method === 'DELETE') {
         const id = decodeURIComponent(p.split('/').pop());
+        const forceClosed = u.searchParams.get('force_closed') === '1';
         const idx = (st.inbound || []).findIndex(x => x.transaction_id === id);
         if (idx < 0) throw new Error('Transaction not found.');
         const rec = st.inbound[idx];
-        const locked = isOfflineDayLocked(st, rec.gudang || 'MAIN', rec.tanggal_masuk);
-        if (locked) throw new Error(`Cannot cancel transaction on locked day ${rec.tanggal_masuk}.`);
+        const wh = rec.gudang || 'MAIN';
+        const locked = isOfflineDayLocked(st, wh, rec.tanggal_masuk);
+        if (locked && !forceClosed) throw new Error(`Cannot cancel transaction on locked day ${rec.tanggal_masuk}.`);
         const it = st.items.find(x => x.kode_barang === rec.kode_barang);
         if (it && it.balances) {
-            it.balances[rec.gudang || 'MAIN'] = round3((it.balances[rec.gudang || 'MAIN'] || 0) - (Number(rec.qty_masuk) || 0));
-            it.total = round3((it.total || 0) - (Number(rec.qty_masuk) || 0));
+            const afterBal = round3((it.balances[wh] || 0) - (Number(rec.qty_masuk) || 0));
+            if (afterBal < 0) throw new Error(`Cannot delete: stock in ${wh} would become negative.`);
+            it.balances[wh] = afterBal;
+            it.total = round3(Object.values(it.balances).reduce((s, v) => s + (Number(v) || 0), 0));
         }
         st.inbound.splice(idx, 1);
+        recomputeOfflineClosingFor(st, rec.kode_barang, wh, rec.tanggal_masuk);
         saveOfflineStore(st);
-        return { status: 'success', message: 'Receiving transaction cancelled.' };
+        return { status: 'success', message: 'Receiving transaction deleted & stock synchronized.' };
     }
     if (p === '/api/inbound' && method === 'GET') {
         const rows = st.inbound.map(r => { const it = st.items.find(x => x.kode_barang === r.kode_barang) || {}; return Object.assign({}, r, { nama_barang: it.nama_barang || r.kode_barang, satuan: it.satuan || '' }); });
@@ -2558,22 +2807,193 @@ function offlineApiFallback(url, opts = {}) {
         if (tx) { tx.empty_returned = Number(b.empty_returned) || 0; saveOfflineStore(st); }
         return { status: 'success', message: 'Empty bags returned updated.' };
     }
-    if (p.startsWith('/api/outbound/') && method === 'DELETE') {
+    if (p.startsWith('/api/outbound/') && method === 'PUT') {
         const id = decodeURIComponent(p.split('/').pop());
-        const idx = (st.outbound || []).findIndex(x => x.transaction_id === id);
-        if (idx < 0) throw new Error('Transaction not found.');
-        const rec = st.outbound[idx];
-        const locked = isOfflineDayLocked(st, rec.gudang || 'MAIN', rec.tanggal_keluar);
-        if (locked) throw new Error(`Cannot cancel transaction on locked day ${rec.tanggal_keluar}.`);
+        const rec = (st.outbound || []).find(x => x.transaction_id === id);
+        if (!rec) throw new Error('Transaction not found.');
+        const oldWh = rec.gudang || 'MAIN';
+        const newWh = (b.gudang || oldWh).trim();
+        const oldQty = Number(rec.qty_keluar) || 0;
+        const newQty = Number(b.qty_keluar);
+        const newDt = b.tanggal_keluar || rec.tanggal_keluar;
+        if (!newDt) throw new Error('Invalid date.');
+        if (!(newQty > 0)) throw new Error('Quantity must be greater than 0.');
         const it = st.items.find(x => x.kode_barang === rec.kode_barang);
         if (it) {
             it.balances = it.balances || {};
-            it.balances[rec.gudang || 'MAIN'] = round3((it.balances[rec.gudang || 'MAIN'] || 0) + (Number(rec.qty_keluar) || 0));
-            it.total = round3((it.total || 0) + (Number(rec.qty_keluar) || 0));
+            if (oldWh === newWh) {
+                const afterBal = round3((it.balances[oldWh] || 0) + oldQty - newQty);
+                if (afterBal < 0) throw new Error(`Insufficient stock in ${oldWh} (max allowed: ${round3((it.balances[oldWh] || 0) + oldQty)}).`);
+                it.balances[oldWh] = afterBal;
+            } else {
+                const afterNew = round3((it.balances[newWh] || 0) - newQty);
+                if (afterNew < 0) throw new Error(`Insufficient stock in ${newWh} (available: ${(it.balances[newWh] || 0)}).`);
+                it.balances[oldWh] = round3((it.balances[oldWh] || 0) + oldQty);
+                it.balances[newWh] = afterNew;
+            }
+            it.total = round3(Object.values(it.balances).reduce((s, v) => s + (Number(v) || 0), 0));
+        }
+        const minDt = newDt < rec.tanggal_keluar ? newDt : rec.tanggal_keluar;
+        rec.tanggal_keluar = newDt;
+        rec.qty_keluar = round3(newQty);
+        rec.gudang = newWh;
+        rec.requisition_no = b.requisition_no !== undefined ? b.requisition_no : rec.requisition_no;
+        rec.phase = b.phase !== undefined ? b.phase : rec.phase;
+        rec.block = b.block !== undefined ? b.block : rec.block;
+        rec.alasan_keluar = b.alasan_keluar !== undefined ? b.alasan_keluar : rec.alasan_keluar;
+        rec._synced = false;
+        recomputeOfflineClosingFor(st, rec.kode_barang, oldWh, minDt);
+        if (newWh !== oldWh) recomputeOfflineClosingFor(st, rec.kode_barang, newWh, minDt);
+        saveOfflineStore(st);
+        return { status: 'success', message: 'Outbound/Issue entry updated & all related stock/logs synchronized.' };
+    }
+    if (p.startsWith('/api/outbound/') && method === 'DELETE') {
+        const id = decodeURIComponent(p.split('/').pop());
+        const forceClosed = u.searchParams.get('force_closed') === '1';
+        const idx = (st.outbound || []).findIndex(x => x.transaction_id === id);
+        if (idx < 0) throw new Error('Transaction not found.');
+        const rec = st.outbound[idx];
+        const wh = rec.gudang || 'MAIN';
+        const locked = isOfflineDayLocked(st, wh, rec.tanggal_keluar);
+        if (locked && !forceClosed) throw new Error(`Cannot cancel transaction on locked day ${rec.tanggal_keluar}.`);
+        const it = st.items.find(x => x.kode_barang === rec.kode_barang);
+        if (it) {
+            it.balances = it.balances || {};
+            it.balances[wh] = round3((it.balances[wh] || 0) + (Number(rec.qty_keluar) || 0));
+            it.total = round3(Object.values(it.balances).reduce((s, v) => s + (Number(v) || 0), 0));
         }
         st.outbound.splice(idx, 1);
+        recomputeOfflineClosingFor(st, rec.kode_barang, wh, rec.tanggal_keluar);
         saveOfflineStore(st);
-        return { status: 'success', message: 'Issue transaction cancelled.' };
+        return { status: 'success', message: 'Issue transaction deleted & stock synchronized.' };
+    }
+    if (p.startsWith('/api/opname/') && method === 'PUT') {
+        const id = decodeURIComponent(p.split('/').pop());
+        if (id.startsWith('CLADJ:')) {
+            const parts = id.split(':');
+            const oldWh = decodeURIComponent(parts[1] || 'MAIN');
+            const oldDt = parts[2] || '';
+            const code = decodeURIComponent(parts.slice(3).join(':') || '');
+            const rec = (st.daily_closing || []).find(r => r.kode_barang === code && (r.gudang || 'MAIN') === oldWh && r.tanggal === oldDt);
+            if (!rec) throw new Error('Closing adjustment record not found.');
+            const newSel = round3(Number(b.selisih));
+            if (isNaN(newSel)) throw new Error('Invalid adjustment quantity.');
+            const oldSel = round3(Number(rec.selisih) || 0);
+            const delta = round3(newSel - oldSel);
+            const it = st.items.find(x => x.kode_barang === code);
+            if (it) {
+                it.balances = it.balances || {};
+                const afterBal = round3((it.balances[oldWh] || 0) + delta);
+                if (afterBal < 0) throw new Error(`Cannot update: stock in ${oldWh} would become negative.`);
+                it.balances[oldWh] = afterBal;
+                it.total = round3(Object.values(it.balances).reduce((s, v) => s + (Number(v) || 0), 0));
+            }
+            rec.selisih = newSel;
+            rec.physical = round3((Number(rec.physical) || 0) + delta);
+            if (b.alasan !== undefined) rec.reason = b.alasan;
+            recomputeOfflineClosingFor(st, code, oldWh, oldDt);
+            saveOfflineStore(st);
+            return { status: 'success', message: 'Closing adjustment updated & stock synchronized.' };
+        }
+        const rec = (st.stock_opname || []).find(x => String(x.id) === String(id));
+        if (!rec) throw new Error('Adjustment record not found.');
+        const oldWh = rec.gudang || 'MAIN';
+        const newWh = (b.gudang || oldWh).trim();
+        const oldSel = round3(Number(rec.selisih) || 0);
+        const newSel = round3(Number(b.selisih));
+        if (isNaN(newSel)) throw new Error('Invalid adjustment quantity.');
+        const newDt = b.tanggal || rec.tanggal;
+        const it = st.items.find(x => x.kode_barang === rec.kode_barang);
+        if (it) {
+            it.balances = it.balances || {};
+            if (oldWh === newWh) {
+                const afterBal = round3((it.balances[oldWh] || 0) - oldSel + newSel);
+                if (afterBal < 0) throw new Error(`Cannot update: stock in ${oldWh} would become negative.`);
+                it.balances[oldWh] = afterBal;
+            } else {
+                const afterOld = round3((it.balances[oldWh] || 0) - oldSel);
+                const afterNew = round3((it.balances[newWh] || 0) + newSel);
+                if (afterOld < 0 || afterNew < 0) throw new Error('Cannot move: stock balance would become negative.');
+                it.balances[oldWh] = afterOld;
+                it.balances[newWh] = afterNew;
+            }
+            it.total = round3(Object.values(it.balances).reduce((s, v) => s + (Number(v) || 0), 0));
+        }
+        const minDt = newDt < rec.tanggal ? newDt : rec.tanggal;
+        rec.tanggal = newDt;
+        rec.gudang = newWh;
+        rec.selisih = newSel;
+        if (b.alasan !== undefined) { rec.alasan = b.alasan; rec.source = b.alasan || rec.source; }
+        recomputeOfflineClosingFor(st, rec.kode_barang, oldWh, minDt);
+        if (newWh !== oldWh) recomputeOfflineClosingFor(st, rec.kode_barang, newWh, minDt);
+        saveOfflineStore(st);
+        return { status: 'success', message: 'Adjustment updated & stock synchronized.' };
+    }
+    if (p.startsWith('/api/opname/') && method === 'DELETE') {
+        const id = decodeURIComponent(p.split('/').pop());
+        if (id.startsWith('CLADJ:')) {
+            const parts = id.split(':');
+            const wh = decodeURIComponent(parts[1] || 'MAIN');
+            const dt = parts[2] || '';
+            const code = decodeURIComponent(parts.slice(3).join(':') || '');
+            const rec = (st.daily_closing || []).find(r => r.kode_barang === code && (r.gudang || 'MAIN') === wh && r.tanggal === dt);
+            if (!rec) throw new Error('Closing adjustment record not found.');
+            const oldSel = round3(Number(rec.selisih) || 0);
+            const it = st.items.find(x => x.kode_barang === code);
+            if (it && it.balances) {
+                const afterBal = round3((it.balances[wh] || 0) - oldSel);
+                if (afterBal < 0) throw new Error(`Cannot delete: stock in ${wh} would become negative.`);
+                it.balances[wh] = afterBal;
+                it.total = round3(Object.values(it.balances).reduce((s, v) => s + (Number(v) || 0), 0));
+            }
+            rec.selisih = 0;
+            rec.physical = rec.expected;
+            rec.reason = '';
+            recomputeOfflineClosingFor(st, code, wh, dt);
+            saveOfflineStore(st);
+            return { status: 'success', message: 'Closing adjustment deleted & stock synchronized.' };
+        }
+        const idx = (st.stock_opname || []).findIndex(x => String(x.id) === String(id));
+        if (idx < 0) throw new Error('Adjustment record not found.');
+        const rec = st.stock_opname[idx];
+        const wh = rec.gudang || 'MAIN';
+        const oldSel = round3(Number(rec.selisih) || 0);
+        const it = st.items.find(x => x.kode_barang === rec.kode_barang);
+        if (it && it.balances) {
+            const afterBal = round3((it.balances[wh] || 0) - oldSel);
+            if (afterBal < 0) throw new Error(`Cannot delete: stock in ${wh} would become negative.`);
+            it.balances[wh] = afterBal;
+            it.total = round3(Object.values(it.balances).reduce((s, v) => s + (Number(v) || 0), 0));
+        }
+        st.stock_opname.splice(idx, 1);
+        recomputeOfflineClosingFor(st, rec.kode_barang, wh, rec.tanggal);
+        saveOfflineStore(st);
+        return { status: 'success', message: 'Adjustment deleted & stock synchronized.' };
+    }
+    if (p === '/api/bincard/opening' && method === 'PUT') {
+        const code = b.kode_barang;
+        const wh = b.gudang;
+        const targetOp = round3(Number(b.new_opening));
+        if (!code || !wh || wh === 'ALL') throw new Error('Specific warehouse is required to edit B/F Opening Balance.');
+        if (isNaN(targetOp) || targetOp < 0) throw new Error('Opening balance must be 0 or greater.');
+        const it = st.items.find(x => x.kode_barang === code);
+        if (!it) throw new Error('Item not found.');
+        it.balances = it.balances || {};
+        const curBal = round3(it.balances[wh] || 0);
+        let netRec = 0;
+        (st.inbound || []).filter(r => r.kode_barang === code && (r.gudang || 'MAIN') === wh && !String(r.transaction_id || '').startsWith('BF-')).forEach(r => { netRec += (Number(r.qty_masuk) || 0); });
+        (st.outbound || []).filter(r => r.kode_barang === code && (r.gudang || 'MAIN') === wh).forEach(r => { netRec -= (Number(r.qty_keluar) || 0); });
+        (st.stock_opname || []).filter(r => r.kode_barang === code && (r.gudang || 'MAIN') === wh).forEach(r => { netRec += (Number(r.selisih) || 0); });
+        (st.daily_closing || []).filter(r => r.kode_barang === code && (r.gudang || 'MAIN') === wh && Number(r.selisih) !== 0).forEach(r => { netRec += (Number(r.selisih) || 0); });
+        const curOpening = round3(curBal - netRec);
+        const delta = round3(targetOp - curOpening);
+        const afterBal = round3(curBal + delta);
+        if (afterBal < 0) throw new Error(`Cannot lower opening balance to ${targetOp}: final warehouse balance would become negative.`);
+        it.balances[wh] = afterBal;
+        it.total = round3(Object.values(it.balances).reduce((s, v) => s + (Number(v) || 0), 0));
+        recomputeOfflineClosingFor(st, code, wh, '2000-01-01');
+        saveOfflineStore(st);
+        return { status: 'success', message: `Opening Balance (B/F) updated to ${targetOp} ${it.satuan} & all related balances synchronized.` };
     }
     if (p === '/api/outbound' && method === 'GET') {
         const rows = st.outbound.map(r => { const it = st.items.find(x => x.kode_barang === r.kode_barang) || {}; return Object.assign({}, r, { nama_barang: it.nama_barang || r.kode_barang, satuan: it.satuan || '', kategori: it.kategori || 'OTHER' }); });
@@ -2666,9 +3086,9 @@ function offlineApiFallback(url, opts = {}) {
         if (!it) throw new Error('Item not found.');
         const curBal = wh === 'ALL' ? (it.total || 0) : ((it.balances && it.balances[wh]) || 0);
         const allMoves = [];
-        const inList = (st.inbound || []).filter(r => r.kode_barang === code && (wh === 'ALL' || r.gudang === wh)).slice().reverse();
+        const inList = (st.inbound || []).filter(r => r.kode_barang === code && (wh === 'ALL' || r.gudang === wh) && !String(r.transaction_id || '').startsWith('BF-')).slice().reverse();
         inList.forEach(r => {
-            allMoves.push({ tanggal: r.tanggal_masuk, gudang: r.gudang || 'MAIN', supplier: r.supplier || '', do_no: r.surat_jalan || '', requisition_no: '', kind: 'IN', qty: Number(r.qty_masuk) || 0, allocation: r.lokasi || '', pic: r.pic || '', seq: allMoves.length });
+            allMoves.push({ tanggal: r.tanggal_masuk, gudang: r.gudang || 'MAIN', supplier: r.supplier || '', do_no: r.surat_jalan || '', requisition_no: '', kind: 'IN', qty: Number(r.qty_masuk) || 0, allocation: r.lokasi || '', raw_phase: '', raw_block: '', raw_alasan: r.lokasi || '', pic: r.pic || '', ref: r.transaction_id, seq: allMoves.length });
         });
         const outList = (st.outbound || []).filter(r => r.kode_barang === code && (wh === 'ALL' || r.gudang === wh));
         const isSeedOrder = outList.length > 1 && String(outList[0].transaction_id || '').startsWith('SC-');
@@ -2676,10 +3096,14 @@ function offlineApiFallback(url, opts = {}) {
         orderedOut.forEach(r => {
             const loc = (r.phase && r.block) ? `${r.phase}/${r.block}` : (r.block || r.phase || '');
             const alloc = [loc, r.alasan_keluar, r.account_no].filter(Boolean).join(' · ');
-            allMoves.push({ tanggal: r.tanggal_keluar, gudang: r.gudang || 'MAIN', supplier: '', do_no: '', requisition_no: r.requisition_no || '', kind: 'OUT', qty: -(Number(r.qty_keluar) || 0), allocation: alloc, pic: r.pic || '', seq: allMoves.length });
+            allMoves.push({ tanggal: r.tanggal_keluar, gudang: r.gudang || 'MAIN', supplier: '', do_no: '', requisition_no: r.requisition_no || '', kind: 'OUT', qty: -(Number(r.qty_keluar) || 0), allocation: alloc, raw_phase: r.phase || '', raw_block: r.block || '', raw_alasan: r.alasan_keluar || '', pic: r.pic || '', ref: r.transaction_id, seq: allMoves.length });
+        });
+        (st.stock_opname || []).filter(r => r.kode_barang === code && (wh === 'ALL' || r.gudang === wh)).forEach(r => {
+            allMoves.push({ tanggal: r.tanggal, gudang: r.gudang || 'MAIN', supplier: '', do_no: '', requisition_no: 'OPNAME', kind: 'ADJ', qty: Number(r.selisih) || 0, allocation: r.alasan || r.source || 'Manual count', raw_phase: '', raw_block: '', raw_alasan: r.alasan || r.source || '', pic: r.pic || '', ref: String(r.id), seq: allMoves.length });
         });
         (st.daily_closing || []).filter(r => r.kode_barang === code && (wh === 'ALL' || r.gudang === wh) && Number(r.selisih) !== 0).forEach(r => {
-            allMoves.push({ tanggal: r.tanggal, gudang: r.gudang || 'MAIN', supplier: '', do_no: '', requisition_no: 'CLOSING', kind: 'ADJ', qty: Number(r.selisih) || 0, allocation: r.reason || 'Daily Closing Adj.', pic: r.pic || '', seq: allMoves.length });
+            const adjRef = `CLADJ:${encodeURIComponent(r.gudang || 'MAIN')}:${r.tanggal}:${encodeURIComponent(r.kode_barang)}`;
+            allMoves.push({ tanggal: r.tanggal, gudang: r.gudang || 'MAIN', supplier: '', do_no: '', requisition_no: 'CLOSING', kind: 'ADJ', qty: Number(r.selisih) || 0, allocation: r.reason || 'Daily Closing Adj.', raw_phase: '', raw_block: '', raw_alasan: r.reason || '', pic: r.pic || '', ref: adjRef, seq: allMoves.length });
         });
         allMoves.sort((a, b) => a.tanggal.localeCompare(b.tanggal) || (a.seq - b.seq));
         const netRecorded = allMoves.reduce((s, m) => s + m.qty, 0);
@@ -3301,6 +3725,10 @@ async function api(url, opts = {}) {
     let data = {};
     try { data = await res.json(); } catch (e) {}
 
+    if (res.status === 400 && data && data.status === 'error' && !String(data.message || '').includes('Offline')) {
+        throw new Error(data.message || 'Permintaan ditolak server.');
+    }
+
     if (!res.ok || (data && data.status === 'error' && String(data.message || '').includes('Offline'))) {
         return offlineApiFallback(url, opts);
     }
@@ -3697,7 +4125,7 @@ async function saveItem(e, force = false) {
         } else {
             r = await api('/api/stock', { method: 'POST', headers: JSONH, body: JSON.stringify(body) });
         }
-        toast(r.message); closeModal('itemModal'); await refreshBase(); renderStock();
+        toast(r.message); closeModal('itemModal'); await syncAllAfterStockEdit();
     } catch (err) { toast(err.message, true); }
 }
 
@@ -3720,8 +4148,7 @@ async function deleteStockItem(code, force = false) {
         }
         toast(r.message || 'Barang berhasil dihapus.');
         if (editingItem && editingItem.kode_barang === code) closeModal('itemModal');
-        await refreshBase();
-        renderStock();
+        await syncAllAfterStockEdit();
     } catch (err) {
         toast(err.message, true);
     }
@@ -4489,7 +4916,52 @@ function splitItemTitle(nama, kat) {
     return { main: raw, sub: CAT[kat] || '' };
 }
 
+let scEditMode = false;
+let _scLastRender = null;
+let _scEditOpeningCur = { code: '', wh: 'MAIN', opening: 0, curBal: 0 };
+
+function toggleScEditMode(force) {
+    scEditMode = typeof force === 'boolean' ? force : !scEditMode;
+    document.querySelectorAll('.sc-edit-toggle-btn').forEach(b => {
+        b.classList.toggle('active', scEditMode);
+        b.innerHTML = scEditMode ? '&#10003; Selesai Edit' : '&#9998; Edit Stock Card';
+    });
+    renderScEditBanners();
+    if (_scLastRender) {
+        renderPaperStockCard(_scLastRender.d, _scLastRender.whCode, _scLastRender.ids);
+    }
+}
+
+function renderScEditBanners() {
+    const code = currentScCode || ($('bc-item') && $('bc-item').value) || '';
+    const html = scEditMode ? `
+        <div style="display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;">
+            <span><strong>Mode Edit Aktif:</strong> Ketuk <b>&#9998;</b> di baris <b>B/F</b> atau baris transaksi untuk mengubah/hapus. Semua stok gudang, total stok, laporan, closing &amp; dashboard otomatis sinkron.</span>
+        </div>
+        <div style="display:flex;gap:.4rem;flex-wrap:wrap;">
+            <button type="button" class="btn btn-outline btn-sm" style="background:#fff;border-color:#d97706;color:#92400e;" onclick="openEditScOpeningModal()">&#9998; Edit B/F</button>
+            ${code ? `<button type="button" class="btn btn-outline btn-sm" style="background:#fff;border-color:#d97706;color:#92400e;" onclick="openScEditItemMaster()">&#9998; Edit Info Barang</button>` : ''}
+            <button type="button" class="btn btn-sm" style="background:#d97706;color:#fff;border:none;" onclick="toggleScEditMode(false)">Selesai</button>
+        </div>` : '';
+    ['sc-edit-banner', 'bc-edit-banner'].forEach(id => {
+        const el = $(id);
+        if (!el) return;
+        el.style.display = scEditMode ? 'flex' : 'none';
+        el.innerHTML = html;
+    });
+}
+
+function openScEditItemMaster() {
+    const code = currentScCode || ($('bc-item') && $('bc-item').value);
+    if (!code) return;
+    const idx = STOCK.findIndex(x => x.kode_barang === code);
+    if (idx < 0) return toast('Item tidak ditemukan.', true);
+    openItemModal(idx);
+}
+
 function renderPaperStockCard(d, whCode, ids) {
+    _scLastRender = { d, whCode, ids };
+    renderScEditBanners();
     const it = d.item;
     const _cleanItemName = (it.nama_barang || '').split('/')[0].trim();
     if ($(ids.item)) $(ids.item).innerText = _cleanItemName || it.nama_barang || '-';
@@ -4498,6 +4970,7 @@ function renderPaperStockCard(d, whCode, ids) {
     const uom = `${it.satuan}${it.conv_factor > 0 && it.conv_unit ? ' (@ ' + it.conv_factor + ' ' + it.conv_unit + ')' : ''}`;
     if ($(ids.unit)) $(ids.unit).innerText = uom;
 
+    const bfEditBtn = scEditMode ? `<button type="button" class="sc-row-edit-btn no-print" onclick="openEditScOpeningModal()" title="Edit Saldo Awal (B/F)">&#9998; B/F</button>` : '';
     let html = `<tr class="sc-bf-row">
         <td style="text-align:center;">-</td>
         <td style="text-align:center;font-weight:800;letter-spacing:.05em;">${esc(T('sc_bf'))}</td>
@@ -4506,16 +4979,20 @@ function renderPaperStockCard(d, whCode, ids) {
         <td style="text-align:right;">-</td>
         <td style="text-align:right;">-</td>
         <td class="sc-num" style="font-weight:800;text-align:right;">${fmt(d.opening)}</td>
-        <td style="text-align:center;">${esc(T('sc_bf_sub'))}</td>
+        <td style="text-align:center;">${scEditMode ? `<div style="display:flex;justify-content:space-between;align-items:center;gap:4px;"><span>${esc(T('sc_bf_sub'))}</span>${bfEditBtn}</div>` : esc(T('sc_bf_sub'))}</td>
     </tr>`;
 
-    (d.rows || []).forEach(r => {
+    (d.rows || []).forEach((r, idx) => {
         const isIn = r.kind === 'IN';
         const isOut = r.kind === 'OUT';
         const isAdj = r.kind === 'ADJ';
         const recVal = isIn ? fmt(r.qty) : (isAdj && r.qty > 0 ? '+' + fmt(r.qty) : '-');
         const issVal = isOut ? fmt(-r.qty) : (isAdj && r.qty < 0 ? fmt(-r.qty) : '-');
         const reqNo = isAdj ? 'ADJ-CLOSING' : (r.requisition_no || '-');
+        const allocText = esc(r.allocation || '-');
+        const allocCell = scEditMode
+            ? `<div style="display:flex;justify-content:space-between;align-items:center;gap:4px;"><span>${allocText}</span><button type="button" class="sc-row-edit-btn no-print" onclick="openEditScRowModal(${idx})" title="Edit baris ini">&#9998; Edit</button></div>`
+            : allocText;
         html += `<tr>
             <td class="sc-date" style="text-align:center;font-weight:600;">${esc(fmtScDate(r.tanggal))}</td>
             <td>${esc(r.supplier || '-')}</td>
@@ -4524,7 +5001,7 @@ function renderPaperStockCard(d, whCode, ids) {
             <td class="sc-num" style="color:#087f5b;font-weight:700;text-align:right;">${recVal}</td>
             <td class="sc-num" style="color:#c92a2a;font-weight:700;text-align:right;">${issVal}</td>
             <td class="sc-num" style="font-weight:800;text-align:right;">${fmt(r.balance)}</td>
-            <td class="sc-alloc">${esc(r.allocation || '-')}</td>
+            <td class="sc-alloc">${allocCell}</td>
         </tr>`;
     });
 
@@ -4535,6 +5012,270 @@ function renderPaperStockCard(d, whCode, ids) {
     }
 
     if ($(ids.body)) $(ids.body).innerHTML = html;
+}
+
+async function openEditScOpeningModal() {
+    if (!_scLastRender || !_scLastRender.d || !_scLastRender.d.item) return;
+    const it = _scLastRender.d.item;
+    const whs = activeWH();
+    if (!whs.length) return toast('Tidak ada gudang aktif.', true);
+    $('sce-mode').value = 'OPENING';
+    $('sce-ref').value = it.kode_barang;
+    $('sce-title').innerText = 'Edit Saldo Awal (B/F) Stock Card';
+    $('sce-subtitle').innerText = `${it.nama_barang} (${it.kode_barang}) • Satuan: ${it.satuan}`;
+    $('sce-sec-opening').style.display = 'block';
+    $('sce-sec-tx').style.display = 'none';
+    $('sce-del-btn').style.display = 'none';
+
+    const prefWh = (_scLastRender.whCode && _scLastRender.whCode !== 'ALL') ? _scLastRender.whCode : whs[0].code;
+    $('sce-open-wh').innerHTML = whs.map(w => `<option value="${esc(w.code)}">${esc(w.name)} (${esc(w.code)})</option>`).join('');
+    $('sce-open-wh').value = prefWh;
+    $('sce-open-note').value = '';
+    $('sce-open-val').step = stepFor(it.satuan);
+    $('sce-open-new-lbl').innerText = `Saldo Awal (B/F) Baru (${it.satuan}) *`;
+
+    openModal('scEditRowModal');
+    await onScEditOpeningWhChange();
+}
+
+async function onScEditOpeningWhChange() {
+    const code = $('sce-ref').value;
+    const wh = $('sce-open-wh').value;
+    const it = itemOf(code) || (_scLastRender && _scLastRender.d && _scLastRender.d.item);
+    try {
+        const d = (await api(`/api/bincard?kode_barang=${encodeURIComponent(code)}&gudang=${encodeURIComponent(wh)}`)).data;
+        const curBal = it && it.balances ? (it.balances[wh] || 0) : d.closing;
+        _scEditOpeningCur = { code, wh, opening: Number(d.opening) || 0, curBal: Number(curBal) || 0 };
+        $('sce-open-cur').value = `${fmt(d.opening)} ${it ? it.satuan : ''}`;
+        $('sce-open-val').value = d.opening;
+        $('sce-old-wh').value = wh;
+        $('sce-old-qty').value = d.opening;
+        updateScEditPreview();
+    } catch (e) { toast(e.message, true); }
+}
+
+function openEditScRowModal(idx) {
+    if (!_scLastRender || !_scLastRender.d || !_scLastRender.d.rows) return;
+    const r = _scLastRender.d.rows[idx];
+    const it = _scLastRender.d.item;
+    if (!r || !it) return;
+    if (!r.ref) return toast('ID transaksi tidak ditemukan untuk baris ini.', true);
+
+    $('sce-mode').value = r.kind;
+    $('sce-ref').value = r.ref;
+    $('sce-old-wh').value = r.gudang || 'MAIN';
+    $('sce-sec-opening').style.display = 'none';
+    $('sce-sec-tx').style.display = 'block';
+    $('sce-del-btn').style.display = 'inline-flex';
+
+    fillSelects();
+    $('sce-tx-date').value = r.tanggal || today();
+    $('sce-tx-wh').value = r.gudang || 'MAIN';
+    $('sce-tx-qty').step = stepFor(it.satuan);
+
+    $('sce-tx-in-fields').style.display = 'none';
+    $('sce-tx-out-fields').style.display = 'none';
+    $('sce-tx-adj-fields').style.display = 'none';
+
+    if (r.kind === 'IN') {
+        const q = Number(r.qty) || 0;
+        $('sce-old-qty').value = q;
+        $('sce-title').innerText = 'Edit Baris Barang Masuk (IN)';
+        $('sce-tx-qty-lbl').innerText = `Qty Masuk (${it.satuan}) *`;
+        $('sce-tx-qty').min = '0.001';
+        $('sce-tx-qty').value = q;
+        $('sce-in-supp').value = r.supplier || '';
+        $('sce-in-do').value = r.do_no || '';
+        $('sce-in-loc').value = r.raw_alasan !== undefined ? r.raw_alasan : (r.allocation || '');
+        $('sce-tx-in-fields').style.display = 'grid';
+    } else if (r.kind === 'OUT') {
+        const q = Math.abs(Number(r.qty) || 0);
+        $('sce-old-qty').value = q;
+        $('sce-title').innerText = 'Edit Baris Barang Keluar (OUT)';
+        $('sce-tx-qty-lbl').innerText = `Qty Keluar (${it.satuan}) *`;
+        $('sce-tx-qty').min = '0.001';
+        $('sce-tx-qty').value = q;
+        $('sce-out-req').value = r.requisition_no || '';
+        $('sce-out-phase').value = r.raw_phase || '';
+        $('sce-out-block').value = r.raw_block || '';
+        $('sce-out-alasan').value = r.raw_alasan || '';
+        $('sce-tx-out-fields').style.display = 'grid';
+    } else {
+        const q = Number(r.qty) || 0;
+        $('sce-old-qty').value = q;
+        $('sce-title').innerText = 'Edit Adjustment (ADJ)';
+        $('sce-tx-qty-lbl').innerText = `Selisih Adjustment (+/- ${it.satuan}) *`;
+        $('sce-tx-qty').removeAttribute('min');
+        $('sce-tx-qty').value = q;
+        $('sce-adj-reason').value = r.raw_alasan || r.allocation || '';
+        $('sce-tx-adj-fields').style.display = 'grid';
+    }
+    $('sce-subtitle').innerText = `${it.nama_barang} (${it.kode_barang}) • Satuan: ${it.satuan}`;
+    openModal('scEditRowModal');
+    updateScEditPreview();
+}
+
+function updateScEditPreview() {
+    const mode = $('sce-mode').value;
+    const code = (mode === 'OPENING') ? $('sce-ref').value : (_scLastRender && _scLastRender.d && _scLastRender.d.item.kode_barang);
+    const it = itemOf(code) || (_scLastRender && _scLastRender.d && _scLastRender.d.item);
+    const box = $('sce-impact-box');
+    if (!it || !box) return;
+    const u = it.satuan || '';
+    const bals = it.balances || {};
+    const curTotal = Number(it.total) || 0;
+
+    if (mode === 'OPENING') {
+        const wh = $('sce-open-wh').value;
+        const newOp = parseFloat($('sce-open-val').value);
+        if (isNaN(newOp) || newOp < 0) {
+            box.className = 'sce-impact-box warn';
+            box.innerText = 'Saldo Awal (B/F) harus >= 0.';
+            return;
+        }
+        const delta = round3(newOp - _scEditOpeningCur.opening);
+        const oldWhBal = round3(bals[wh] || 0);
+        const newWhBal = round3(oldWhBal + delta);
+        const newTotal = round3(curTotal + delta);
+        box.className = newWhBal < 0 ? 'sce-impact-box warn' : 'sce-impact-box';
+        box.innerHTML = `<strong>Dampak Otomatis (${esc(whName(wh))}):</strong><br>
+            B/F: <b>${fmt(_scEditOpeningCur.opening)}</b> &rarr; <b>${fmt(newOp)} ${esc(u)}</b> (${delta >= 0 ? '+' : ''}${fmt(delta)})<br>
+            Stok ${esc(wh)}: <b>${fmt(oldWhBal)}</b> &rarr; <b>${fmt(newWhBal)} ${esc(u)}</b> &bull; Total Semua Gudang: <b>${fmt(curTotal)}</b> &rarr; <b>${fmt(newTotal)} ${esc(u)}</b>
+            ${newWhBal < 0 ? '<br><b>Stok gudang akan minus — tidak valid!</b>' : ''}`;
+        return;
+    }
+
+    const oldWh = $('sce-old-wh').value || 'MAIN';
+    const newWh = $('sce-tx-wh').value || oldWh;
+    const oldQty = Number($('sce-old-qty').value) || 0;
+    const newQty = parseFloat($('sce-tx-qty').value);
+    if (isNaN(newQty) || ((mode === 'IN' || mode === 'OUT') && newQty <= 0)) {
+        box.className = 'sce-impact-box warn';
+        box.innerText = 'Masukkan jumlah Qty yang valid (> 0).';
+        return;
+    }
+
+    const oldSign = mode === 'OUT' ? -oldQty : oldQty;
+    const newSign = mode === 'OUT' ? -newQty : newQty;
+    const oldWhBefore = round3(bals[oldWh] || 0);
+    const newWhBefore = round3(bals[newWh] || 0);
+
+    let warnMsg = '';
+    let summary = '';
+    if (oldWh === newWh) {
+        const afterWh = round3(oldWhBefore - oldSign + newSign);
+        const afterTot = round3(curTotal - oldSign + newSign);
+        if (afterWh < 0) warnMsg = '<br><b>Stok gudang akan minus!</b>';
+        summary = `<strong>Dampak Otomatis (${esc(whName(newWh))}):</strong><br>
+            Stok ${esc(newWh)}: <b>${fmt(oldWhBefore)}</b> &rarr; <b>${fmt(afterWh)} ${esc(u)}</b> &bull; Total Semua Gudang: <b>${fmt(curTotal)}</b> &rarr; <b>${fmt(afterTot)} ${esc(u)}</b>${warnMsg}`;
+    } else {
+        const afterOld = round3(oldWhBefore - oldSign);
+        const afterNew = round3(newWhBefore + newSign);
+        const afterTot = round3(curTotal - oldSign + newSign);
+        if (afterOld < 0 || afterNew < 0) warnMsg = '<br><b>Stok salah satu gudang akan minus!</b>';
+        summary = `<strong>Pindah Gudang &amp; Sinkronisasi:</strong><br>
+            Stok ${esc(oldWh)}: <b>${fmt(oldWhBefore)}</b> &rarr; <b>${fmt(afterOld)} ${esc(u)}</b><br>
+            Stok ${esc(newWh)}: <b>${fmt(newWhBefore)}</b> &rarr; <b>${fmt(afterNew)} ${esc(u)}</b><br>
+            Total Semua Gudang: <b>${fmt(curTotal)}</b> &rarr; <b>${fmt(afterTot)} ${esc(u)}</b>${warnMsg}`;
+    }
+    box.className = warnMsg ? 'sce-impact-box warn' : 'sce-impact-box';
+    box.innerHTML = summary;
+}
+
+async function syncAllAfterStockEdit() {
+    await refreshBase();
+    renderStock();
+    if ($('stockCardModal') && $('stockCardModal').classList.contains('open') && currentScCode) {
+        await loadStockCardModal();
+    }
+    await Promise.allSettled([
+        loadBinCard(),
+        loadReceiving(),
+        loadIssuing(),
+        loadFertLog(),
+        fetchStats(),
+        ($('tab-closing') && $('tab-closing').classList.contains('active')) ? loadClosing() : Promise.resolve()
+    ]);
+}
+
+async function saveScEditRow(e) {
+    e.preventDefault();
+    const mode = $('sce-mode').value;
+    const ref = $('sce-ref').value;
+    try {
+        let res;
+        if (mode === 'OPENING') {
+            const wh = $('sce-open-wh').value;
+            const newOp = parseFloat($('sce-open-val').value);
+            res = await api('/api/bincard/opening', {
+                method: 'PUT',
+                headers: JSONH,
+                body: JSON.stringify({ kode_barang: ref, gudang: wh, new_opening: newOp, notes: $('sce-open-note').value })
+            });
+        } else if (mode === 'IN') {
+            res = await api('/api/inbound/' + encodeURIComponent(ref), {
+                method: 'PUT',
+                headers: JSONH,
+                body: JSON.stringify({
+                    tanggal_masuk: $('sce-tx-date').value,
+                    gudang: $('sce-tx-wh').value,
+                    qty_masuk: parseFloat($('sce-tx-qty').value),
+                    supplier: $('sce-in-supp').value,
+                    surat_jalan: $('sce-in-do').value,
+                    lokasi: $('sce-in-loc').value
+                })
+            });
+        } else if (mode === 'OUT') {
+            res = await api('/api/outbound/' + encodeURIComponent(ref), {
+                method: 'PUT',
+                headers: JSONH,
+                body: JSON.stringify({
+                    tanggal_keluar: $('sce-tx-date').value,
+                    gudang: $('sce-tx-wh').value,
+                    qty_keluar: parseFloat($('sce-tx-qty').value),
+                    requisition_no: $('sce-out-req').value,
+                    phase: $('sce-out-phase').value,
+                    block: $('sce-out-block').value,
+                    alasan_keluar: $('sce-out-alasan').value
+                })
+            });
+        } else {
+            res = await api('/api/opname/' + encodeURIComponent(ref), {
+                method: 'PUT',
+                headers: JSONH,
+                body: JSON.stringify({
+                    tanggal: $('sce-tx-date').value,
+                    gudang: $('sce-tx-wh').value,
+                    selisih: parseFloat($('sce-tx-qty').value),
+                    alasan: $('sce-adj-reason').value
+                })
+            });
+        }
+        toast(res.message || 'Stock Card diperbarui & semua data tersinkron!');
+        closeModal('scEditRowModal');
+        await syncAllAfterStockEdit();
+    } catch (err) {
+        toast(err.message, true);
+    }
+}
+
+async function deleteScEditRow() {
+    const mode = $('sce-mode').value;
+    const ref = $('sce-ref').value;
+    if (!ref || mode === 'OPENING') return;
+    if (!confirm('Hapus baris ini dari Stock Card?\n\nStok gudang, total stok, laporan, closing & dashboard akan otomatis dihitung ulang.')) return;
+    try {
+        let url = '';
+        if (mode === 'IN') url = `/api/inbound/${encodeURIComponent(ref)}?force_closed=1`;
+        else if (mode === 'OUT') url = `/api/outbound/${encodeURIComponent(ref)}?force_closed=1`;
+        else url = `/api/opname/${encodeURIComponent(ref)}`;
+        const res = await api(url, { method: 'DELETE' });
+        toast(res.message || 'Baris dihapus & semua data tersinkron!');
+        closeModal('scEditRowModal');
+        await syncAllAfterStockEdit();
+    } catch (err) {
+        toast(err.message, true);
+    }
 }
 
 function initBinCard() {
@@ -5562,7 +6303,7 @@ async function installPWA() {
     deferredPrompt = null;
 }
 window.addEventListener('appinstalled', () => { $('pwa-install-btn').style.display = 'none'; $('pwa-login-install').style.display = 'none'; toast('GudangPro installed!'); });
-const APP_VERSION = '6.0.0';
+const APP_VERSION = '6.1.0';
 try {
     const prevVer = localStorage.getItem('gudangpro_app_ver');
     if (prevVer && prevVer !== APP_VERSION) {
@@ -5585,7 +6326,7 @@ if ('serviceWorker' in navigator && window.location.protocol !== 'file:' && !win
         navigator.serviceWorker.addEventListener('controllerchange', () => {
             if (!_swRefreshing) { _swRefreshing = true; window.location.reload(); }
         });
-        window.addEventListener('load', () => { navigator.serviceWorker.register('/sw.js?v=6.0').then(reg => { reg.update().catch(() => {}); }).catch(err => console.warn('SW registration failed:', err)); });
+        window.addEventListener('load', () => { navigator.serviceWorker.register('/sw.js?v=6.1').then(reg => { reg.update().catch(() => {}); }).catch(err => console.warn('SW registration failed:', err)); });
     }
 }
 window.addEventListener('keydown', (e) => {
